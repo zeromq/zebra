@@ -1,0 +1,102 @@
+The following ABNF grammar defines the The ZWebRap Protocol:
+
+    ZWEBRAP = open ( traffic / heartbeat ) close
+
+    open = C:CONNECTION-OPEN ( S:OK / S:ERROR )
+
+    traffic = xrap-traffic
+
+    xrap-traffic    = C:XRAP-SEND ( S:OK / S:FAIL / S:ERROR )
+                    / C:XRAP-OFFER
+                    / C:XRAP-DELIVER S:XRAP-DELIVER
+
+    heartbeat = C:CONNECTION-PING ( S:CONNECTION-PONG / S:ERROR )
+
+    close = C:CONNECTION-CLOSE ( S:OK / S:ERROR )
+
+    ;  Client opens a connection to the server. Client can ask for a mailbox 
+    ;  by specifying an address. If mailbox does not exist, server creates   
+    ;  it. Server replies with OK or ERROR.                                  
+
+    CONNECTION-OPEN = signature %d1 protocol version address
+    signature       = %xAA %xA9             ; two octets
+    protocol        = string                ; Constant "MALAMUTE"
+    version         = number-2              ; Protocol version 1
+    address         = string                ; Client address
+
+    ;  Client pings the server. Server replies with CONNECTION-PONG, or ERROR
+    ;  with status COMMAND-INVALID if the client is not recognized (e.g.     
+    ;  after a server restart or network recovery).                          
+
+    CONNECTION-PING = signature %d2
+
+    ;  Server replies to a client connection ping.                           
+
+    CONNECTION-PONG = signature %d3
+
+    ;  Client closes the connection. This is polite though not mandatory.    
+    ;  Server will reply with OK or ERROR.                                   
+
+    CONNECTION-CLOSE = signature %d4
+
+    ;  Client sends a xrap request to a xrap queue. Server replies with OK   
+    ;  when queued, or ERROR if that failed. If the tracker is not empty, the
+    ;  client can expect a CONFIRM at some later time. Confirmations are     
+    ;  asynchronous. If the message cannot be delivered within the specified 
+    ;  timeout (zero means infinite), the server discards it and returns     
+    ;  CONFIRM with a TIMEOUT-EXPIRED status.                                
+
+    XRAP-SEND       = signature %d5 timeout content
+    timeout         = number-4              ; Timeout, msecs, or zero
+    content         = msg                   ; Message body frames
+
+    ;  Worker client offers to handle request for a given route and method.  
+    ;  An empty route is not allowed neither is an empty method. A worker can
+    ;  offer many different services at once. Server replies with OK or      
+    ;  ERROR.                                                                
+
+    XRAP-OFFER      = signature %d6 route method
+    route           = string                ; Service address
+    method          = string                ; Match message subjects
+
+    ;  Either server delivers a xrap request to a worker client or worker    
+    ;  client responds with xrap response to previous request.               
+
+    XRAP-DELIVER    = signature %d7 sender content
+    sender          = uuid                  ; Sending client address
+    content         = msg                   ; Message body frames
+
+    ;  Server replies with success status. Actual status code provides more  
+    ;  information. An OK always has a 2xx status code.                      
+
+    OK              = signature %d8 status
+    status          = status                ; 
+    status          = code reason
+    code            = number-2              ; 3-digit status code
+    reason          = string                ; Printable explanation
+
+    ;  Server replies with failure status. Actual status code provides more  
+    ;  information. An FAIL always has 3xx or 4xx status code.               
+
+    FAIL            = signature %d9 status
+    status          = status                ; 
+
+    ;  Server replies with failure status. Actual status code provides more  
+    ;  information. An ERROR always has a 5xx status code.                   
+
+    ERROR           = signature %d10 status
+    status          = status                ; 
+
+    ; A uuid is 16-octet binary content 
+    uuid            = 16OCTET
+
+    ; A msg is zero or more distinct frames
+    msg             = *frame
+
+    ; Strings are always length + text contents
+    string          = number-1 *VCHAR
+
+    ; Numbers are unsigned integers in network byte order
+    number-1        = 1OCTET
+    number-2        = 2OCTET
+    number-4        = 4OCTET

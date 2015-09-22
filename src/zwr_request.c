@@ -193,7 +193,7 @@ zwr_request_print (zwr_request_t *self)
     }
     zlistx_destroy (&header_keys);
     printf ("  }\n");
-    //  Print query arguments, if any arguments, if any
+    //  Print query arguments, if any
     if (zhashx_size (self->query)) {
         zlistx_t *query_keys = zhashx_keys (self->query);
         zlistx_sort (query_keys);

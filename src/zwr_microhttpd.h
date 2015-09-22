@@ -11,8 +11,8 @@
     =========================================================================
 */
 
-#ifndef ZWR_MICROHTTPD_H_INCLUDED
-#define ZWR_MICROHTTPD_H_INCLUDED
+#ifndef ZWR_MICROHTTPDD_H_INCLUDED
+#define ZWR_MICROHTTPDD_H_INCLUDED
 
 #ifdef __cplusplus
 extern "C" {
@@ -23,33 +23,49 @@ extern "C" {
 typedef struct _zwr_microhttpd_t zwr_microhttpd_t;
 
 //  @interface
-// Callback function for zwr_microhttpd http handler method
-typedef zwr_response_t * (zwr_microhttpd_handler_fn) (zwr_request_t *request);
-
-//  Create a new zwr_microhttpd
-ZWEBRAP_EXPORT zwr_microhttpd_t *
-    zwr_microhttpd_new (zwr_microhttpd_handler_fn *get_handler,
-                        zwr_microhttpd_handler_fn *post_handler,
-                        zwr_microhttpd_handler_fn *put_handler,
-                        zwr_microhttpd_handler_fn *delete_handler);
-
-//  Destroy the zwr_microhttpd
+//  Create new zwr_microhttpd actor instance.
+//  @TODO: Describe the purpose of this actor!
+//
+//      zactor_t *microhttpd = zactor_new (zwr_microhttpd, NULL);
+//
+//  Destroy zwr_microhttpd instance.
+//
+//      zactor_destroy (&microhttpd);
+//
+//  Enable verbose logging of commands and activity:
+//
+//      zstr_send (microhttpd, "VERBOSE");
+//      zsock_wait (microhttpd);
+//
+//  Start zwr_microhttpd actor.
+//
+//      zstr_sendx (microhttpd, "START", NULL);
+//      zsock_wait (microhttpd);
+//
+//  Stop zwr_microhttpd actor.
+//
+//      zstr_sendx (microhttpd, "STOP", NULL);
+//      zsock_wait (microhttpd);
+//
+//  Attach the endpoint socket to endpoints, see zsock_attach ().
+//
+//      zstr_sendx (microhttpd, "ENDPOINT", endpoints, NULL);
+//      zsock_wait (microhttpd);
+//
+//  Set the port on which the http server shall listen for requests.
+//  The default port is 8888.
+//  Note: The port is passed as string!
+//  Note: If the server is already started, the server will be stopped
+//        and restarted on the new port.
+//
+//      zstr_sendx (microhttpd, "PORT", "8888", NULL);
+//      zsock_wait (microhttpd);
+//
+//  This is the zwr_microhttpd constructor as a zactor_fn;
 ZWEBRAP_EXPORT void
-    zwr_microhttpd_destroy (zwr_microhttpd_t **self_p);
+    zwr_microhttpd_actor (zsock_t *pipe, void *args);
 
-//  Start the zwr_microhttpd server. Returns 0 if successful otherwise -1.
-ZWEBRAP_EXPORT int
-    zwr_microhttpd_start (zwr_microhttpd_t *self);
-
-//  Stops the zwr_microhttpd server. Returns 0 if successful otherwise -1.
-ZWEBRAP_EXPORT int
-    zwr_microhttpd_stop (zwr_microhttpd_t *self);
-
-//  Print properties of object
-ZWEBRAP_EXPORT void
-    zwr_microhttpd_print (zwr_microhttpd_t *self);
-
-//  Self test of this class
+//  Self test of this actor
 ZWEBRAP_EXPORT void
     zwr_microhttpd_test (bool verbose);
 //  @end

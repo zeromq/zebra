@@ -121,9 +121,10 @@ bool
     is_xrap_msg (zmsg_t *msg_p);
 
 //  Parse a xrap_msg from zmsg_t. Returns a new object, or NULL if
-//  the message could not be parsed, or was NULL.
+//  the message could not be parsed, or was NULL. Destroys msg and 
+//  nullifies the msg reference.
 xrap_msg_t *
-    xrap_msg_decode (zmsg_t *msg_p);
+    xrap_msg_decode (zmsg_t **msg_p);
 
 //  Encode xrap_msg into zmsg and destroy it. Returns a newly created
 //  object or NULL if error. Use when not in control of sending the message.

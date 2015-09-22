@@ -278,11 +278,14 @@ is_xrap_msg (zmsg_t *msg)
 
 //  --------------------------------------------------------------------------
 //  Parse a xrap_msg from zmsg_t. Returns a new object, or NULL if
-//  the message could not be parsed, or was NULL.  
+//  the message could not be parsed, or was NULL. Destroys msg and 
+//  nullifies the msg reference.
 
 xrap_msg_t *
-xrap_msg_decode (zmsg_t *msg)
+xrap_msg_decode (zmsg_t **msg_p)
 {
+    assert (msg_p);
+    zmsg_t *msg = *msg_p;
     if (msg == NULL)
         return NULL;
         
@@ -370,12 +373,16 @@ xrap_msg_decode (zmsg_t *msg)
             goto malformed;
     }
     //  Successful return
+    zframe_destroy (&frame);
+    zmsg_destroy (msg_p);
     return self;
 
     //  Error returns
     malformed:
         zsys_error ("malformed message '%d'\n", self->id);
     empty:
+        zframe_destroy (&frame);
+        zmsg_destroy (msg_p);
         xrap_msg_destroy (&self);
         return (NULL);
 }
@@ -723,8 +730,7 @@ xrap_msg_recv (void *input)
         if (!routing_id || !zmsg_next (msg))
             return NULL;        //  Malformed or empty
     }
-    xrap_msg_t *xrap_msg = xrap_msg_decode (msg);
-    zmsg_destroy (&msg);
+    xrap_msg_t *xrap_msg = xrap_msg_decode (&msg);
     if (xrap_msg && zsock_type (zsock_resolve (input)) == ZMQ_ROUTER)
         xrap_msg->routing_id = routing_id;
 
@@ -751,8 +757,7 @@ xrap_msg_recv_nowait (void *input)
         if (!routing_id || !zmsg_next (msg))
             return NULL;        //  Malformed or empty
     }
-    xrap_msg_t *xrap_msg = xrap_msg_decode (msg);
-    zmsg_destroy (&msg);
+    xrap_msg_t *xrap_msg = xrap_msg_decode (&msg);
     if (xrap_msg && zsock_type (zsock_resolve (input)) == ZMQ_ROUTER)
         xrap_msg->routing_id = routing_id;
 

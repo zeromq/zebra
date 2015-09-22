@@ -57,7 +57,8 @@ zwr_connection_destroy (zwr_connection_t **self_p)
 
         //  Free class properties
         zwr_request_destroy (&self->request);
-        zwr_response_destroy (&self->response);
+        if (self->response)
+            zwr_response_destroy (&self->response);
 
         //  Free object itself
         free (self);

@@ -32,13 +32,15 @@ main (int argc, char *argv [])
 
     printf ("Running zwebrap selftests...\n");
 
-    ztrie_test (verbose);
     zwr_request_test (verbose);
     zwr_response_test (verbose);
     zwr_connection_test (verbose);
-    zwr_dispatcher_test (verbose);
-    zwr_microhttpd_test (verbose);
+    xrap_msg_test (verbose);
+    xrap_traffic_test (verbose);
     zwr_server_test (verbose);
+    zwr_client_test (verbose);
+    zwr_microhttpd_test (verbose);
+    zwr_dispatcher_test (verbose);
 
     printf ("Tests passed OK\n");
     return 0;

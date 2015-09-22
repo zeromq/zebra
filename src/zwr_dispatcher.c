@@ -1,5 +1,5 @@
 /*  =========================================================================
-    zwr_dispatcher - URL routing and dispating.
+    zwr_dispatcher - run a steerable dispatcher in the background
 
     Copyright (c) the Contributors as noted in the AUTHORS file.
     This file is part of CZMQ, the high-level C binding for 0MQ:
@@ -13,78 +13,401 @@
 
 /*
 @header
-    zwr_dispatcher - URL routing and dispating.
+    A zwr_dispatcher actor forwards messages based on a tokenizable route, for
+    example a URL, URI or URN. A message can be forwarded to a handler that
+    must register itself under a route.
 @discuss
+    Dispatching is a one way process, there is currently no support for a
+    client to get a answer to a dispatched message.
 @end
 */
 
-#include "../include/zwebrap.h"
 #include "zwebrap_classes.h"
 
-//  Structure of our class
+//  Structure of our actor
 
 struct _zwr_dispatcher_t {
-    //  TODO: Declare properties
-    int dummy;
+    zsock_t *pipe;              //  Actor command pipe
+    zsock_t *endpoint;          //  Dispatching endpoint
+    bool terminated;            //  Did caller ask us to quit?
+    zpoller_t *poller;          //  Socket poller
+    bool verbose;               //  Verbose logging enabled?
+    //  Declare properties
+    ztrie_t *router;
 };
 
+//  Internal helper functions
+
+static void
+s_signal_caller (zwr_dispatcher_t *self, zframe_t *caller_id,  int code)
+{
+    zmsg_t *signal = zmsg_new_signal (code);
+    zmsg_push (signal, caller_id);
+    zmsg_send (&signal, self->endpoint);
+}
+
+static void
+s_destroy_ztrie_data (void **data_p)
+{
+    assert (data_p);
+    zframe_destroy ((zframe_t **) data_p);
+}
 
 //  --------------------------------------------------------------------------
 //  Create a new zwr_dispatcher.
 
-zwr_dispatcher_t *
-zwr_dispatcher_new ()
+static zwr_dispatcher_t *
+zwr_dispatcher_new (zsock_t *pipe, void *args)
 {
     zwr_dispatcher_t *self = (zwr_dispatcher_t *) zmalloc (sizeof (zwr_dispatcher_t));
     assert (self);
 
-    //  TODO: Initialize properties
+    self->pipe = pipe;
+    self->terminated = false;
+    self->poller = zpoller_new (self->pipe, NULL);
+    self->verbose = 0;
+
+    //  Initialize properties
+    if (args)
+        self->router = ztrie_new (*((char *) args));
+    else
+        self->router = ztrie_new ('/');
 
     return self;
 }
 
+
 //  --------------------------------------------------------------------------
 //  Destroy the zwr_dispatcher.
 
-void
+static void
 zwr_dispatcher_destroy (zwr_dispatcher_t **self_p)
 {
     assert (self_p);
     if (*self_p) {
         zwr_dispatcher_t *self = *self_p;
 
-        //  TODO: Free class properties
+        //  Free actor properties
+        ztrie_destroy (&self->router);
+        if (self->endpoint)
+            zsock_destroy (&self->endpoint);
 
         //  Free object itself
+        zpoller_destroy (&self->poller);
         free (self);
         *self_p = NULL;
     }
 }
 
 
-//  --------------------------------------------------------------------------
-//  Print properties of the zwr_dispatcher object.
+//  Create and attach the dispatching endpoint
 
-void
-zwr_dispatcher_print (zwr_dispatcher_t *self)
+static int
+s_configure_endpoint (zwr_dispatcher_t *self, zmsg_t *request)
 {
-    assert (self);
+    int ret = -1;
+    char *endpoints = zmsg_popstr (request);
+    assert (endpoints);
+    if (self->endpoint)
+        zsys_warning ("zwr_dispatcher: [ENDPOINT] Endpoint already attached");
+    else {
+        self->endpoint = zsock_new (ZMQ_ROUTER);
+        if (self->endpoint) {
+            if (zsock_attach (self->endpoint, endpoints, true)) {
+                zsys_error ("zwr_dispatcher: [ENDPOINT] Invalid endpoint '%s'", endpoints);
+                zsock_destroy (&self->endpoint);
+            }
+            else {
+                if (self->verbose)
+                    zsys_info ("zwr_dispatcher: [ENDPOINT] Attach endpoint to '%s'", endpoints);
+                zpoller_add (self->poller, self->endpoint);
+                ret = 0;
+            }
+        }
+    }
+    zstr_free (&endpoints);
+    return ret;
+}
+
+
+//  Here we handle incoming messages from the pipe
+
+static void
+zwr_dispatcher_recv_api (zwr_dispatcher_t *self)
+{
+    //  Get the whole message of the pipe in one go
+    zmsg_t *request = zmsg_recv (self->pipe);
+    if (!request)
+       return;        //  Interrupted
+
+    char *command = zmsg_popstr (request);
+    if (streq (command, "ENDPOINT"))
+        zsock_signal (self->pipe, s_configure_endpoint (self, request));
+    else
+    if (streq (command, "PAUSE")) {
+        zpoller_destroy (&self->poller);
+        self->poller = zpoller_new (self->pipe, NULL);
+        assert (self->poller);
+        zsock_signal (self->pipe, 0);
+    }
+    else
+    if (streq (command, "RESUME")) {
+        zpoller_destroy (&self->poller);
+        self->poller = zpoller_new (self->pipe, self->endpoint, NULL);
+        assert (self->poller);
+        zsock_signal (self->pipe, 0);
+    }
+    else
+    if (streq (command, "VERBOSE")) {
+        self->verbose = true;
+        zsock_signal (self->pipe, 0);
+    }
+    else
+    if (streq (command, "$TERM"))
+        //  The $TERM command is send by zactor_destroy() method
+        self->terminated = true;
+    else {
+        zsys_error ("invalid command '%s'", command);
+        assert (false);
+    }
+    zstr_free (&command);
+    zmsg_destroy (&request);
+}
+
+
+static int
+s_register_handler (zwr_dispatcher_t *self, zmsg_t *request, zframe_t *handler_id)
+{
+    int rc = 0;
+    char *route = zmsg_popstr (request);
+    assert (route);
+    if (ztrie_insert_route (self->router, route, zframe_dup (handler_id), s_destroy_ztrie_data)) {
+        if (self->verbose)
+            zsys_info ("zwr_dispatcher: [REGISTER] Route already exists '%s'", route);
+        rc = 1;
+    }
+    else
+    if (self->verbose)
+        zsys_info ("zwr_dispatcher: [REGISTER] Route inserted '%s'", route);
+    zstr_free (&route);
+    return rc;
+}
+
+
+static int
+s_unregister_handler (zwr_dispatcher_t *self, zmsg_t *request)
+{
+    int rc = 0;
+    char *route = zmsg_popstr (request);
+    assert (route);
+    if (ztrie_remove_route (self->router, route)) {
+        if (self->verbose)
+            zsys_info ("zwr_dispatcher: [UNREGISTER] Route did not exists '%s'", route);
+        rc = 1;
+    }
+    else
+    if (self->verbose)
+        zsys_info ("zwr_dispatcher: [UNREGISTER] Route removed '%s'", route);
+    zstr_free (&route);
+    return rc;
+}
+
+
+static int
+s_dispatch_message (zwr_dispatcher_t *self, zmsg_t *message)
+{
+    int rc = 0;
+    char *route = zmsg_popstr (message);
+    assert (route);
+    if (!ztrie_matches (self->router, route)) {
+        if (self->verbose)
+            zsys_info ("zwr_dispatcher: [DISPATCH] Mismatch for route '%s'", route);
+        rc = 1;
+    }
+    else {
+        if (self->verbose)
+            zsys_info ("zwr_dispatcher: [DISPATCH] Match for route '%s'", route);
+        //  Dispatch request
+        //  If there are parameters they are send as first frame
+        if (ztrie_hit_parameter_count (self->router) > 0) {
+            zhashx_t *parameters = ztrie_hit_parameters (self->router);
+            zmsg_push (message, zhashx_pack (parameters));
+            zhashx_destroy (&parameters);
+        }
+        zframe_t *handler_id = (zframe_t *) ztrie_hit_data (self->router);
+        zmsg_push (message, zframe_dup (handler_id));
+        zmsg_send (&message, self->endpoint);
+    }
+    zstr_free (&route);
+    return rc;
+}
+
+
+//  Here we handle incomming message from the endpoint
+
+static void
+zwr_dispatcher_recv_endpoint (zwr_dispatcher_t *self)
+{
+    //  Obtain the routing frame bevor processing the actual message
+    zframe_t *routing_id;
+    if (zsock_type (self->endpoint) == ZMQ_ROUTER) {
+        routing_id = zframe_recv (self->endpoint);
+        if (!routing_id || !zsock_rcvmore (self->endpoint)) {
+            zsys_warning ("zwr_dispatcher: no routing ID");
+            return;          //  Interrupted or malformed
+        }
+    }
+
+    //  Get the whole message of the endpoint in one go
+    zmsg_t *request = zmsg_recv (self->endpoint);
+    if (!request)
+        return;       //  Interrupted
+
+    char *command = zmsg_popstr (request);
+    assert (command);
+    if (streq (command, "REGISTER"))
+        s_signal_caller (self, routing_id, s_register_handler (self, request, routing_id));
+    else
+    if (streq (command, "UNREGISTER"))
+        s_signal_caller (self, routing_id, s_unregister_handler (self, request));
+    else
+    if (streq (command, "DISPATCH"))
+        s_signal_caller (self, routing_id, s_dispatch_message (self, request));
+    else {
+        zsys_error ("invalid command '%s'", command);
+        assert (false);
+    }
+    zstr_free (&command);
+    if (zframe_is (routing_id))
+        zframe_destroy (&routing_id);
+    if (zmsg_is (request))
+        zmsg_destroy (&request);
 }
 
 
 //  --------------------------------------------------------------------------
-//  Self test of this class.
+//  This is the zwr_dispatcher constructor as a zactor_fn.
+
+void
+zwr_dispatcher (zsock_t *pipe, void *args)
+{
+    zwr_dispatcher_t * self = zwr_dispatcher_new (pipe, args);
+    if (!self)
+        return;          //  Interrupted
+
+    //  Signal actor successfully initiated
+    zsock_signal (self->pipe, 0);
+
+    while (!self->terminated) {
+        zsock_t *which = (zsock_t *) zpoller_wait (self->poller, -1);
+        if (zpoller_terminated (self->poller))
+            break;          //  Interrupted
+        else
+        if (which == self->pipe)
+            zwr_dispatcher_recv_api (self);
+        else
+        if (which == self->endpoint)
+            zwr_dispatcher_recv_endpoint (self);
+    }
+
+    zwr_dispatcher_destroy (&self);
+}
+
+
+//  --------------------------------------------------------------------------
+//  Self test of this actor.
 
 void
 zwr_dispatcher_test (bool verbose)
 {
     printf (" * zwr_dispatcher: ");
 
+    int rc = 0;
     //  @selftest
-    //  Simple create/destroy test
-    zwr_dispatcher_t *self = zwr_dispatcher_new ();
-    assert (self);
-    zwr_dispatcher_destroy (&self);
+    zactor_t *dispatcher = zactor_new (zwr_dispatcher, NULL);
+
+    if (verbose) {
+        zstr_sendx (dispatcher, "VERBOSE", NULL);
+        zsock_wait (dispatcher);
+    }
+
+    //  Setup endpoint (will succeed)
+    zstr_sendx (dispatcher, "ENDPOINT", "inproc://dispatching", NULL);
+    rc = zsock_wait (dispatcher);                 //  Wait until endpoint bound
+    assert (rc == 0);
+
+    //  Setup endpoint (will fail)
+    zstr_sendx (dispatcher, "ENDPOINT", "inproc://something", NULL);
+    rc = zsock_wait (dispatcher);                 //  Wait until endpoint bound
+    assert (rc != 0);
+
+    //  Connect handler and client sockets
+    zsock_t *handler = zsock_new_dealer (">inproc://dispatching");
+    zsock_t *client = zsock_new_dealer (">inproc://dispatching");
+
+    //  Handler: register (will succeed)
+    zstr_sendx (handler, "REGISTER", "/foo/{[^/]+}", NULL);
+    rc = zsock_wait (handler);
+    assert (rc == 0);
+
+    //  Handler: register (will fail)
+    zstr_sendx (handler, "REGISTER", "/foo/{[^/]+}", NULL);
+    rc = zsock_wait (handler);
+    assert (rc != 0);
+
+    //  Client: send request (will succeed)
+    zstr_sendx (client, "DISPATCH", "/foo/bar", "Hello Handler", NULL);
+    rc = zsock_wait (client);
+    assert (rc == 0);
+
+    //  Client: send request (will fail)
+    zstr_sendx (client, "DISPATCH", "/bar/foo", "Hello Bar", NULL);
+    rc = zsock_wait (client);
+    assert (rc != 0);
+
+    //  Handler: receive dispatched message
+    char *content = zstr_recv (handler);
+    assert (streq ("Hello Handler", content));
+    free (content);
+
+    //  Handler: register with parameters
+    zstr_sendx (handler, "REGISTER", "/bar/{name:[^/]+}", NULL);
+    rc = zsock_wait (handler);
+    assert (rc == 0);
+
+    //  Client: send request with parameters
+    zstr_sendx (client, "DISPATCH", "/bar/foo", "Hello Bar", NULL);
+    rc = zsock_wait (client);
+    assert (rc == 0);
+
+    //  Handler: receive dispatched message with parameters
+    zframe_t *parameter_frame = zframe_recv (handler);
+    zhashx_t *parameters = zhashx_unpack (parameter_frame);
+    assert (1 == zhashx_size (parameters));
+    assert (streq ("foo", (char *) zhashx_lookup (parameters, "name")));
+    content = zstr_recv (handler);
+    assert (streq ("Hello Bar", content));
+    free (content);
+
+    //  Handler: unregister with parameters
+    zstr_sendx (handler, "UNREGISTER", "/bar/{name:[^/]+}", NULL);
+    rc = zsock_wait (handler);
+    assert (rc == 0);
+
+    //  Handler: unregister (will succeed)
+    zstr_sendx (handler, "UNREGISTER", "/foo/{[^/]+}", NULL);
+    rc = zsock_wait (handler);
+    assert (rc == 0);
+
+    //  Handler: unregister (will fail)
+    zstr_sendx (handler, "UNREGISTER", "/foo/bar", NULL);
+    rc = zsock_wait (handler);
+    assert (rc != 0);
+
+    //  Cleanup
+    zsock_destroy (&handler);
+    zsock_destroy (&client);
+    zactor_destroy (&dispatcher);
     //  @end
 
     printf ("OK\n");
