@@ -1,0 +1,104 @@
+<class name = "zwr_client">
+    ZWebRap Client
+
+    <include filename = "../license.xml" />
+
+    <constructor>
+        Create a new zwr_client, return the reference if successful, or NULL
+        if construction failed due to lack of available memory.
+    </constructor>
+
+    <destructor>
+        Destroy the zwr_client and free all memory used by the object.
+    </destructor>
+
+    <method name = "actor">
+        Return actor, when caller wants to work with multiple actors and/or
+        input sockets asynchronously.
+        <return type = "zactor" />
+    </method>
+
+    <method name = "msgpipe">
+        Return message pipe for asynchronous message I/O. In the high-volume case,
+        we send methods and get replies to the actor, in a synchronous manner, and
+        we send/recv high volume message data to a second pipe, the msgpipe. In
+        the low-volume case we can do everything over the actor pipe, if traffic
+        is never ambiguous.
+        <return type = "zsock" />
+    </method>
+
+    <method name = "connected">
+        Return true if client is currently connected, else false. Note that the
+        client will automatically re-connect if the server dies and restarts after
+        a successful first connection.
+        <return type = "boolean" />
+    </method>
+
+    <method name = "connect">
+        Connect to server endpoint, with specified timeout in msecs (zero means wait
+        forever). Constructor succeeds if connection is successful. The caller may
+        specify its address.
+        Returns >= 0 if successful, -1 if interrupted.
+        <argument name = "endpoint" type = "string" />
+        <argument name = "timeout" type = "number" size = "4" />
+        <argument name = "address" type = "string" />
+        <return type = "integer" />
+    </method>
+
+    <method  name = "set handler">
+        Offer to handle particular XRAP requests, where the route matches request's
+        resource.
+        Returns >= 0 if successful, -1 if interrupted.
+        <argument name = "method" type = "string" />
+        <argument name = "route" type = "string" />
+        <return type = "integer" />
+    </method>
+
+    <method name = "request">
+        No explanation
+        Returns >= 0 if successful, -1 if interrupted.
+        <argument name = "timeout" type = "number" size = "4" />
+        <argument name = "content_p" type = "zmsg" by_reference = "1" />
+        <return type = "integer" />
+    </method>
+
+    <method name = "deliver">
+        Send XRAP DELIVER message to server, takes ownership of message
+        and destroys message when done sending it.
+        <argument name = "sender" type = "zuuid" />
+        <argument name = "content_p" type = "zmsg" by_reference = "1" />
+        <return type = "integer" />
+    </method>
+
+    <method name = "recv">
+        Receive message from server; caller destroys message when done
+        <return type = "zmsg" />
+    </method>
+
+    <method name = "command">
+        Return last received command. Can be one of these values:
+            "XRAP DELIVER"
+        <return type = "string" />
+    </method>
+
+    <method name = "status">
+        Return last received status
+        <return type = "integer" />
+    </method>
+
+    <method name = "reason">
+        Return last received reason
+        <return type = "string" />
+    </method>
+
+    <method name = "sender">
+        Return last received sender
+        <return type = "zuuid" />
+    </method>
+
+    <method name = "content">
+        Return last received content
+        <return type = "zmsg" />
+    </method>
+
+</class>
