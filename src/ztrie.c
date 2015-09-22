@@ -1,5 +1,5 @@
 /*  =========================================================================
-    ztrie - URL routing and dispating.
+    ztrie - simple trie for tokenizable strings
 
     Copyright (c) the Contributors as noted in the AUTHORS file.
     This file is part of CZMQ, the high-level C binding for 0MQ:
@@ -13,8 +13,14 @@
 
 /*
 @header
-    ztrie - URL routing and dispating.
+    This is a variant of a trie or prefix tree where all the descendants of a
+    node have a common prefix of the string associated with that node. This
+    implementation is specialized for strings that can be tokenized by a delimiter
+    like a URL or URI. Routes in the tree can be matched by regular expressions
+    and by using capturing groups parts of a matched route can be easily obtained.
 @discuss
+    Note that the performance for pure string based matching is okay but on short
+    strings zhash and zhashx are 3-4 times more efficient.
 @end
 */
 
@@ -22,8 +28,8 @@
 #include "zwebrap_classes.h"
 
 #define MODE_INSERT 0
-#define MODE_MATCH  1
-#define MODE_PREFIX 2
+#define MODE_LOOKUP 1
+#define MODE_MATCH  2
 
 #define NODE_TYPE_STRING 0  //  Node with string token
 #define NODE_TYPE_REGEX  1  //  Node with regex token
@@ -40,7 +46,7 @@ typedef struct _ztrie_node_t {
     int token_len;       //  Number of characters in the token
     size_t path_len;     //  Length of the path including this token
     bool endpoint;       //  Has a path been added that routes to this node?
-    size_t parameter_count;  //  How many regex parameters does this token contaicontain?
+    size_t parameter_count;  //  How many regex parameters does this token contain?
     char **parameter_names;  //  Names of the regex parameters for easy access at matching time
     char **parameter_values; //  Values of the parameters
     zrex_t *regex;           //  Compiled regex
@@ -54,9 +60,10 @@ typedef struct _ztrie_node_t {
 //  Structure of our class
 
 struct _ztrie_t {
+    char delimiter;         //  Character that seperates the tokens of a route
     ztrie_node_t *root;     //  Root node of this tree
     ztrie_node_t *match;    //  Last match made by ztrie_matches
-    zlistx_t *params;        //  List of regex parameters found during parsing
+    zlistx_t *params;       //  List of regex parameters found during parsing
                             //  The list is kept globally to optimize performance.
 };
 
@@ -153,13 +160,8 @@ s_ztrie_node_destroy (ztrie_node_t **self_p)
         if (self->token_type == NODE_TYPE_REGEX || self->token_type == NODE_TYPE_PARAM)
             zrex_destroy (&self->regex);
         zlistx_destroy (&self->children);
-        if (self->data) {
-            if (self->destroy_data_fn)
-                (self->destroy_data_fn) (self->data);
-            else {
-                free (self->data);
-            }
-        }
+        if (self->data && self->destroy_data_fn)
+            (self->destroy_data_fn) (&self->data);
 
         //  Free object itself
         free (self);
@@ -167,25 +169,6 @@ s_ztrie_node_destroy (ztrie_node_t **self_p)
     }
 }
 
-
-//  Get the entire path of a node
-
-static const char *
-s_ztrie_node_path (ztrie_node_t *self)
-{
-    assert (self);
-    char *path = (char *) zmalloc (self->path_len);
-    path[self->path_len - 1] = '\0';
-
-    ztrie_node_t *node = self;
-    while (node->parent) {
-        memcpy (path + node->parent->path_len, node->token, strlen (node->token));
-        path[node->parent->path_len - 1] = '/';
-        node = node->parent;
-    }
-    memcpy (path + 1, node->token, strlen (node->token));
-    return path;
-}
 
 //  Update the value of a regex parameter at position.
 
@@ -198,15 +181,19 @@ s_ztrie_node_update_param (ztrie_node_t *self, int pos, const char *value)
 
 
 //  --------------------------------------------------------------------------
-//  Create a new ztrie.
+//  Creates a new ztrie.
 
 ztrie_t *
-ztrie_new ()
+ztrie_new (char delimiter)
 {
     ztrie_t *self = (ztrie_t *) zmalloc (sizeof (ztrie_t));
     assert (self);
 
     //  Initialize properties
+    if (delimiter)
+        self->delimiter = delimiter;
+    else
+        self->delimiter = '/';
     self->root = s_ztrie_node_new (NULL, "", 0,  NULL, NODE_TYPE_STRING);
     self->match = NULL;
     self->params = zlistx_new ();
@@ -305,13 +292,19 @@ s_ztrie_matches_token (ztrie_node_t *parent, char *token, int len)
 
 
 //  --------------------------------------------------------------------------
-//  Parses an path bytewise trying to find matches for path tokens. Depending
-//  on the mode there are different behaviors if no match could be found:
-//     MODE_INSERT: creates new vertex and attaches it the common prefix for
-//                  the given path, repeat for the remaining path tokens.
-//                  returns the vertex that has been created last.
-//     MODE_MATCH: returns NULL as the lookup failed.
-//     MODE_PREFIX: returns the common prefix for the given path.
+//  Parses a path bytewise trying to find matches for path tokens. Depending
+//  on the mode there are different behaviors on,
+//  how the tokens are compared:
+//    MODE_INSERT:  All tokens are compared as strings.
+//    MODE_LOOKUP:  All tokens are compared as strings.
+//    MODE_MATCH:   Node tokens of NODE_TYPE_STRING tokens are compared as strings,
+//                  otherwise the tokens are matched against the nodes regex.
+//  how a mismatch is handled:
+//    MODE_INSERT: creates a new node and attaches it to the common prefix for
+//                 the given path, repeat for the remaining path tokens.
+//                 returns the node that has been attached last.
+//    MODE_LOOKUP: returns NULL if the comparison failed.
+//    MODE_MATCH:  returns NULL if the comparison failed.
 
 static ztrie_node_t *
 s_ztrie_parse_path (ztrie_t *self, char *path, int mode)
@@ -326,15 +319,19 @@ s_ztrie_parse_path (ztrie_t *self, char *path, int mode)
     needle = path;
     char *needle_stop = needle + len;
     while (needle < needle_stop + 1) {
-        if (*needle == '/' || needle == needle_stop) {
-            //  token starts with '/' ignore everything that comes before
+        //  It is valid not to have an delimiter at the end of the path
+        if (*needle == self->delimiter || needle == needle_stop) {
+            //  token starts with delimiter ignore everything that comes before
             if (state == 0) {
                 beginToken = needle + 1;
                 state++;
-                if (mode == MODE_INSERT)
+                if (mode == MODE_INSERT || mode == MODE_LOOKUP)
+                    // Increment so regexes are parsed which is only relevant
+                    // during INSERT or LOOKUP. Using different states gives a small
+                    // performance boost for matching.
                     state++;
             }
-            //  token ends with '/'
+            //  token ends with delimiter.
             else
             if (state < 3) {
                 int matchType = zlistx_size (self->params) > 0 ? NODE_TYPE_PARAM :
@@ -343,7 +340,7 @@ s_ztrie_parse_path (ztrie_t *self, char *path, int mode)
                 int matchTokenLen = needle - matchToken - (beginRegex ? 1 : 0);
                 ztrie_node_t *match = NULL;
                 //  In insert mode only do a string comparison
-                if (mode == MODE_INSERT)
+                if (mode == MODE_INSERT || mode == MODE_LOOKUP)
                     match = s_ztrie_compare_token (parent, matchToken, matchTokenLen);
                 //  Otherwise evaluate regexes
                 else
@@ -354,12 +351,8 @@ s_ztrie_parse_path (ztrie_t *self, char *path, int mode)
                     if (mode == MODE_INSERT) {
                         match = s_ztrie_node_new (parent, matchToken, matchTokenLen, self->params, matchType);
                     }
-                    //  Commen prefix found
-                    if (mode == MODE_PREFIX) {
-                        break;
-                    }
                     //  No match for path found
-                    if (mode == MODE_MATCH) {
+                    if (mode == MODE_MATCH || mode == MODE_LOOKUP) {
                         parent = NULL;
                         break;
                     }
@@ -382,7 +375,7 @@ s_ztrie_parse_path (ztrie_t *self, char *path, int mode)
             state++;
         }
         else
-        //  in the middle of the regex
+        //  in the middle of the regex. Found a named regex.
         if (state == 3 && (*needle == ':')) {
             zlistx_add_end (self->params, strndup (beginRegex, needle - beginRegex));
             beginRegex = needle + 1;
@@ -396,7 +389,6 @@ s_ztrie_parse_path (ztrie_t *self, char *path, int mode)
         needle++;
     }
 
-    //  Cleanup
     //  In matching mode the discovered node must be an endpoint
     if (parent && mode == MODE_MATCH && !parent->endpoint)
         return NULL;
@@ -406,7 +398,7 @@ s_ztrie_parse_path (ztrie_t *self, char *path, int mode)
 
 
 //  --------------------------------------------------------------------------
-//  Inserts a new route into the tree and attaches the data. Returns -1
+//  Inserts a new route into the trie and attaches the data. Returns -1
 //  if the route already exists, otherwise 0. This method takes ownership of
 //  the provided data.
 
@@ -414,18 +406,51 @@ int
 ztrie_insert_route (ztrie_t *self, char *path, void *data, ztrie_destroy_data_fn *destroy_data_fn)
 {
     assert (self);
-    /*printf ("Path: %s\n", path);*/
-    ztrie_node_t *last = s_ztrie_parse_path (self, path, MODE_INSERT);
-    if (!last->endpoint) {
-        last->endpoint = true;
-        last->data = data;
-        last->destroy_data_fn = destroy_data_fn;
+    ztrie_node_t *node = s_ztrie_parse_path (self, path, MODE_INSERT);
+    //  If the returned node has no endpoint, a new route can be assigned to it.
+    if (!node->endpoint) {
+        node->endpoint = true;
+        node->data = data;
+        node->destroy_data_fn = destroy_data_fn;
         return 0;
     }
+    //  If the returned node has an endpoint, a route has already assigned to it.
     else
         return -1;
 }
 
+
+//  --------------------------------------------------------------------------
+//  Removes a route from the trie and destroys its data. Returns -1 if the
+//  route does not exists, otherwise 0.
+
+int
+ztrie_remove_route (ztrie_t *self, char *path)
+{
+    assert (self);
+    ztrie_node_t *match = s_ztrie_parse_path (self, path, MODE_LOOKUP);
+    //  The path did match a node which is endpoint to a route
+    if (match && match->endpoint) {
+        //  This node is part of other routes, thus it cannot destroy it
+        if (zlistx_size (match->children) > 0) {
+            match->endpoint = false;
+            if (match->data && match->destroy_data_fn)
+                (match->destroy_data_fn) (&match->data);
+        }
+        //  If this node is not part of other routes, destroy it
+        else {
+            //  Delete match from parent's children before destroying
+            void *handle = zlistx_find (match->parent->children, match);
+            assert (handle);
+            zlistx_delete (match->parent->children, handle);
+            s_ztrie_node_destroy (&match);
+        }
+        return 0;
+    }
+    //  If there is no match or the match is not endpoint to a route, fail
+    else
+        return -1;
+}
 
 //  --------------------------------------------------------------------------
 //  Returns true if the path matches a route in the tree, otherwise false.
@@ -453,6 +478,21 @@ ztrie_hit_data (ztrie_t *self)
     return NULL;
 }
 
+
+//  --------------------------------------------------------------------------
+//  Returns the count of parameters that a matched route has.
+
+size_t
+ztrie_hit_parameter_count (ztrie_t *self)
+{
+    size_t count = 0;
+    ztrie_node_t *node = self->match;
+    while (node) {
+        count += node->parameter_count;
+        node = node->parent;
+    }
+    return count;
+}
 
 //  --------------------------------------------------------------------------
 //  Returns the parameters of a matched route with named regexes from last
@@ -537,55 +577,88 @@ ztrie_test (bool verbose)
     printf (" * ztrie: ");
 
     //  @selftest
-    //  Simple create/destroy test
-    ztrie_t *self = ztrie_new ();
+    //  Create a new trie for matching strings that can be tokenized by a slash
+    //  (e.g. URLs minus the protocol, address and port).
+    ztrie_t *self = ztrie_new ('/');
     assert (self);
 
     int ret = 0;
 
-    ret = ztrie_insert_route (self, "/{[^/]+}", NULL, NULL);
-    ztrie_print (self);
+    //  Let's start by inserting a couple of routes into the trie.
+    //  This one is for the route '/foo/bar' the slash at the beginning of the
+    //  route is importent because everything before will be discarded. The
+    //  slash at the end of the route is optional. The data associated with this
+    //  node is passed without destroy function which means it must be destroyed
+    //  by us.
+    int foo_bar_data = 10;
+    ret = ztrie_insert_route (self, "/foo/bar", &foo_bar_data, NULL);
     assert (ret == 0);
 
-    ret = ztrie_insert_route (self, "/foo/bar", NULL, NULL);
-    ztrie_print (self);
+    //  Now suppose we like to match all routes that start with '/foo' but aren't
+    //  '/foo/bar'. This is posssible by using regular expressions which are enclosed
+    //  in an opening and closing curly bracket. Regular expression for a route are
+    //  always match after all the pure string based like '/foo/bar' have been matched.
+    //  Note there is no order is you enter multiple expression for a route which may
+    //  have overlapping results.
+    int foo_other_data = 100;
+    ret = ztrie_insert_route (self, "/foo/{[^/]+}", &foo_other_data, NULL);
     assert (ret == 0);
 
-    ret = ztrie_insert_route (self, "/foo/foo", NULL, NULL);
-    ztrie_print (self);
-    assert (ret == 0);
-
+    //  Routes are identified by their endpoint, which is the last matched node. It is
+    //  possible to insert routes for a node that already exists but isn't an endpoint yet.
     ret = ztrie_insert_route (self, "/foo", NULL, NULL);
-    ztrie_print (self);
     assert (ret == 0);
 
+    //  If you try to insert a route which already exists the method will return -1.
     ret = ztrie_insert_route (self, "/foo", NULL, NULL);
-    ztrie_print (self);
     assert (ret == -1);
 
-    ret = ztrie_insert_route (self, "/foo/{[^/]+}", NULL, NULL);
-    ztrie_print (self);
+    //  Of course you are allowed to remove routes in case there is data associated with a
+    //  route and a destroy data function has been supplied that data will be destroyed.
+    ret = ztrie_remove_route (self, "/foo");
     assert (ret == 0);
 
+    //  Removing a non existent route will return a -1.
+    ret = ztrie_remove_route (self, "/foo");
+    assert (ret == -1);
+
+    //  Removing a route with regular expression must exaclty match the entered.
+    ret = ztrie_remove_route (self, "/foo/{[^/]+}");
+    assert (ret == 0);
+
+    //  Next we like to match a path by regular expressions and also extract the matched
+    //  parts of a route. This can be done by naming the regular expression. The first one is
+    //  named 'name' and is seperated by a colon. If there is no capturing group defined in the
+    //  regular expression the whole matched string will be associated with this parameter. In case
+    //  you don't like the get the whole matched string use a capturing group like it's done with
+    //  the 'id' parameter. This is nice but you can even match as many parameter for a token as
+    //  you like. Therefore simply put the parameter names seperated by colons in front of the
+    //  regular expression and make sure to add a capturing group for each parameter. The first
+    //  parameter will be associated with the first capturing and so on.
     char *data = (char *) malloc (80);
     sprintf (data, "%s", "Hello World!");
-    ret = ztrie_insert_route (self, "/baz/{name:[^/]+}/{id:(\\d+)}/{street:nr:(\\a+)(\\d+)}", data, NULL);
-    ztrie_print (self);
+    ret = ztrie_insert_route (self, "/baz/{name:[^/]+}/{id:--(\\d+)}/{street:nr:(\\a+)(\\d+)}", data, NULL);
     assert (ret == 0);
 
-    //  Test matches()
+    //  Test matches
     bool hasMatch = false;
 
+    //  The first match will fail as this route has never been inserted.
     hasMatch = ztrie_matches (self, "/bar/foo");
     assert (!hasMatch);
 
+    //  The '/foo/bar' will match and we can obtain the data associated with it.
     hasMatch = ztrie_matches (self, "/foo/bar");
     assert (hasMatch);
+    int foo_bar_hit_data = *((int *) ztrie_hit_data (self));
+    assert (foo_bar_data == foo_bar_hit_data);
 
+    //  This route is part of another but is no endpoint itself thus the matches will fail.
     hasMatch = ztrie_matches (self, "/baz/blub");
     assert (!hasMatch);
 
-    hasMatch = ztrie_matches (self, "/baz/blub/11/abc23");
+    //  Now we will match a patch with regular expressions and extract data from the matched route.
+    hasMatch = ztrie_matches (self, "/baz/blub/--11/abc23");
     assert (hasMatch);
     char *match_data = (char *) ztrie_hit_data (self);
     assert (streq ("Hello World!", match_data));
@@ -597,8 +670,10 @@ ztrie_test (bool verbose)
     assert (streq ("23", zhashx_lookup (parameters, "nr")));
     zhashx_destroy (&parameters);
 
-    s_ztrie_node_path (self->root);
+    printf ("\n");
+    ztrie_print (self);
 
+    free (data);
     ztrie_destroy (&self);
     //  @end
 
