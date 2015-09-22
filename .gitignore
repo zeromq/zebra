@@ -66,3 +66,7 @@ builds/android/czmq
 builds/android/e2fsprogs
 builds/android/zyre
 src/app/jni/output
+
+# Temporary files
+*.swp
+*.bak
