@@ -8,13 +8,13 @@
       bench.h -  Benchmarking header file, contains common functionality to
                  measure time, run the benchmark and caluculate results.
 
-    Copyright (c) the Contributors as noted in the AUTHORS file.       
-    This file is part of CZMQ, the high-level C binding for 0MQ:       
-    http://czmq.zeromq.org.                                            
-                                                                       
+    Copyright (c) the Contributors as noted in the AUTHORS file.
+    This file is part of CZMQ, the high-level C binding for 0MQ:
+    http://czmq.zeromq.org.
+
     This Source Code Form is subject to the terms of the Mozilla Public
     License, v. 2.0. If a copy of the MPL was not distributed with this
-    file, You can obtain one at http://mozilla.org/MPL/2.0/.           
+    file, You can obtain one at http://mozilla.org/MPL/2.0/.
     =========================================================================
 */
 
@@ -26,13 +26,11 @@ extern "C" {
 #endif
 
 #define MICRO_IN_SEC 1000000.00
-#define SEC_IN_MIN 60
 
 typedef struct {
-    long N; // N for each run
-    long R; // runs
-    int64_t start;
-    int64_t end;
+    long iterations;    //  Total iterations
+    int64_t start;      //  Start time
+    int64_t end;        //  End time
 } bench_t;
 
 static void
@@ -50,7 +48,7 @@ s_bench_stop (bench_t *self)
 static double
 s_bench_iteration_speed (bench_t *self)
 {
-    return (self->N * self->R) / ((self->end - self->start) / MICRO_IN_SEC);
+    return self->iterations / ((self->end - self->start) / MICRO_IN_SEC);
 }
 
 static double
@@ -62,14 +60,13 @@ s_bench_duration (bench_t *self)
 static void
 s_bench_print_summary (bench_t *self)
 {
-    printf ("%ld runs, ", self->R);
-    printf ("%ld iterations each run, ", self->N);
-    printf ("finished in %lf seconds\n", s_bench_duration (self));
+    printf ("%ld iterations, ", self->iterations);
+    printf ("finished in %lf seconds, ", s_bench_duration (self));
     printf ("%.2f i/sec\n", s_bench_iteration_speed (self) );
 }
 
 #define MEASURE(B) \
-        bench_t B; B.N = 1; B.R = 1; \
+        bench_t B; B.iterations = 1; \
         printf("Measuring " #B "...\n"); \
         s_bench_start(&B);
 
@@ -78,13 +75,11 @@ s_bench_print_summary (bench_t *self)
 
 #define BENCHMARK(B) \
         printf("Benchmarking " #B "...\n"); \
-        bench_t B; B.N = 5000000; B.R = 3; \
+        bench_t B; B.iterations = 15000000; \
         s_bench_start(&B); \
-        for (int _r = 0; _r < B.R ; _r++ ) { \
-            for (int _i = 0; _i < B.N ; _i++ ) {
+        for (int _i = 0; _i < B.iterations ; _i++ ) {
 
 #define END_BENCHMARK(B) \
-            } \
         } \
         s_bench_stop(&B);
 

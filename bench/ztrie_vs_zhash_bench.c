@@ -1,9 +1,16 @@
-/*
- * bench.c
- * Copyright (C) 2014 c9s <yoanlin93@gmail.com>
- *
- * Distributed under terms of the MIT license.
- */
+/*  =========================================================================
+    ztrie_vs_zhash_bench - benchmark comparing ztrie and zhashx matches on
+                           pure string based matching.
+
+    Copyright (c) the Contributors as noted in the AUTHORS file.
+    This file is part of CZMQ, the high-level C binding for 0MQ:
+    http://czmq.zeromq.org.
+
+    This Source Code Form is subject to the terms of the Mozilla Public
+    License, v. 2.0. If a copy of the MPL was not distributed with this
+    file, You can obtain one at http://mozilla.org/MPL/2.0/.
+    =========================================================================
+*/
 
 #include "../include/zwebrap.h"
 #include "../src/zwebrap_classes.h"
@@ -18,7 +25,7 @@ int main()
     char *route_data = (char *) malloc (sizeof (char) * 20);
     sprintf (route_data, "%s", "Route Data");
 
-    MEASURE(tree_compile)
+    MEASURE(hash_compile)
     zhashx_insert (n, "/foo/bar/baz", NULL);
     zhashx_insert (n, "/foo/bar/qux", NULL);
     zhashx_insert (n, "/foo/bar/quux", NULL);
@@ -353,10 +360,10 @@ int main()
     zhashx_insert (n, "/garply/grault/bar", NULL);
     zhashx_insert (n, "/garply/grault/baz", NULL);
     zhashx_insert (n, "/garply/grault/qux", NULL);
-    zhashx_insert (n, "/garply/grault/quux", NULL);
-    zhashx_insert (n, "/garply/grault/corge", NULL);
-    END_MEASURE(tree_compile)
-    BENCHMARK_SUMMARY(tree_compile);
+    zhashx_insert (n, "/garply/{id:[^/]+}/quux", NULL);
+    zhashx_insert (n, "/garply/{[^/]+}/corge", NULL);
+    END_MEASURE(hash_compile)
+    BENCHMARK_SUMMARY(hash_compile);
 
     void *match = NULL;
     BENCHMARK(match_str)

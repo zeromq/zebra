@@ -1,9 +1,15 @@
-/*
- * bench.c
- * Copyright (C) 2014 c9s <yoanlin93@gmail.com>
- *
- * Distributed under terms of the MIT license.
- */
+/*  =========================================================================
+    ztrie_bench - benchmarks for ztrie performance.
+
+    Copyright (c) the Contributors as noted in the AUTHORS file.
+    This file is part of CZMQ, the high-level C binding for 0MQ:
+    http://czmq.zeromq.org.
+
+    This Source Code Form is subject to the terms of the Mozilla Public
+    License, v. 2.0. If a copy of the MPL was not distributed with this
+    file, You can obtain one at http://mozilla.org/MPL/2.0/.
+    =========================================================================
+*/
 
 #include "../include/zwebrap.h"
 #include "../src/zwebrap_classes.h"
@@ -353,8 +359,8 @@ int main()
     ztrie_insert_route (n, "/garply/grault/bar", NULL, NULL);
     ztrie_insert_route (n, "/garply/grault/baz", NULL, NULL);
     ztrie_insert_route (n, "/garply/grault/qux", NULL, NULL);
-    ztrie_insert_route (n, "/garply/grault/quux", NULL, NULL);
-    ztrie_insert_route (n, "/garply/grault/corge", NULL, NULL);
+    ztrie_insert_route (n, "/garply/{id:[^/]+}/quux", NULL, NULL);
+    ztrie_insert_route (n, "/garply/{[^/]+}/corge", NULL, NULL);
     END_MEASURE(tree_compile)
     BENCHMARK_SUMMARY(tree_compile);
 
@@ -367,33 +373,28 @@ int main()
     match = ztrie_matches (n , "/qux/bar/corge");
     END_BENCHMARK(match_str)
     BENCHMARK_SUMMARY(match_str);
-    ztrie_destroy (&n);
     assert (match);
 
-    ztrie_t * tree2 = ztrie_new ('/');
-    ztrie_insert_route (tree2, "/post/{[^/]+}/{[^/]+}", NULL, NULL);
-
     BENCHMARK(match_regex)
-    ztrie_matches (tree2, "/post/2014/12");
+    match = ztrie_matches (n, "/garply/something/corge");
     END_BENCHMARK(match_regex)
     BENCHMARK_SUMMARY(match_regex);
-    ztrie_destroy (&tree2);
-
-    ztrie_t * tree3 = ztrie_new ('/');
-    ztrie_insert_route (tree3, "/post/{year:[^/]+}/{month:[^/]+}", NULL, NULL);
+    assert (match);
 
     BENCHMARK(match_param)
-    ztrie_matches (tree3, "/post/2014/12");
+    match = ztrie_matches (n, "/garply/2014/quux");
     END_BENCHMARK(match_param)
     BENCHMARK_SUMMARY(match_param);
+    assert (match);
 
     BENCHMARK(match_param_create_hash)
-    ztrie_matches (tree3, "/post/2014/12");
-    zhashx_t *parameters = ztrie_hit_parameters (tree3);
+    match = ztrie_matches (n, "/garply/2014/quux");
+    zhashx_t *parameters = ztrie_hit_parameters (n);
     zhashx_destroy (&parameters);
     END_BENCHMARK(match_param_create_hash)
     BENCHMARK_SUMMARY(match_param_create_hash);
-    ztrie_destroy (&tree3);
+    assert (match);
 
+    ztrie_destroy (&n);
     return 0;
 }
