@@ -1,0 +1,34 @@
+//  Performance measurement
+#define MICRO_IN_SEC 1000000.00
+#define SEC_IN_MIN 60
+#define NUL  '\0'
+typedef struct {
+    long iterations;
+    double total;
+    double start;
+    double end;
+} bench;
+static double microtime() {
+    struct timeval tp;
+    long sec = 0L;
+    double msec = 0.0;
+    if (gettimeofday((struct timeval *) &tp, (NUL)) == 0) {
+        msec = (double) (tp.tv_usec / MICRO_IN_SEC);
+        sec = tp.tv_sec;
+        if (msec >= 1.0)
+            msec -= (long) msec;
+        return sec + msec;
+    }
+    return 0;
+}
+static double bench_duration(bench *b) { return (b->end - b->start); }
+static void bench_start(bench *b) { b->start = microtime(); }
+static void bench_stop(bench *b) { b->end = microtime(); b->total += bench_duration (b); b->iterations++; }
+#define INIT_MEASURE(B) \
+        B.total = 0; B.iterations = 0;
+#define MEASURE(B) \
+        bench_start(&B);
+#define END_MEASURE(B) \
+        bench_stop(&B);
+#define MEASURE_SUMMARY(B) \
+        printf(#B "\t\ttotal time %lf sec at %zu iterations\n", B.total, B.iterations);
