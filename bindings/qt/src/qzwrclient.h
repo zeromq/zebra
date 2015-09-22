@@ -60,7 +60,7 @@ public:
 
     //  Send XRAP DELIVER message to server, takes ownership of message
     //  and destroys message when done sending it.                     
-    int deliver (zuuid_t *sender, QZmsg *contentP);
+    int deliver (QZuuid *sender, QZmsg *contentP);
 
     //  Receive message from server; caller destroys message when done
     QZmsg * recv ();
@@ -76,7 +76,7 @@ public:
     const QString reason ();
 
     //  Return last received sender
-    zuuid_t * sender ();
+    QZuuid * sender ();
 
     //  Return last received content
     QZmsg * content ();

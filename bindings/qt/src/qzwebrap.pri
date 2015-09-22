@@ -13,6 +13,7 @@ qzwebrap-uselib:!qzwebrap-buildlib {
                      $$PWD/qzwrclient.h \
                      $$PWD/qzactor.h \
                      $$PWD/qzsock.h \
+                     $$PWD/qzuuid.h \
                      $$PWD/qzmsg.h \
                      $$PWD/qzframe.h
 
@@ -20,6 +21,7 @@ qzwebrap-uselib:!qzwebrap-buildlib {
                      $$PWD/qzwrclient.cpp \
                      $$PWD/qzactor.cpp \
                      $$PWD/qzsock.cpp \
+                     $$PWD/qzuuid.cpp \
                      $$PWD/qzmsg.cpp \
                      $$PWD/qzframe.cpp
 }

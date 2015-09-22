@@ -20,6 +20,7 @@ int main(int argc, char **argv)
     QZwrClient::test (verbose);
     QZactor::test (verbose);
     QZsock::test (verbose);
+    QZuuid::test (verbose);
     QZmsg::test (verbose);
     QZframe::test (verbose);
 

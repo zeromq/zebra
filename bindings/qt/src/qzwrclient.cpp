@@ -97,9 +97,9 @@ int QZwrClient::request (quint32 timeout, QZmsg *contentP)
 ///
 //  Send XRAP DELIVER message to server, takes ownership of message
 //  and destroys message when done sending it.                     
-int QZwrClient::deliver (zuuid_t *sender, QZmsg *contentP)
+int QZwrClient::deliver (QZuuid *sender, QZmsg *contentP)
 {
-    return zwr_client_deliver (self, sender, &contentP->self);
+    return zwr_client_deliver (self, sender->self, &contentP->self);
 }
 
 ///
@@ -134,9 +134,10 @@ const QString QZwrClient::reason ()
 
 ///
 //  Return last received sender
-zuuid_t * QZwrClient::sender ()
+QZuuid * QZwrClient::sender ()
 {
-    return zwr_client_sender (self);
+    QZuuid *retQ_ = new QZuuid (zwr_client_sender (self));
+    return retQ_;
 }
 
 ///

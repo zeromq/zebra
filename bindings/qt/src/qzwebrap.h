@@ -31,6 +31,7 @@
 class QZwrClient;
 class QZactor;
 class QZsock;
+class QZuuid;
 class QZmsg;
 class QZframe;
 
@@ -38,6 +39,7 @@ class QZframe;
 #include "qzwrclient.h"
 #include "qzactor.h"
 #include "qzsock.h"
+#include "qzuuid.h"
 #include "qzmsg.h"
 #include "qzframe.h"
 
