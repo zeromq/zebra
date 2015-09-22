@@ -1,0 +1,25 @@
+Name(7)
+=======
+
+
+NAME
+----
+zwebrap - Translates REST HTTP-Request into the XRAP protocol.
+
+
+SYNOPSIS
+--------
+----
+#include <zwebrap.h>
+
+cc ['flags'] 'files' -lzwebrap ['libraries']
+----
+
+
+DESCRIPTION
+-----------
+
+Classes
+~~~~~~~
+
+Something.

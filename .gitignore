@@ -1,0 +1,68 @@
+# Object files
+*.o
+*.ko
+*.pyc
+
+# Libraries
+*.lib
+*.a
+*.la
+*.pc
+*.dll.a
+
+# Shared objects (inc. Windows DLLs)
+*.dll
+*.so
+*.so.*
+*.dylib
+*.lo
+
+# Executables
+zwebrap_selftest
+*.exe
+*.out
+*.app
+core
+
+# Man pages
+doc/*.1
+doc/*.3
+doc/*.7
+
+# autoconf files
+.deps
+.libs
+*.log
+*.trs
+Makefile
+Makefile.in
+aclocal.m4
+autom4te.cache/
+config.log
+config.status
+config/
+configure
+libtool
+src/platform.h
+src/platform.h.in
+src/platform.h.in~
+src/stamp-h1
+src/test-suite.log
+src/.dirstamp
+
+# qt-android build results
+builds/qt-android/prefix
+
+# Android - generated directories
+src/app/bin/
+src/app/gen/
+src/app/obj/
+src/app/local.properties
+
+# Android -dependencies
+builds/android/libsodium
+builds/android/libzmq
+builds/android/czmq
+builds/android/e2fsprogs
+builds/android/zyre
+src/app/jni/output
