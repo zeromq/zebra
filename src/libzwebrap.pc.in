@@ -12,7 +12,7 @@ Name: libzwebrap
 Description: Translates REST HTTP-Request into the XRAP protocol.
 Version: @VERSION@
 
-Requires:libzmq >= 2.2.0 libczmq >= 3.0.0 libmicrohttpd libcurl
+Requires:libzmq >= 2.2.0 libczmq >= 3.0.0 libmicrohttpd
 
 Libs: -L${libdir} -lzwebrap
 Cflags: -I${includedir}

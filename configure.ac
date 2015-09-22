@@ -75,9 +75,12 @@ PREVIOUS_LIBS="${LIBS}"
 
 was_zmq_check_lib_detected=no
 
-PKG_CHECK_MODULES([zmq], [libzmq >= 2.2.0],,
-    [AC_MSG_ERROR([Cannot find required package for libzmq. Note, pkg-config is required due to specified version >= 2.2.0])
-  ])
+PKG_CHECK_MODULES([zmq], [libzmq >= 2.2.0],
+    [
+    ],
+    [
+        AC_MSG_ERROR([Cannot find required package for libzmq. Note, pkg-config is required due to specified version >= 2.2.0])
+    ])
 
 if test "x$was_zmq_check_lib_detected" = "xno"; then
     CFLAGS="${zmq_CFLAGS} ${CFLAGS}"
@@ -87,9 +90,12 @@ fi
 
 was_czmq_check_lib_detected=no
 
-PKG_CHECK_MODULES([czmq], [libczmq >= 3.0.0],,
-    [AC_MSG_ERROR([Cannot find required package for libczmq. Note, pkg-config is required due to specified version >= 3.0.0])
-  ])
+PKG_CHECK_MODULES([czmq], [libczmq >= 3.0.0],
+    [
+    ],
+    [
+        AC_MSG_ERROR([Cannot find required package for libczmq. Note, pkg-config is required due to specified version >= 3.0.0])
+    ])
 
 if test "x$was_czmq_check_lib_detected" = "xno"; then
     CFLAGS="${czmq_CFLAGS} ${CFLAGS}"
@@ -99,7 +105,9 @@ fi
 
 was_microhttpd_check_lib_detected=no
 
-PKG_CHECK_MODULES([microhttpd], [libmicrohttpd],,
+PKG_CHECK_MODULES([microhttpd], [libmicrohttpd >= 0.0.0],
+    [
+    ],
     [
         AC_ARG_WITH([libmicrohttpd],
             [
@@ -121,12 +129,12 @@ PKG_CHECK_MODULES([microhttpd], [libmicrohttpd],,
             fi
         fi
 
-        CFLAGS="${microhttpd_synthetic_cflags} ${CFLAGS}"
-        LDFLAGS="${microhttpd_synthetic_libs} ${LDFLAGS}"
-        LIBS="${microhttpd_synthetic_libs} ${LIBS}"
-
         AC_CHECK_LIB([microhttpd], [mhd_start_daemon],
             [
+                CFLAGS="${microhttpd_synthetic_cflags} ${CFLAGS}"
+                LDFLAGS="${microhttpd_synthetic_libs} ${LDFLAGS}"
+                LIBS="${microhttpd_synthetic_libs} ${LIBS}"
+
                 AC_SUBST([microhttpd_CFLAGS],[${microhttpd_synthetic_cflags}])
                 AC_SUBST([microhttpd_LIBS],[${microhttpd_synthetic_libs}])
                 was_microhttpd_check_lib_detected=yes
@@ -142,39 +150,11 @@ fi
 
 was_curl_check_lib_detected=no
 
-PKG_CHECK_MODULES([curl], [libcurl],,
+PKG_CHECK_MODULES([curl], [libcurl >= 7.7.0],
     [
-        AC_ARG_WITH([libcurl],
-            [
-                AS_HELP_STRING([--with-libcurl],
-                [Specify libcurl prefix])
-            ],
-            [search_libcurl="yes"],
-            [])
-
-        curl_synthetic_cflags=""
-        curl_synthetic_libs="-lcurl"
-
-        if test "x$search_libcurl" = "xyes"; then
-            if test -r "${with_libcurl}/include/curl.h"; then
-                curl_synthetic_cflags="-I${with_libcurl}/include"
-                curl_synthetic_libs="-L${with_libcurl}/lib -lcurl"
-            else
-                AC_MSG_ERROR([${with_libcurl}/include/curl.h not found. Please check libcurl prefix])
-            fi
-        fi
-
-        CFLAGS="${curl_synthetic_cflags} ${CFLAGS}"
-        LDFLAGS="${curl_synthetic_libs} ${LDFLAGS}"
-        LIBS="${curl_synthetic_libs} ${LIBS}"
-
-        AC_CHECK_LIB([curl], [curl_easy_init],
-            [
-                AC_SUBST([curl_CFLAGS],[${curl_synthetic_cflags}])
-                AC_SUBST([curl_LIBS],[${curl_synthetic_libs}])
-                was_curl_check_lib_detected=yes
-            ],
-            [AC_MSG_ERROR([cannot link with -lcurl, install libcurl.])])
+        AC_DEFINE(HAVE_LIBCURL, 1, [The libcurl library is to be used.])
+    ],
+    [
     ])
 
 if test "x$was_curl_check_lib_detected" = "xno"; then
@@ -326,7 +306,6 @@ AM_CONDITIONAL(BUILD_DOC, test "x$zwebrap_build_doc" = "xyes")
 # Checks for library functions.
 AC_TYPE_SIGNAL
 AC_CHECK_FUNCS(perror gettimeofday memset getifaddrs)
-AC_CHECK_LIB([uuid], [uuid_generate])
 
 # Set pkgconfigdir
 AC_ARG_WITH([pkgconfigdir], AS_HELP_STRING([--with-pkgconfigdir=PATH],

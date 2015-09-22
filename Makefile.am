@@ -5,6 +5,9 @@
 
 ACLOCAL_AMFLAGS = -I config
 
+AM_CFLAGS = \
+	-Werror=format-security
+
 AM_CPPFLAGS = \
     ${zmq_CFLAGS} \
     ${czmq_CFLAGS} \
@@ -31,11 +34,12 @@ noinst_LTLIBRARIES =
 TESTS =
 
 EXTRA_DIST = \
+    src/zwr_server_engine.inc \
     src/zwr_request.h \
     src/zwr_response.h \
     src/zwr_connection.h \
     src/zwr_microhttpd.h \
-    src/zdispatcher.h \
+    src/zwr_dispatcher.h \
     src/zwebrap_classes.h \
     LICENSE \
     version.sh

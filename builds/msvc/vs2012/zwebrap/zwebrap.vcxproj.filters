@@ -19,10 +19,19 @@
     <ClCompile Include="..\..\..\..\src\xrap_msg.c">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\src\xrap_traffic.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\zwr_server.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\zwr_client.c">
+      <Filter>src</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\..\..\src\zwr_microhttpd.c">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\zdispatcher.c">
+    <ClCompile Include="..\..\..\..\src\zwr_dispatcher.c">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
@@ -32,6 +41,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\zwebrap.h">
       <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\zwr_server_engine.inc">
+      <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -80,29 +80,37 @@ list(APPEND CMAKE_MODULE_PATH "${SOURCE_DIR}")
 # ZMQ dependency
 ########################################################################
 find_package(ZeroMQ REQUIRED)
+IF (ZEROMQ_FOUND)
 include_directories(${ZEROMQ_INCLUDE_DIRS})
 list(APPEND MORE_LIBRARIES ${ZEROMQ_LIBRARIES})
+ENDIF (ZEROMQ_FOUND)
 
 ########################################################################
 # CZMQ dependency
 ########################################################################
 find_package(CZMQ REQUIRED)
+IF (CZMQ_FOUND)
 include_directories(${CZMQ_INCLUDE_DIRS})
 list(APPEND MORE_LIBRARIES ${CZMQ_LIBRARIES})
+ENDIF (CZMQ_FOUND)
 
 ########################################################################
 # MICROHTTPD dependency
 ########################################################################
 find_package(Microhttpd REQUIRED)
+IF (MICROHTTPD_FOUND)
 include_directories(${MICROHTTPD_INCLUDE_DIRS})
 list(APPEND MORE_LIBRARIES ${MICROHTTPD_LIBRARIES})
+ENDIF (MICROHTTPD_FOUND)
 
 ########################################################################
 # CURL dependency
 ########################################################################
-find_package(Curl REQUIRED)
+find_package(Curl)
+IF (CURL_FOUND)
 include_directories(${CURL_INCLUDE_DIRS})
 list(APPEND MORE_LIBRARIES ${CURL_LIBRARIES})
+ENDIF (CURL_FOUND)
 
 ########################################################################
 # includes
@@ -114,8 +122,12 @@ set (zwebrap_headers
     src/zwr_response.h
     src/zwr_connection.h
     include/xrap_msg.h
+    include/xrap_traffic.h
+    include/zwr_server.h
+    include/zwr_client.h
     src/zwr_microhttpd.h
-    include/zdispatcher.h
+    src/zwr_dispatcher.h
+    src/zwr_server_engine.inc
 )
 source_group ("Header Files" FILES ${zwebrap_headers})
 install(FILES ${zwebrap_headers} DESTINATION include)
@@ -129,8 +141,11 @@ set (zwebrap_sources
     src/zwr_response.c
     src/zwr_connection.c
     src/xrap_msg.c
+    src/xrap_traffic.c
+    src/zwr_server.c
+    src/zwr_client.c
     src/zwr_microhttpd.c
-    src/zdispatcher.c
+    src/zwr_dispatcher.c
 )
 source_group ("Source Files" FILES ${zwebrap_sources})
 if (NOT DEFINED BUILD_SHARED_LIBS)

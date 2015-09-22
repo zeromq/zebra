@@ -41,10 +41,9 @@
         You need not specify subdependencies if they are implied.
     -->
     <use project = "czmq" min_major= "3" min_minor = "0" min_patch = "0" />
-    <use project = "microhttpd" min_major= "0" min_minor = "0" min_patch = "0"
+    <use project = "microhttpd"
          repository = "http://ftp.gnu.org/gnu/libmicrohttpd/" test = "MHD_start_daemon" />
-    <use project = "curl" min_major= "0" min_minor = "0" min_patch = "0"
-         repository = "https://github.com/bagder/curl" test = "curl_easy_init" />
+    <use project = "curl" min_major= "7" min_minor = "7" min_patch = "0" optional = "1" implied = "1" />
 
     <!-- Header Files
          name := The name the header file to include without file ending
@@ -69,7 +68,7 @@
     <actor name = "someactor" private = "1">Private actor description</actor>
     -->
     <actor name = "zwr_microhttpd" private = "1">HTTP web server backend using libmicrohttpd.</actor>
-    <actor name = "zdispatcher">URL based message dispatcher.</actor>
+    <actor name = "zwr_dispatcher" private = "1">XRAP message dispatcher</actor>
 
     <!--
         Main programs built by the project
@@ -85,7 +84,13 @@
         This will generate a 'make code' target to build the models.
     -->
     <model name = "xrap_msg" />
-    <class name = "xrap_msg" />
+    <model name = "xrap_traffic" />
+    <model name = "zwr_server" />
+    <model name = "zwr_client" />
+    <class name = "xrap_msg">XRAP data protocol</class>
+    <class name = "xrap_traffic">XRAP exchange protocol</class>
+    <class name = "zwr_server" />
+    <class name = "zwr_client" />
     <!--
         If a model should be generated using a specific gsl script,
         this can be set through the script attribute:
@@ -101,6 +106,7 @@
     <!-- Other source files that we need to package
     <extra name = "some_resource" />
     -->
+    <extra name = "zwr_server_engine.inc" />
 
     <!--
         Stuff that needs to be installed:

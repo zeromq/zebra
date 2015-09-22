@@ -79,6 +79,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\..\..\include\zwebrap_library.h" />
     <ClInclude Include="..\..\..\..\include\zwebrap.h" />
+    <ClInclude Include="..\..\..\..\src\zwr_server_engine.inc" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\src\zwr_request.c">
@@ -93,10 +94,19 @@
     <ClCompile Include="..\..\..\..\src\xrap_msg.c">
       <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\src\xrap_traffic.c">
+      <CompileAs>CompileAsCpp</CompileAs>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\zwr_server.c">
+      <CompileAs>CompileAsCpp</CompileAs>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\zwr_client.c">
+      <CompileAs>CompileAsCpp</CompileAs>
+    </ClCompile>
     <ClCompile Include="..\..\..\..\src\zwr_microhttpd.c">
       <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\zdispatcher.c">
+    <ClCompile Include="..\..\..\..\src\zwr_dispatcher.c">
       <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
   </ItemGroup>

@@ -18,6 +18,9 @@ pkgconfig_DATA = src/libzwebrap.pc
 include_HEADERS = \
     include/zwebrap.h \
     include/xrap_msg.h \
+    include/xrap_traffic.h \
+    include/zwr_server.h \
+    include/zwr_client.h \
     include/zwebrap_library.h
 
 src_libzwebrap_la_SOURCES = \
@@ -25,8 +28,12 @@ src_libzwebrap_la_SOURCES = \
     src/zwr_response.c \
     src/zwr_connection.c \
     src/xrap_msg.c \
+    src/xrap_traffic.c \
+    src/zwr_server.c \
+    src/zwr_client.c \
     src/zwr_microhttpd.c \
-    src/zdispatcher.c \
+    src/zwr_dispatcher.c \
+    src/zwr_server_engine.inc \
     src/platform.h
 
 src_libzwebrap_la_CPPFLAGS = ${AM_CPPFLAGS}
@@ -55,12 +62,16 @@ src_zwebrap_selftest_LDADD = ${program_libs}
 src_zwebrap_selftest_SOURCES = src/zwebrap_selftest.c
 
 
+
 # define custom target for all products of /src
 src: src/libzwebrap.la src/zwebrap_selftest
 
 # Produce generated code from models in the src directory
 code:
 	cd $(srcdir)/src; gsl -q xrap_msg.xml
+	cd $(srcdir)/src; gsl -q xrap_traffic.xml
+	cd $(srcdir)/src; gsl -q zwr_server.xml
+	cd $(srcdir)/src; gsl -q zwr_client.xml
 
 check-local: src/zwebrap_selftest
 	$(LIBTOOL) --mode=execute $(srcdir)/src/zwebrap_selftest
