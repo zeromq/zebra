@@ -280,26 +280,6 @@ AM_CONDITIONAL(ON_ANDROID, test "x$zwebrap_on_android" = "xyes")
 AM_CONDITIONAL(INSTALL_MAN, test "x$zwebrap_install_man" = "xyes")
 AM_CONDITIONAL(BUILD_DOC, test "x$zwebrap_build_doc" = "xyes")
 
-# Check for ztrie_bench intent
-AC_ARG_WITH([ztrie_bench],
-    AS_HELP_STRING([--with-ztrie_bench],
-        [Compile the ztrie_bench program [default=yes].]),
-    [with_ztrie_bench=$withval],
-    [with_ztrie_bench=yes])
-
-AM_CONDITIONAL([WITH_ZTRIE_BENCH], [test x$with_ztrie_bench != xno])
-AM_COND_IF([WITH_ZTRIE_BENCH], [AC_MSG_NOTICE([WITH_ZTRIE_BENCH defined])])
-
-# Check for ztrie_bench_hash intent
-AC_ARG_WITH([ztrie_bench_hash],
-    AS_HELP_STRING([--with-ztrie_bench_hash],
-        [Compile the ztrie_bench_hash program [default=yes].]),
-    [with_ztrie_bench_hash=$withval],
-    [with_ztrie_bench_hash=yes])
-
-AM_CONDITIONAL([WITH_ZTRIE_BENCH_HASH], [test x$with_ztrie_bench_hash != xno])
-AM_COND_IF([WITH_ZTRIE_BENCH_HASH], [AC_MSG_NOTICE([WITH_ZTRIE_BENCH_HASH defined])])
-
 # Checks for library functions.
 AC_TYPE_SIGNAL
 AC_CHECK_FUNCS(perror gettimeofday memset getifaddrs)

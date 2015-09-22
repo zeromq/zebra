@@ -58,8 +58,6 @@
     <class name = "zwr_request" private = "1">Representation of a HTTP request.</class>
     <class name = "zwr_response" private = "1">Representation of a HTTP response.</class>
     <class name = "zwr_connection" private = "1">Wrapper for zwr_request and zwr_response.</class>
-    <class name = "zwr_dispatcher" private = "1">URL routing and dispating.</class>
-    <class name = "zwr_microhttpd" private = "1">HTTP web server backend using libmicrohttpd.</class>
 
     <!--
         Actors, are build using the simple actor framework from czmq. If the
@@ -69,7 +67,8 @@
         about actors.
     <actor name = "someactor" private = "1">Private actor description</actor>
     -->
-    <actor name = "zwr_server">zwebrap server actor</actor>
+    <actor name = "zwr_microhttpd" private = "1">HTTP web server backend using libmicrohttpd.</actor>
+    <actor name = "zdispatcher">URL based message dispatcher.</actor>
 
     <!--
         Main programs built by the project
@@ -77,16 +76,16 @@
     <main name = "progname">Exported public tool</main>
     <main name = "progname" service = "1">Installed as system service</main>
     -->
-    <main name = "ztrie_bench" private = "1">benchmark for the ztrie</main>
-    <main name = "ztrie_bench_hash" private = "1">benchmark for the ztrie</main>
+    <bench name = "ztrie_bench">benchmark for the ztrie</bench>
+    <bench name = "ztrie_bench_hash">benchmark for the ztrie</bench>
 
     <!--
         Models that we build using GSL.
         This will generate a 'make code' target to build the models.
-    <model name = "sockopts" />
-    <model name = "zgossip" />
-    <model name = "zgossip_msg" />
-
+    -->
+    <model name = "xrap_msg" />
+    <class name = "xrap_msg" />
+    <!--
         If a model should be generated using a specific gsl script,
         this can be set through the script attribute:
     <model name = "hydra_msg" script = "zproto_codec_java.gsl" />

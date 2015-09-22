@@ -107,9 +107,9 @@ set (zwebrap_headers
     src/zwr_request.h
     src/zwr_response.h
     src/zwr_connection.h
-    src/zwr_dispatcher.h
+    include/xrap_msg.h
     src/zwr_microhttpd.h
-    include/zwr_server.h
+    include/zdispatcher.h
 )
 source_group ("Header Files" FILES ${zwebrap_headers})
 install(FILES ${zwebrap_headers} DESTINATION include)
@@ -123,9 +123,9 @@ set (zwebrap_sources
     src/zwr_request.c
     src/zwr_response.c
     src/zwr_connection.c
-    src/zwr_dispatcher.c
+    src/xrap_msg.c
     src/zwr_microhttpd.c
-    src/zwr_server.c
+    src/zdispatcher.c
 )
 source_group ("Source Files" FILES ${zwebrap_sources})
 if (NOT DEFINED BUILD_SHARED_LIBS)

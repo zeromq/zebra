@@ -326,7 +326,7 @@
           <Tool Name="VCCLCompilerTool" CompileAs="2" />
         </FileConfiguration>
       </File>
-      <File RelativePath="..\..\..\..\src\zwr_dispatcher.c">
+      <File RelativePath="..\..\..\..\src\xrap_msg.c">
         <FileConfiguration Name="Release|Win32">
           <Tool Name="VCCLCompilerTool" CompileAs="2" />
         </FileConfiguration>
@@ -390,7 +390,7 @@
           <Tool Name="VCCLCompilerTool" CompileAs="2" />
         </FileConfiguration>
       </File>
-      <File RelativePath="..\..\..\..\src\zwr_server.c">
+      <File RelativePath="..\..\..\..\src\zdispatcher.c">
         <FileConfiguration Name="Release|Win32">
           <Tool Name="VCCLCompilerTool" CompileAs="2" />
         </FileConfiguration>
@@ -429,9 +429,9 @@
       <File RelativePath="..\..\..\..\src\zwr_request.h" />
       <File RelativePath="..\..\..\..\src\zwr_response.h" />
       <File RelativePath="..\..\..\..\src\zwr_connection.h" />
-      <File RelativePath="..\..\..\..\src\zwr_dispatcher.h" />
+      <File RelativePath="..\..\..\..\include\xrap_msg.h" />
       <File RelativePath="..\..\..\..\src\zwr_microhttpd.h" />
-      <File RelativePath="..\..\..\..\include\zwr_server.h" />
+      <File RelativePath="..\..\..\..\include\zdispatcher.h" />
       <File RelativePath="..\..\..\..\include\zwebrap_library.h" />
       <File RelativePath="..\..\..\..\include\zwebrap.h" />
     </Filter>
