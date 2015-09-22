@@ -13,9 +13,12 @@
 
 /*
 @header
-    A zdispatcher: The dispatcher forwards messages based on an route
-    (e.g. URL or URI) to a handler that has itself register to a route.
+    A zdispatcher actor forwards messages based on a tokenizable route, for
+    example a URL, URI or URN. A message can be forwarded to a handler that
+    must register itself under a route.
 @discuss
+    Dispatching is a one way process, there is currently no support for a
+    client to get a answer to a dispatched message.
 @end
 */
 
@@ -130,7 +133,7 @@ s_configure_endpoint (zdispatcher_t *self, zmsg_t *request)
 }
 
 
-//  Here we handle incomming messages from the pipe
+//  Here we handle incoming messages from the pipe
 
 static void
 zdispatcher_recv_api (zdispatcher_t *self)
@@ -388,6 +391,11 @@ zdispatcher_test (bool verbose)
     content = zstr_recv (handler);
     assert (streq ("Hello Bar", content));
     free (content);
+
+    //  Handler: unregister with parameters
+    zstr_sendx (handler, "UNREGISTER", "/bar/{name:[^/]+}", NULL);
+    rc = zsock_wait (handler);
+    assert (rc == 0);
 
     //  Handler: unregister (will succeed)
     zstr_sendx (handler, "UNREGISTER", "/foo/{[^/]+}", NULL);
