@@ -81,9 +81,6 @@
     <ClInclude Include="..\..\..\..\include\zwebrap.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\src\ztrie.c">
-      <CompileAs>CompileAsCpp</CompileAs>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\src\zwr_request.c">
       <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>

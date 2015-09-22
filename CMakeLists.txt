@@ -98,12 +98,18 @@ include_directories(${MICROHTTPD_INCLUDE_DIRS})
 list(APPEND MORE_LIBRARIES ${MICROHTTPD_LIBRARIES})
 
 ########################################################################
+# CURL dependency
+########################################################################
+find_package(Curl REQUIRED)
+include_directories(${CURL_INCLUDE_DIRS})
+list(APPEND MORE_LIBRARIES ${CURL_LIBRARIES})
+
+########################################################################
 # includes
 ########################################################################
 set (zwebrap_headers
     include/zwebrap_library.h
     include/zwebrap.h
-    src/ztrie.h
     src/zwr_request.h
     src/zwr_response.h
     src/zwr_connection.h
@@ -119,7 +125,6 @@ install(FILES ${zwebrap_headers} DESTINATION include)
 ########################################################################
 include_directories("${BINARY_DIR}" "${SOURCE_DIR}/include")
 set (zwebrap_sources
-    src/ztrie.c
     src/zwr_request.c
     src/zwr_response.c
     src/zwr_connection.c

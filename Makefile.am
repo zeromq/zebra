@@ -9,12 +9,14 @@ AM_CPPFLAGS = \
     ${zmq_CFLAGS} \
     ${czmq_CFLAGS} \
     ${microhttpd_CFLAGS} \
+    ${curl_CFLAGS} \
     -I$(srcdir)/include
 
 project_libs = \
     ${zmq_LIBS} \
     ${czmq_LIBS} \
-    ${microhttpd_LIBS}
+    ${microhttpd_LIBS} \
+    ${curl_LIBS}
 
 SUBDIRS =
 DIST_SUBDIRS =
@@ -29,7 +31,6 @@ noinst_LTLIBRARIES =
 TESTS =
 
 EXTRA_DIST = \
-    src/ztrie.h \
     src/zwr_request.h \
     src/zwr_response.h \
     src/zwr_connection.h \

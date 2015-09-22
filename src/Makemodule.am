@@ -21,7 +21,6 @@ include_HEADERS = \
     include/zwebrap_library.h
 
 src_libzwebrap_la_SOURCES = \
-    src/ztrie.c \
     src/zwr_request.c \
     src/zwr_response.c \
     src/zwr_connection.c \

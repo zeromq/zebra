@@ -20,7 +20,7 @@ include $(PREBUILT_SHARED_LIBRARY)
 include $(CLEAR_VARS)
 LOCAL_MODULE := zwebrap
 LOCAL_C_INCLUDES := ../../include $(LIBZMQ)/include
-LOCAL_SRC_FILES := ztrie.c zwr_request.c zwr_response.c zwr_connection.c xrap_msg.c zwr_microhttpd.c zdispatcher.c
+LOCAL_SRC_FILES := zwr_request.c zwr_response.c zwr_connection.c xrap_msg.c zwr_microhttpd.c zdispatcher.c
 LOCAL_SHARED_LIBRARIES := zmq
 include $(BUILD_SHARED_LIBRARY)
 

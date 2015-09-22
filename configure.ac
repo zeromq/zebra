@@ -140,6 +140,49 @@ if test "x$was_microhttpd_check_lib_detected" = "xno"; then
 fi
 
 
+was_curl_check_lib_detected=no
+
+PKG_CHECK_MODULES([curl], [libcurl],,
+    [
+        AC_ARG_WITH([libcurl],
+            [
+                AS_HELP_STRING([--with-libcurl],
+                [Specify libcurl prefix])
+            ],
+            [search_libcurl="yes"],
+            [])
+
+        curl_synthetic_cflags=""
+        curl_synthetic_libs="-lcurl"
+
+        if test "x$search_libcurl" = "xyes"; then
+            if test -r "${with_libcurl}/include/curl.h"; then
+                curl_synthetic_cflags="-I${with_libcurl}/include"
+                curl_synthetic_libs="-L${with_libcurl}/lib -lcurl"
+            else
+                AC_MSG_ERROR([${with_libcurl}/include/curl.h not found. Please check libcurl prefix])
+            fi
+        fi
+
+        CFLAGS="${curl_synthetic_cflags} ${CFLAGS}"
+        LDFLAGS="${curl_synthetic_libs} ${LDFLAGS}"
+        LIBS="${curl_synthetic_libs} ${LIBS}"
+
+        AC_CHECK_LIB([curl], [curl_easy_init],
+            [
+                AC_SUBST([curl_CFLAGS],[${curl_synthetic_cflags}])
+                AC_SUBST([curl_LIBS],[${curl_synthetic_libs}])
+                was_curl_check_lib_detected=yes
+            ],
+            [AC_MSG_ERROR([cannot link with -lcurl, install libcurl.])])
+    ])
+
+if test "x$was_curl_check_lib_detected" = "xno"; then
+    CFLAGS="${curl_CFLAGS} ${CFLAGS}"
+    LIBS="${curl_LIBS} ${LIBS}"
+fi
+
+
 CFLAGS="${PREVIOUS_CFLAGS}"
 LIBS="${PREVIOUS_LIBS}"
 
@@ -181,7 +224,7 @@ case "${host_os}" in
         # Define on Linux to enable all library features
         CPPFLAGS="-D_GNU_SOURCE -DLINUX $CPPFLAGS"
         AC_DEFINE(ZWEBRAP_HAVE_LINUX, 1, [Have Linux OS])
-        
+
         case "${host_os}" in
             *android*)
                 AC_DEFINE(ZWEBRAP_HAVE_ANDROID, 1, [Have Android OS])
@@ -283,6 +326,7 @@ AM_CONDITIONAL(BUILD_DOC, test "x$zwebrap_build_doc" = "xyes")
 # Checks for library functions.
 AC_TYPE_SIGNAL
 AC_CHECK_FUNCS(perror gettimeofday memset getifaddrs)
+AC_CHECK_LIB([uuid], [uuid_generate])
 
 # Set pkgconfigdir
 AC_ARG_WITH([pkgconfigdir], AS_HELP_STRING([--with-pkgconfigdir=PATH],

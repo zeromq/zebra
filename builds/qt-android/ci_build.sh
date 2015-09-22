@@ -40,6 +40,9 @@ git clone https://github.com/zeromq/czmq $CZMQ_ROOT
 export MICROHTTPD_ROOT="/tmp/microhttpd"
 git clone http://ftp.gnu.org/gnu/libmicrohttpd/ $MICROHTTPD_ROOT
 
+export CURL_ROOT="/tmp/curl"
+git clone https://github.com/bagder/curl $CURL_ROOT
+
 source ./build.sh
 
 ################################################################################

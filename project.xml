@@ -43,6 +43,8 @@
     <use project = "czmq" min_major= "3" min_minor = "0" min_patch = "0" />
     <use project = "microhttpd" min_major= "0" min_minor = "0" min_patch = "0"
          repository = "http://ftp.gnu.org/gnu/libmicrohttpd/" test = "MHD_start_daemon" />
+    <use project = "curl" min_major= "0" min_minor = "0" min_patch = "0"
+         repository = "https://github.com/bagder/curl" test = "curl_easy_init" />
 
     <!-- Header Files
          name := The name the header file to include without file ending
@@ -54,7 +56,6 @@
         generate a skeletons for them.
         use private = "1" for internal classes
     -->
-    <class name = "ztrie" private = "1">Implmentation of a tokonized trie or prefix tree.</class>
     <class name = "zwr_request" private = "1">Representation of a HTTP request.</class>
     <class name = "zwr_response" private = "1">Representation of a HTTP response.</class>
     <class name = "zwr_connection" private = "1">Wrapper for zwr_request and zwr_response.</class>
@@ -77,7 +78,7 @@
     <main name = "progname" service = "1">Installed as system service</main>
     -->
     <bench name = "ztrie_bench">benchmark for the ztrie</bench>
-    <bench name = "ztrie_bench_hash">benchmark for the ztrie</bench>
+    <bench name = "ztrie_vs_zhash_bench">benchmark for the ztrie</bench>
 
     <!--
         Models that we build using GSL.
