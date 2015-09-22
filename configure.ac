@@ -40,7 +40,7 @@ AC_SUBST(PACKAGE_VERSION)
 # http://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
 #
 # libzwebrap -version-info
-LTVER="1:0:0"
+LTVER="0:1:0"
 AC_SUBST(LTVER)
 
 # Capture c flags

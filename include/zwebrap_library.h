@@ -27,8 +27,8 @@
 
 //  ZWEBRAP version macros for compile-time API detection
 
-#define ZWEBRAP_VERSION_MAJOR 1
-#define ZWEBRAP_VERSION_MINOR 0
+#define ZWEBRAP_VERSION_MAJOR 0
+#define ZWEBRAP_VERSION_MINOR 1
 #define ZWEBRAP_VERSION_PATCH 0
 
 #define ZWEBRAP_MAKE_VERSION(major, minor, patch) \
