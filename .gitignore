@@ -70,3 +70,6 @@ src/app/jni/output
 # Temporary files
 *.swp
 *.bak
+
+# Qt
+*.user

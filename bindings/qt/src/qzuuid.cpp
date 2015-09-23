@@ -91,7 +91,7 @@ const QString QZuuid::strCanonical ()
 
 ///
 //  Store UUID blob in target array
-void QZuuid::export (byte *target)
+void QZuuid::exportNoConflict (byte *target)
 {
     zuuid_export (self, target);
 }

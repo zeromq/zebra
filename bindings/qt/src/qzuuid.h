@@ -51,7 +51,7 @@ public:
     const QString strCanonical ();
 
     //  Store UUID blob in target array
-    void export (byte *target);
+    void exportNoConflict (byte *target);
 
     //  Check if UUID is same as supplied value
     bool eq (const byte *compare);
