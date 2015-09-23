@@ -76,8 +76,6 @@
     <main name = "progname">Exported public tool</main>
     <main name = "progname" service = "1">Installed as system service</main>
     -->
-    <bench name = "ztrie_bench">benchmark for the ztrie</bench>
-    <bench name = "ztrie_vs_zhash_bench">benchmark for the ztrie</bench>
 
     <!--
         Models that we build using GSL.
