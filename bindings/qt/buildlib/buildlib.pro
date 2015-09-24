@@ -13,9 +13,15 @@ include(../src/qzwebrap.pri)
 TARGET = $$QZWEBRAP_LIBNAME
 DESTDIR = $$QZWEBRAP_LIBDIR
 
-packagesExist(sodium): LIBS +=-lsodium
-packagesExist(uuid): LIBS +=-luuid
-LIBS += -lzmq -lczmq -lzwebrap
+!packagesExist (libzmq): error ("cannot link with -lzmq, install libzmq.")
+!packagesExist (libczmq): error ("cannot link with -lczmq, install libczmq.")
+!packagesExist (libmicrohttpd): error ("cannot link with -lmicrohttpd, install libmicrohttpd.")
+
+LIBS += \
+    -lzmq \
+    -lczmq \
+    -lmicrohttpd \
+    -lzwebrap
 
 win32 {
     DLLDESTDIR = $$[QT_INSTALL_BINS]
