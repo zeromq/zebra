@@ -6,9 +6,16 @@ TEMPLATE=lib
 CONFIG += qt dll qzwebrap-buildlib
 mac:CONFIG += absolute_library_soname
 win32|mac:!wince*:!win32-msvc:!macx-xcode:CONFIG += debug_and_release build_all
+
 include(../src/qzwebrap.pri)
+
 TARGET = $$QZWEBRAP_LIBNAME
 DESTDIR = $$QZWEBRAP_LIBDIR
+
+packagesExist(sodium): LIBS +=-lsodium
+packagesExist(uuid): LIBS +=-luuid
+LIBS += -lzmq -lczmq -lzwebrap
+
 win32 {
     DLLDESTDIR = $$[QT_INSTALL_BINS]
     QMAKE_DISTCLEAN += $$[QT_INSTALL_BINS]\$${QZWEBRAP_LIBNAME}.dll

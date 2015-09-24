@@ -12,9 +12,8 @@ CONFIG   -= app_bundle
 
 TEMPLATE = app
 
-packagesExist(sodium) {
-    LIBS +=-lsodium
-}
+packagesExist(sodium): LIBS +=-lsodium
+packagesExist(uuid): LIBS +=-luuid
 LIBS += -lzmq -lczmq -lzwebrap
 
 SOURCES += main.cpp
