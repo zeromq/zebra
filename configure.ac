@@ -118,12 +118,12 @@ PKG_CHECK_MODULES([libmicrohttpd], [libmicrohttpd >= 0.0.0],
             [])
 
         libmicrohttpd_synthetic_cflags=""
-        libmicrohttpd_synthetic_libs="-llibmicrohttpd"
+        libmicrohttpd_synthetic_libs="-lmicrohttpd"
 
         if test "x$search_libmicrohttpd" = "xyes"; then
             if test -r "${with_libmicrohttpd}/include/microhttpd.h"; then
                 libmicrohttpd_synthetic_cflags="-I${with_libmicrohttpd}/include"
-                libmicrohttpd_synthetic_libs="-L${with_libmicrohttpd}/lib -llibmicrohttpd"
+                libmicrohttpd_synthetic_libs="-L${with_libmicrohttpd}/lib -lmicrohttpd"
             else
                 AC_MSG_ERROR([${with_libmicrohttpd}/include/microhttpd.h not found. Please check libmicrohttpd prefix])
             fi
@@ -139,7 +139,7 @@ PKG_CHECK_MODULES([libmicrohttpd], [libmicrohttpd >= 0.0.0],
                 AC_SUBST([libmicrohttpd_LIBS],[${libmicrohttpd_synthetic_libs}])
                 was_libmicrohttpd_check_lib_detected=yes
             ],
-            [AC_MSG_ERROR([cannot link with -llibmicrohttpd, install libmicrohttpd.])])
+            [AC_MSG_ERROR([cannot link with -lmicrohttpd, install libmicrohttpd.])])
     ])
 
 if test "x$was_libmicrohttpd_check_lib_detected" = "xno"; then

@@ -6,7 +6,7 @@
 include(FindPkgConfig)
 PKG_CHECK_MODULES(PC_LIBMICROHTTPD "libmicrohttpd")
 IF (NOT PC_LIBMICROHTTPD_FOUND)
-    PKG_CHECK_MODULES(PC_LIBMICROHTTPD "libmicrohttpd")
+    PKG_CHECK_MODULES(PC_LIBMICROHTTPD "microhttpd")
 ENDIF (NOT PC_LIBMICROHTTPD_FOUND)
 
 # some libraries install the headers is a subdirectory of the include dir
@@ -14,13 +14,13 @@ ENDIF (NOT PC_LIBMICROHTTPD_FOUND)
 # headers and SOs.
 find_path(
     LIBMICROHTTPD_INCLUDE_DIRS
-    NAMES libmicrohttpd.h
+    NAMES microhttpd.h
     HINTS ${PC_LIBMICROHTTPD_INCLUDE_DIRS} ${PC_LIBMICROHTTPD_INCLUDE_DIRS}/*
 )
 
 find_library(
     LIBMICROHTTPD_LIBRARIES
-    NAMES libmicrohttpd
+    NAMES microhttpd
     HINTS ${PC_LIBMICROHTTPD_LIBRARY_DIRS} ${PC_LIBMICROHTTPD_LIBRARY_DIRS}/*
 )
 
