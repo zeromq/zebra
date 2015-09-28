@@ -38,7 +38,6 @@ EXTRA_DIST = \
     src/zwr_request.h \
     src/zwr_response.h \
     src/zwr_connection.h \
-    src/zwr_microhttpd.h \
     src/zwr_dispatcher.h \
     src/zwebrap_classes.h \
     LICENSE \

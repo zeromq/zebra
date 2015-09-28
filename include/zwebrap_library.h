@@ -49,6 +49,8 @@
 #endif
 
 //  Opaque class structures to allow forward references
+typedef struct _zwr_microhttpd_t zwr_microhttpd_t;
+#define ZWR_MICROHTTPD_T_DEFINED
 typedef struct _xrap_msg_t xrap_msg_t;
 #define XRAP_MSG_T_DEFINED
 typedef struct _xrap_traffic_t xrap_traffic_t;
@@ -60,6 +62,7 @@ typedef struct _zwr_client_t zwr_client_t;
 
 
 //  Public API classes
+#include "zwr_microhttpd.h"
 #include "xrap_msg.h"
 #include "xrap_traffic.h"
 #include "zwr_server.h"

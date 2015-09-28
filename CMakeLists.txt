@@ -121,11 +121,11 @@ set (zwebrap_headers
     src/zwr_request.h
     src/zwr_response.h
     src/zwr_connection.h
+    include/zwr_microhttpd.h
     include/xrap_msg.h
     include/xrap_traffic.h
     include/zwr_server.h
     include/zwr_client.h
-    src/zwr_microhttpd.h
     src/zwr_dispatcher.h
     src/zwr_server_engine.inc
 )
@@ -140,11 +140,11 @@ set (zwebrap_sources
     src/zwr_request.c
     src/zwr_response.c
     src/zwr_connection.c
+    src/zwr_microhttpd.c
     src/xrap_msg.c
     src/xrap_traffic.c
     src/zwr_server.c
     src/zwr_client.c
-    src/zwr_microhttpd.c
     src/zwr_dispatcher.c
 )
 source_group ("Source Files" FILES ${zwebrap_sources})

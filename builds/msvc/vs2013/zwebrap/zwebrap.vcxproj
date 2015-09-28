@@ -91,6 +91,9 @@
     <ClCompile Include="..\..\..\..\src\zwr_connection.c">
       <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\src\zwr_microhttpd.c">
+      <CompileAs>CompileAsCpp</CompileAs>
+    </ClCompile>
     <ClCompile Include="..\..\..\..\src\xrap_msg.c">
       <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
@@ -101,9 +104,6 @@
       <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
     <ClCompile Include="..\..\..\..\src\zwr_client.c">
-      <CompileAs>CompileAsCpp</CompileAs>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\src\zwr_microhttpd.c">
       <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
     <ClCompile Include="..\..\..\..\src\zwr_dispatcher.c">

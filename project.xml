@@ -58,6 +58,7 @@
     <class name = "zwr_request" private = "1">Representation of a HTTP request.</class>
     <class name = "zwr_response" private = "1">Representation of a HTTP response.</class>
     <class name = "zwr_connection" private = "1">Wrapper for zwr_request and zwr_response.</class>
+    <class name = "zwr_microhttpd">HTTP web server backend using libmicrohttpd.</class>
 
     <!--
         Actors, are build using the simple actor framework from czmq. If the
@@ -67,7 +68,6 @@
         about actors.
     <actor name = "someactor" private = "1">Private actor description</actor>
     -->
-    <actor name = "zwr_microhttpd" private = "1">HTTP web server backend using libmicrohttpd.</actor>
     <actor name = "zwr_dispatcher" private = "1">XRAP message dispatcher</actor>
 
     <!--

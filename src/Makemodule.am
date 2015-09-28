@@ -17,6 +17,7 @@ pkgconfig_DATA = src/libzwebrap.pc
 
 include_HEADERS = \
     include/zwebrap.h \
+    include/zwr_microhttpd.h \
     include/xrap_msg.h \
     include/xrap_traffic.h \
     include/zwr_server.h \
@@ -27,11 +28,11 @@ src_libzwebrap_la_SOURCES = \
     src/zwr_request.c \
     src/zwr_response.c \
     src/zwr_connection.c \
+    src/zwr_microhttpd.c \
     src/xrap_msg.c \
     src/xrap_traffic.c \
     src/zwr_server.c \
     src/zwr_client.c \
-    src/zwr_microhttpd.c \
     src/zwr_dispatcher.c \
     src/zwr_server_engine.inc \
     src/platform.h

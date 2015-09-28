@@ -25,7 +25,6 @@
 #include "zwr_request.h"
 #include "zwr_response.h"
 #include "zwr_connection.h"
-#include "zwr_microhttpd.h"
 #include "zwr_dispatcher.h"
 
 #endif

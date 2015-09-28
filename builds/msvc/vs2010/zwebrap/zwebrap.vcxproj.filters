@@ -16,6 +16,9 @@
     <ClCompile Include="..\..\..\..\src\zwr_connection.c">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\src\zwr_microhttpd.c">
+      <Filter>src</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\..\..\src\xrap_msg.c">
       <Filter>src</Filter>
     </ClCompile>
@@ -26,9 +29,6 @@
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\src\zwr_client.c">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\src\zwr_microhttpd.c">
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\src\zwr_dispatcher.c">

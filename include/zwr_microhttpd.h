@@ -20,7 +20,11 @@ extern "C" {
 
 #define HTTP_HEADER_CONTENT_TYPE "Content-Type"
 
+//  Opaque class structure
+#ifndef ZWR_MICROHTTPD_T_DEFINED
 typedef struct _zwr_microhttpd_t zwr_microhttpd_t;
+#define ZWR_MICROHTTPD_T_DEFINED
+#endif
 
 //  @interface
 //  Create new zwr_microhttpd actor instance.
