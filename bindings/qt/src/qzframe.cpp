@@ -9,7 +9,7 @@
 
 ///
 //  Private copy-construct to return the proper wrapped c types
-QZframe::QZframe (zframe_t *self, QObject *parent) : QObject (parent)
+QZframe::QZframe (zframe_t *self, QObject *qObjParent) : QObject (qObjParent)
 {
     this->self = self;
 }
@@ -19,7 +19,7 @@ QZframe::QZframe (zframe_t *self, QObject *parent) : QObject (parent)
 //  Create a new frame. If size is not null, allocates the frame data
 //  to the specified size. If additionally, data is not null, copies 
 //  size octets from the specified data into the frame body.         
-QZframe::QZframe (const void *data, size_t size, QObject *parent) : QObject (parent)
+QZframe::QZframe (const void *data, size_t size, QObject *qObjParent) : QObject (qObjParent)
 {
     this->self = zframe_new (data, size);
 }
@@ -35,16 +35,16 @@ QZframe::~QZframe ()
 //  Create an empty (zero-sized) frame
 QZframe * QZframe::newEmpty ()
 {
-    QZframe *retQ_ = new QZframe (zframe_new_empty ());
-    return retQ_;
+    QZframe *rv = new QZframe (zframe_new_empty ());
+    return rv;
 }
 
 ///
 //  Create a frame with a specified string content.
 QZframe * QZframe::from (const QString &string)
 {
-    QZframe *retQ_ = new QZframe (zframe_from (string.toUtf8().data()));
-    return retQ_;
+    QZframe *rv = new QZframe (zframe_from (string.toUtf8().data()));
+    return rv;
 }
 
 ///
@@ -53,8 +53,8 @@ QZframe * QZframe::from (const QString &string)
 //  zpoller or zloop.                                                       
 QZframe * QZframe::recv (void *source)
 {
-    QZframe *retQ_ = new QZframe (zframe_recv (source));
-    return retQ_;
+    QZframe *rv = new QZframe (zframe_recv (source));
+    return rv;
 }
 
 ///
@@ -62,7 +62,8 @@ QZframe * QZframe::recv (void *source)
 //  Return -1 on error, 0 on success.                     
 int QZframe::send (void *dest, int flags)
 {
-    return zframe_send (&self, dest, flags);
+    int rv = zframe_send (&self, dest, flags);
+    return rv;
 }
 
 ///
@@ -70,21 +71,24 @@ int QZframe::send (void *dest, int flags)
 //  Return -1 on error, 0 on success.                                                                           
 int QZframe::sendReply (QZframe *sourceMsg, void *dest, int flags)
 {
-    return zframe_send_reply (&self, sourceMsg->self, dest, flags);
+    int rv = zframe_send_reply (&self, sourceMsg->self, dest, flags);
+    return rv;
 }
 
 ///
 //  Return number of bytes in frame data
 size_t QZframe::size ()
 {
-    return zframe_size (self);
+    size_t rv = zframe_size (self);
+    return rv;
 }
 
 ///
 //  Return address of frame data
 byte * QZframe::data ()
 {
-    return zframe_data (self);
+    byte * rv = zframe_data (self);
+    return rv;
 }
 
 ///
@@ -92,8 +96,8 @@ byte * QZframe::data ()
 //  or memory was exhausted, returns null.                                 
 QZframe * QZframe::dup ()
 {
-    QZframe *retQ_ = new QZframe (zframe_dup (self));
-    return retQ_;
+    QZframe *rv = new QZframe (zframe_dup (self));
+    return rv;
 }
 
 ///
@@ -102,9 +106,9 @@ QZframe * QZframe::dup ()
 QString QZframe::strhex ()
 {
     char *retStr_ = zframe_strhex (self);
-    QString retQStr_ = QString (retStr_);
-    free (retStr_);
-    return retQStr_;
+    QString rv = QString (retStr_);
+    free (retStr_);;
+    return rv;
 }
 
 ///
@@ -113,16 +117,17 @@ QString QZframe::strhex ()
 QString QZframe::strdup ()
 {
     char *retStr_ = zframe_strdup (self);
-    QString retQStr_ = QString (retStr_);
-    free (retStr_);
-    return retQStr_;
+    QString rv = QString (retStr_);
+    free (retStr_);;
+    return rv;
 }
 
 ///
 //  Return TRUE if frame body is equal to string, excluding terminator
 bool QZframe::streqNoConflict (const QString &string)
 {
-    return zframe_streq (self, string.toUtf8().data());
+    bool rv = zframe_streq (self, string.toUtf8().data());
+    return rv;
 }
 
 ///
@@ -130,7 +135,8 @@ bool QZframe::streqNoConflict (const QString &string)
 //  or by the zframe_set_more() method                                      
 int QZframe::more ()
 {
-    return zframe_more (self);
+    int rv = zframe_more (self);
+    return rv;
 }
 
 ///
@@ -139,6 +145,7 @@ int QZframe::more ()
 void QZframe::setMore (int more)
 {
     zframe_set_more (self, more);
+    
 }
 
 ///
@@ -146,7 +153,8 @@ void QZframe::setMore (int more)
 //  or by the zframe_set_routing_id() method.                         
 size_t QZframe::routingId ()
 {
-    return zframe_routing_id (self);
+    size_t rv = zframe_routing_id (self);
+    return rv;
 }
 
 ///
@@ -154,6 +162,7 @@ size_t QZframe::routingId ()
 void QZframe::setRoutingId (size_t routingId)
 {
     zframe_set_routing_id (self, routingId);
+    
 }
 
 ///
@@ -161,7 +170,8 @@ void QZframe::setRoutingId (size_t routingId)
 //  If either frame is NULL, equality is always false.    
 bool QZframe::eq (QZframe *other)
 {
-    return zframe_eq (self, other->self);
+    bool rv = zframe_eq (self, other->self);
+    return rv;
 }
 
 ///
@@ -169,6 +179,7 @@ bool QZframe::eq (QZframe *other)
 void QZframe::reset (const void *data, size_t size)
 {
     zframe_reset (self, data, size);
+    
 }
 
 ///
@@ -177,13 +188,15 @@ void QZframe::reset (const void *data, size_t size)
 void QZframe::print (const QString &prefix)
 {
     zframe_print (self, prefix.toUtf8().data());
+    
 }
 
 ///
 //  Probe the supplied object, and report if it looks like a zframe_t.
 bool QZframe::is (void *self)
 {
-    return zframe_is (self);
+    bool rv = zframe_is (self);
+    return rv;
 }
 
 ///
@@ -191,6 +204,7 @@ bool QZframe::is (void *self)
 void QZframe::test (bool verbose)
 {
     zframe_test (verbose);
+    
 }
 /*
 ################################################################################

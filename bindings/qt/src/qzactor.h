@@ -15,10 +15,10 @@ class QT_ZWEBRAP_EXPORT QZactor : public QObject
 public:
 
    //  Copy-construct to return the proper wrapped c types
-   QZactor (zactor_t *self, QObject *parent = 0);
+   QZactor (zactor_t *self, QObject *qObjParent = 0);
 
     //  Create a new actor passing arbitrary arguments reference.
-    explicit QZactor (zactor_fn task, void *args, QObject *parent = 0);
+    explicit QZactor (zactor_fn task, void *args, QObject *qObjParent = 0);
 
     //  Destroy an actor.
     ~QZactor ();

@@ -9,7 +9,7 @@
 
 ///
 //  Private copy-construct to return the proper wrapped c types
-QZactor::QZactor (zactor_t *self, QObject *parent) : QObject (parent)
+QZactor::QZactor (zactor_t *self, QObject *qObjParent) : QObject (qObjParent)
 {
     this->self = self;
 }
@@ -17,7 +17,7 @@ QZactor::QZactor (zactor_t *self, QObject *parent) : QObject (parent)
 
 ///
 //  Create a new actor passing arbitrary arguments reference.
-QZactor::QZactor (zactor_fn task, void *args, QObject *parent) : QObject (parent)
+QZactor::QZactor (zactor_fn task, void *args, QObject *qObjParent) : QObject (qObjParent)
 {
     this->self = zactor_new (task, args);
 }
@@ -34,7 +34,8 @@ QZactor::~QZactor ()
 //  and destroy when it has been sent.                             
 int QZactor::send (QZmsg *msgP)
 {
-    return zactor_send (self, &msgP->self);
+    int rv = zactor_send (self, &msgP->self);
+    return rv;
 }
 
 ///
@@ -43,15 +44,16 @@ int QZactor::send (QZmsg *msgP)
 //  was a timeout on the actor.                                      
 QZmsg * QZactor::recv ()
 {
-    QZmsg *retQ_ = new QZmsg (zactor_recv (self));
-    return retQ_;
+    QZmsg *rv = new QZmsg (zactor_recv (self));
+    return rv;
 }
 
 ///
 //  Probe the supplied object, and report if it looks like a zactor_t.
 bool QZactor::is (void *self)
 {
-    return zactor_is (self);
+    bool rv = zactor_is (self);
+    return rv;
 }
 
 ///
@@ -60,7 +62,8 @@ bool QZactor::is (void *self)
 //  a libzmq actor handle, return the supplied value.                  
 void * QZactor::resolve (void *self)
 {
-    return zactor_resolve (self);
+    void * rv = zactor_resolve (self);
+    return rv;
 }
 
 ///
@@ -68,8 +71,8 @@ void * QZactor::resolve (void *self)
 //  to work with the zsock instance rather than the actor.            
 QZsock * QZactor::sock ()
 {
-    QZsock *retQ_ = new QZsock (zactor_sock (self));
-    return retQ_;
+    QZsock *rv = new QZsock (zactor_sock (self));
+    return rv;
 }
 
 ///
@@ -77,6 +80,7 @@ QZsock * QZactor::sock ()
 void QZactor::test (bool verbose)
 {
     zactor_test (verbose);
+    
 }
 /*
 ################################################################################

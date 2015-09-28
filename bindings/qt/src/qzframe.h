@@ -15,12 +15,12 @@ class QT_ZWEBRAP_EXPORT QZframe : public QObject
 public:
 
    //  Copy-construct to return the proper wrapped c types
-   QZframe (zframe_t *self, QObject *parent = 0);
+   QZframe (zframe_t *self, QObject *qObjParent = 0);
 
     //  Create a new frame. If size is not null, allocates the frame data
     //  to the specified size. If additionally, data is not null, copies 
     //  size octets from the specified data into the frame body.         
-    explicit QZframe (const void *data, size_t size, QObject *parent = 0);
+    explicit QZframe (const void *data, size_t size, QObject *qObjParent = 0);
 
     //  Destroy a frame
     ~QZframe ();

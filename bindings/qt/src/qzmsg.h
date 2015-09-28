@@ -15,10 +15,10 @@ class QT_ZWEBRAP_EXPORT QZmsg : public QObject
 public:
 
    //  Copy-construct to return the proper wrapped c types
-   QZmsg (zmsg_t *self, QObject *parent = 0);
+   QZmsg (zmsg_t *self, QObject *qObjParent = 0);
 
     //  Create a new empty message object
-    explicit QZmsg (QObject *parent = 0);
+    explicit QZmsg (QObject *qObjParent = 0);
 
     //  Destroy a message object and all frames it contains
     ~QZmsg ();

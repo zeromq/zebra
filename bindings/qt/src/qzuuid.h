@@ -15,10 +15,10 @@ class QT_ZWEBRAP_EXPORT QZuuid : public QObject
 public:
 
    //  Copy-construct to return the proper wrapped c types
-   QZuuid (zuuid_t *self, QObject *parent = 0);
+   QZuuid (zuuid_t *self, QObject *qObjParent = 0);
 
     //  Constructor
-    explicit QZuuid (QObject *parent = 0);
+    explicit QZuuid (QObject *qObjParent = 0);
 
     //  Destructor
     ~QZuuid ();

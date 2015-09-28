@@ -15,7 +15,7 @@ class QT_ZWEBRAP_EXPORT QZsock : public QObject
 public:
 
    //  Copy-construct to return the proper wrapped c types
-   QZsock (zsock_t *self, QObject *parent = 0);
+   QZsock (zsock_t *self, QObject *qObjParent = 0);
 
     //  Create a new socket. Returns the new socket, or NULL if the new socket
     //  could not be created. Note that the symbol zsock_new (and other       
@@ -23,7 +23,7 @@ public:
     //  variant, enabling intelligent socket leak detection. This can have    
     //  performance implications if you use a LOT of sockets. To turn off this
     //  redirection behaviour, define ZSOCK_NOCHECK.                          
-    explicit QZsock (int type, QObject *parent = 0);
+    explicit QZsock (int type, QObject *qObjParent = 0);
 
     //  Destroy the socket. You must use this for any socket created via the
     //  zsock_new method.                                                   
@@ -148,7 +148,7 @@ public:
     //  have data in a zchunk or zframe. Does not change or take ownership of 
     //  any arguments. Returns 0 if successful, -1 if sending failed for any  
     //  reason.                                                               
-    int send (const QString &picture);
+    int send (const QString &picture,  ...);
 
     //  Send a 'picture' message to the socket (or actor). This is a va_list 
     //  version of zsock_send (), so please consult its documentation for the
@@ -181,7 +181,7 @@ public:
     //  If an argument pointer is NULL, does not store any value (skips it).    
     //  An 'n' picture matches an empty frame; if the message does not match,   
     //  the method will return -1.                                              
-    int recv (const QString &picture);
+    int recv (const QString &picture,  ...);
 
     //  Receive a 'picture' message from the socket (or actor). This is a    
     //  va_list version of zsock_recv (), so please consult its documentation

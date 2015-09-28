@@ -9,7 +9,7 @@
 
 ///
 //  Private copy-construct to return the proper wrapped c types
-QZuuid::QZuuid (zuuid_t *self, QObject *parent) : QObject (parent)
+QZuuid::QZuuid (zuuid_t *self, QObject *qObjParent) : QObject (qObjParent)
 {
     this->self = self;
 }
@@ -17,7 +17,7 @@ QZuuid::QZuuid (zuuid_t *self, QObject *parent) : QObject (parent)
 
 ///
 //  Constructor
-QZuuid::QZuuid (QObject *parent) : QObject (parent)
+QZuuid::QZuuid (QObject *qObjParent) : QObject (qObjParent)
 {
     this->self = zuuid_new ();
 }
@@ -34,14 +34,15 @@ QZuuid::~QZuuid ()
 void QZuuid::print ()
 {
     zuuid_print (self);
+    
 }
 
 ///
 //  Create UUID object from supplied ZUUID_LEN-octet value.
 QZuuid * QZuuid::newFrom (const byte *source)
 {
-    QZuuid *retQ_ = new QZuuid (zuuid_new_from (source));
-    return retQ_;
+    QZuuid *rv = new QZuuid (zuuid_new_from (source));
+    return rv;
 }
 
 ///
@@ -49,6 +50,7 @@ QZuuid * QZuuid::newFrom (const byte *source)
 void QZuuid::set (const byte *source)
 {
     zuuid_set (self, source);
+    
 }
 
 ///
@@ -56,28 +58,32 @@ void QZuuid::set (const byte *source)
 //  optional delimiters. Return 0 if OK, else returns -1.         
 int QZuuid::setStr (const QString &source)
 {
-    return zuuid_set_str (self, source.toUtf8().data());
+    int rv = zuuid_set_str (self, source.toUtf8().data());
+    return rv;
 }
 
 ///
 //  Return UUID binary data.
 const byte * QZuuid::data ()
 {
-    return zuuid_data (self);
+    const byte * rv = zuuid_data (self);
+    return rv;
 }
 
 ///
 //  Return UUID binary size
 size_t QZuuid::size ()
 {
-    return zuuid_size (self);
+    size_t rv = zuuid_size (self);
+    return rv;
 }
 
 ///
 //  Returns UUID as string
 const QString QZuuid::str ()
 {
-    return QString (zuuid_str (self));
+    const QString rv = QString (zuuid_str (self));
+    return rv;
 }
 
 ///
@@ -86,7 +92,8 @@ const QString QZuuid::str ()
 //  http://en.wikipedia.org/wiki/Universally_unique_identifier      
 const QString QZuuid::strCanonical ()
 {
-    return QString (zuuid_str_canonical (self));
+    const QString rv = QString (zuuid_str_canonical (self));
+    return rv;
 }
 
 ///
@@ -94,20 +101,23 @@ const QString QZuuid::strCanonical ()
 void QZuuid::exportNoConflict (byte *target)
 {
     zuuid_export (self, target);
+    
 }
 
 ///
 //  Check if UUID is same as supplied value
 bool QZuuid::eq (const byte *compare)
 {
-    return zuuid_eq (self, compare);
+    bool rv = zuuid_eq (self, compare);
+    return rv;
 }
 
 ///
 //  Check if UUID is different from supplied value
 bool QZuuid::neq (const byte *compare)
 {
-    return zuuid_neq (self, compare);
+    bool rv = zuuid_neq (self, compare);
+    return rv;
 }
 
 ///
@@ -115,8 +125,8 @@ bool QZuuid::neq (const byte *compare)
 //  returns null.                                                      
 QZuuid * QZuuid::dup ()
 {
-    QZuuid *retQ_ = new QZuuid (zuuid_dup (self));
-    return retQ_;
+    QZuuid *rv = new QZuuid (zuuid_dup (self));
+    return rv;
 }
 
 ///
@@ -124,6 +134,7 @@ QZuuid * QZuuid::dup ()
 void QZuuid::test (bool verbose)
 {
     zuuid_test (verbose);
+    
 }
 /*
 ################################################################################

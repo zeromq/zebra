@@ -9,7 +9,7 @@
 
 ///
 //  Private copy-construct to return the proper wrapped c types
-QZsock::QZsock (zsock_t *self, QObject *parent) : QObject (parent)
+QZsock::QZsock (zsock_t *self, QObject *qObjParent) : QObject (qObjParent)
 {
     this->self = self;
 }
@@ -22,7 +22,7 @@ QZsock::QZsock (zsock_t *self, QObject *parent) : QObject (parent)
 //  variant, enabling intelligent socket leak detection. This can have    
 //  performance implications if you use a LOT of sockets. To turn off this
 //  redirection behaviour, define ZSOCK_NOCHECK.                          
-QZsock::QZsock (int type, QObject *parent) : QObject (parent)
+QZsock::QZsock (int type, QObject *qObjParent) : QObject (qObjParent)
 {
     this->self = zsock_new (type);
 }
@@ -39,8 +39,8 @@ QZsock::~QZsock ()
 //  Create a PUB socket. Default action is bind.
 QZsock * QZsock::newPub (const QString &endpoint)
 {
-    QZsock *retQ_ = new QZsock (zsock_new_pub (endpoint.toUtf8().data()));
-    return retQ_;
+    QZsock *rv = new QZsock (zsock_new_pub (endpoint.toUtf8().data()));
+    return rv;
 }
 
 ///
@@ -48,104 +48,104 @@ QZsock * QZsock::newPub (const QString &endpoint)
 //  action is connect.                                                          
 QZsock * QZsock::newSub (const QString &endpoint, const QString &subscribe)
 {
-    QZsock *retQ_ = new QZsock (zsock_new_sub (endpoint.toUtf8().data(), subscribe.toUtf8().data()));
-    return retQ_;
+    QZsock *rv = new QZsock (zsock_new_sub (endpoint.toUtf8().data(), subscribe.toUtf8().data()));
+    return rv;
 }
 
 ///
 //  Create a REQ socket. Default action is connect.
 QZsock * QZsock::newReq (const QString &endpoint)
 {
-    QZsock *retQ_ = new QZsock (zsock_new_req (endpoint.toUtf8().data()));
-    return retQ_;
+    QZsock *rv = new QZsock (zsock_new_req (endpoint.toUtf8().data()));
+    return rv;
 }
 
 ///
 //  Create a REP socket. Default action is bind.
 QZsock * QZsock::newRep (const QString &endpoint)
 {
-    QZsock *retQ_ = new QZsock (zsock_new_rep (endpoint.toUtf8().data()));
-    return retQ_;
+    QZsock *rv = new QZsock (zsock_new_rep (endpoint.toUtf8().data()));
+    return rv;
 }
 
 ///
 //  Create a DEALER socket. Default action is connect.
 QZsock * QZsock::newDealer (const QString &endpoint)
 {
-    QZsock *retQ_ = new QZsock (zsock_new_dealer (endpoint.toUtf8().data()));
-    return retQ_;
+    QZsock *rv = new QZsock (zsock_new_dealer (endpoint.toUtf8().data()));
+    return rv;
 }
 
 ///
 //  Create a ROUTER socket. Default action is bind.
 QZsock * QZsock::newRouter (const QString &endpoint)
 {
-    QZsock *retQ_ = new QZsock (zsock_new_router (endpoint.toUtf8().data()));
-    return retQ_;
+    QZsock *rv = new QZsock (zsock_new_router (endpoint.toUtf8().data()));
+    return rv;
 }
 
 ///
 //  Create a PUSH socket. Default action is connect.
 QZsock * QZsock::newPush (const QString &endpoint)
 {
-    QZsock *retQ_ = new QZsock (zsock_new_push (endpoint.toUtf8().data()));
-    return retQ_;
+    QZsock *rv = new QZsock (zsock_new_push (endpoint.toUtf8().data()));
+    return rv;
 }
 
 ///
 //  Create a PULL socket. Default action is bind.
 QZsock * QZsock::newPull (const QString &endpoint)
 {
-    QZsock *retQ_ = new QZsock (zsock_new_pull (endpoint.toUtf8().data()));
-    return retQ_;
+    QZsock *rv = new QZsock (zsock_new_pull (endpoint.toUtf8().data()));
+    return rv;
 }
 
 ///
 //  Create an XPUB socket. Default action is bind.
 QZsock * QZsock::newXpub (const QString &endpoint)
 {
-    QZsock *retQ_ = new QZsock (zsock_new_xpub (endpoint.toUtf8().data()));
-    return retQ_;
+    QZsock *rv = new QZsock (zsock_new_xpub (endpoint.toUtf8().data()));
+    return rv;
 }
 
 ///
 //  Create an XSUB socket. Default action is connect.
 QZsock * QZsock::newXsub (const QString &endpoint)
 {
-    QZsock *retQ_ = new QZsock (zsock_new_xsub (endpoint.toUtf8().data()));
-    return retQ_;
+    QZsock *rv = new QZsock (zsock_new_xsub (endpoint.toUtf8().data()));
+    return rv;
 }
 
 ///
 //  Create a PAIR socket. Default action is connect.
 QZsock * QZsock::newPair (const QString &endpoint)
 {
-    QZsock *retQ_ = new QZsock (zsock_new_pair (endpoint.toUtf8().data()));
-    return retQ_;
+    QZsock *rv = new QZsock (zsock_new_pair (endpoint.toUtf8().data()));
+    return rv;
 }
 
 ///
 //  Create a STREAM socket. Default action is connect.
 QZsock * QZsock::newStream (const QString &endpoint)
 {
-    QZsock *retQ_ = new QZsock (zsock_new_stream (endpoint.toUtf8().data()));
-    return retQ_;
+    QZsock *rv = new QZsock (zsock_new_stream (endpoint.toUtf8().data()));
+    return rv;
 }
 
 ///
 //  Create a SERVER socket. Default action is bind.
 QZsock * QZsock::newServer (const QString &endpoint)
 {
-    QZsock *retQ_ = new QZsock (zsock_new_server (endpoint.toUtf8().data()));
-    return retQ_;
+    QZsock *rv = new QZsock (zsock_new_server (endpoint.toUtf8().data()));
+    return rv;
 }
 
 ///
 //  Create a CLIENT socket. Default action is connect.
 QZsock * QZsock::newClient (const QString &endpoint)
 {
-    QZsock *retQ_ = new QZsock (zsock_new_client (endpoint.toUtf8().data()));
-    return retQ_;
+    QZsock *rv = new QZsock (zsock_new_client (endpoint.toUtf8().data()));
+    return rv;
 }
 
 ///
@@ -171,14 +171,16 @@ QZsock * QZsock::newClient (const QString &endpoint)
 //  this into account.                                                      
 int QZsock::bind (const QString &format)
 {
-    return zsock_bind (self, "%s", format.toUtf8().data());
+    int rv = zsock_bind (self, "%s", format.toUtf8().data());
+    return rv;
 }
 
 ///
 //  Returns last bound endpoint, if any.
 const QString QZsock::endpoint ()
 {
-    return QString (zsock_endpoint (self));
+    const QString rv = QString (zsock_endpoint (self));
+    return rv;
 }
 
 ///
@@ -187,7 +189,8 @@ const QString QZsock::endpoint ()
 //  isn't supported.                                               
 int QZsock::unbind (const QString &format)
 {
-    return zsock_unbind (self, "%s", format.toUtf8().data());
+    int rv = zsock_unbind (self, "%s", format.toUtf8().data());
+    return rv;
 }
 
 ///
@@ -195,7 +198,8 @@ int QZsock::unbind (const QString &format)
 //  Returns 0 if OK, -1 if the endpoint was invalid.
 int QZsock::connect (const QString &format)
 {
-    return zsock_connect (self, "%s", format.toUtf8().data());
+    int rv = zsock_connect (self, "%s", format.toUtf8().data());
+    return rv;
 }
 
 ///
@@ -204,7 +208,8 @@ int QZsock::connect (const QString &format)
 //  isn't supported.                                               
 int QZsock::disconnect (const QString &format)
 {
-    return zsock_disconnect (self, "%s", format.toUtf8().data());
+    int rv = zsock_disconnect (self, "%s", format.toUtf8().data());
+    return rv;
 }
 
 ///
@@ -216,14 +221,16 @@ int QZsock::disconnect (const QString &format)
 //  it is used to bind (serverish = true) or connect (serverish = false).    
 int QZsock::attach (const QString &endpoints, bool serverish)
 {
-    return zsock_attach (self, endpoints.toUtf8().data(), serverish);
+    int rv = zsock_attach (self, endpoints.toUtf8().data(), serverish);
+    return rv;
 }
 
 ///
 //  Returns socket type as printable constant string.
 const QString QZsock::typeStr ()
 {
-    return QString (zsock_type_str (self));
+    const QString rv = QString (zsock_type_str (self));
+    return rv;
 }
 
 ///
@@ -253,9 +260,13 @@ const QString QZsock::typeStr ()
 //  have data in a zchunk or zframe. Does not change or take ownership of 
 //  any arguments. Returns 0 if successful, -1 if sending failed for any  
 //  reason.                                                               
-int QZsock::send (const QString &picture)
+int QZsock::send (const QString &picture,  ...)
 {
-    return zsock_send (self, picture.toUtf8().data());
+    va_list args;
+    va_start (args, picture);
+    int rv = zsock_vsend (self, picture.toUtf8().data(), args);
+    va_end (args);
+    return rv;
 }
 
 ///
@@ -264,7 +275,8 @@ int QZsock::send (const QString &picture)
 //  details.                                                             
 int QZsock::vsend (const QString &picture, va_list argptr)
 {
-    return zsock_vsend (self, picture.toUtf8().data(), argptr);
+    int rv = zsock_vsend (self, picture.toUtf8().data(), argptr);
+    return rv;
 }
 
 ///
@@ -294,9 +306,13 @@ int QZsock::vsend (const QString &picture, va_list argptr)
 //  If an argument pointer is NULL, does not store any value (skips it).    
 //  An 'n' picture matches an empty frame; if the message does not match,   
 //  the method will return -1.                                              
-int QZsock::recv (const QString &picture)
+int QZsock::recv (const QString &picture,  ...)
 {
-    return zsock_recv (self, picture.toUtf8().data());
+    va_list args;
+    va_start (args, picture);
+    int rv = zsock_vrecv (self, picture.toUtf8().data(), args);
+    va_end (args);
+    return rv;
 }
 
 ///
@@ -305,7 +321,8 @@ int QZsock::recv (const QString &picture)
 //  for the details.                                                     
 int QZsock::vrecv (const QString &picture, va_list argptr)
 {
-    return zsock_vrecv (self, picture.toUtf8().data(), argptr);
+    int rv = zsock_vrecv (self, picture.toUtf8().data(), argptr);
+    return rv;
 }
 
 ///
@@ -332,7 +349,8 @@ int QZsock::vrecv (const QString &picture, va_list argptr)
 //  successful, -1 if sending failed for any reason.                       
 int QZsock::bsend (const QString &picture)
 {
-    return zsock_bsend (self, picture.toUtf8().data());
+    int rv = zsock_bsend (self, picture.toUtf8().data());
+    return rv;
 }
 
 ///
@@ -346,7 +364,8 @@ int QZsock::bsend (const QString &picture)
 //  values. Returns 0 if successful, or -1 if it failed to read a message.  
 int QZsock::brecv (const QString &picture)
 {
-    return zsock_brecv (self, picture.toUtf8().data());
+    int rv = zsock_brecv (self, picture.toUtf8().data());
+    return rv;
 }
 
 ///
@@ -356,6 +375,7 @@ int QZsock::brecv (const QString &picture)
 void QZsock::setUnbounded ()
 {
     zsock_set_unbounded (self);
+    
 }
 
 ///
@@ -366,7 +386,8 @@ void QZsock::setUnbounded ()
 //  not be sent. Takes a polymorphic socket reference.                    
 int QZsock::signal (byte status)
 {
-    return zsock_signal (self, status);
+    int rv = zsock_signal (self, status);
+    return rv;
 }
 
 ///
@@ -376,7 +397,8 @@ int QZsock::signal (byte status)
 //  Takes a polymorphic socket reference.                                
 int QZsock::wait ()
 {
-    return zsock_wait (self);
+    int rv = zsock_wait (self);
+    return rv;
 }
 
 ///
@@ -386,6 +408,7 @@ int QZsock::wait ()
 void QZsock::flush ()
 {
     zsock_flush (self);
+    
 }
 
 ///
@@ -393,7 +416,8 @@ void QZsock::flush ()
 //  Takes a polymorphic socket reference.                            
 bool QZsock::is (void *self)
 {
-    return zsock_is (self);
+    bool rv = zsock_is (self);
+    return rv;
 }
 
 ///
@@ -403,7 +427,8 @@ bool QZsock::is (void *self)
 //  return the supplied value. Takes a polymorphic socket reference.         
 void * QZsock::resolve (void *self)
 {
-    return zsock_resolve (self);
+    void * rv = zsock_resolve (self);
+    return rv;
 }
 
 ///
@@ -411,6 +436,7 @@ void * QZsock::resolve (void *self)
 void QZsock::test (bool verbose)
 {
     zsock_test (verbose);
+    
 }
 /*
 ################################################################################

@@ -9,7 +9,7 @@
 
 ///
 //  Private copy-construct to return the proper wrapped c types
-QZwrClient::QZwrClient (zwr_client_t *self, QObject *parent) : QObject (parent)
+QZwrClient::QZwrClient (zwr_client_t *self, QObject *qObjParent) : QObject (qObjParent)
 {
     this->self = self;
 }
@@ -18,7 +18,7 @@ QZwrClient::QZwrClient (zwr_client_t *self, QObject *parent) : QObject (parent)
 ///
 //  Create a new zwr_client, return the reference if successful, or NULL
 //  if construction failed due to lack of available memory.             
-QZwrClient::QZwrClient (QObject *parent) : QObject (parent)
+QZwrClient::QZwrClient (QObject *qObjParent) : QObject (qObjParent)
 {
     this->self = zwr_client_new ();
 }
@@ -35,6 +35,7 @@ QZwrClient::~QZwrClient ()
 void QZwrClient::print ()
 {
     zwr_client_print (self);
+    
 }
 
 ///
@@ -42,8 +43,8 @@ void QZwrClient::print ()
 //  input sockets asynchronously.                                      
 QZactor * QZwrClient::actor ()
 {
-    QZactor *retQ_ = new QZactor (zwr_client_actor (self));
-    return retQ_;
+    QZactor *rv = new QZactor (zwr_client_actor (self));
+    return rv;
 }
 
 ///
@@ -54,8 +55,8 @@ QZactor * QZwrClient::actor ()
 //  is never ambiguous.                                                       
 QZsock * QZwrClient::msgpipe ()
 {
-    QZsock *retQ_ = new QZsock (zwr_client_msgpipe (self));
-    return retQ_;
+    QZsock *rv = new QZsock (zwr_client_msgpipe (self));
+    return rv;
 }
 
 ///
@@ -64,7 +65,8 @@ QZsock * QZwrClient::msgpipe ()
 //  a successful first connection.                                            
 bool QZwrClient::connected ()
 {
-    return zwr_client_connected (self);
+    bool rv = zwr_client_connected (self);
+    return rv;
 }
 
 ///
@@ -74,7 +76,8 @@ bool QZwrClient::connected ()
 //  Returns >= 0 if successful, -1 if interrupted.                              
 int QZwrClient::connect (const QString &endpoint, quint32 timeout, const QString &address)
 {
-    return zwr_client_connect (self, endpoint.toUtf8().data(), (uint32_t) timeout, address.toUtf8().data());
+    int rv = zwr_client_connect (self, endpoint.toUtf8().data(), (uint32_t) timeout, address.toUtf8().data());
+    return rv;
 }
 
 ///
@@ -83,7 +86,8 @@ int QZwrClient::connect (const QString &endpoint, quint32 timeout, const QString
 //  Returns >= 0 if successful, -1 if interrupted.                             
 int QZwrClient::setHandler (const QString &method, const QString &route)
 {
-    return zwr_client_set_handler (self, method.toUtf8().data(), route.toUtf8().data());
+    int rv = zwr_client_set_handler (self, method.toUtf8().data(), route.toUtf8().data());
+    return rv;
 }
 
 ///
@@ -91,7 +95,8 @@ int QZwrClient::setHandler (const QString &method, const QString &route)
 //  Returns >= 0 if successful, -1 if interrupted.
 int QZwrClient::request (quint32 timeout, QZmsg *contentP)
 {
-    return zwr_client_request (self, (uint32_t) timeout, &contentP->self);
+    int rv = zwr_client_request (self, (uint32_t) timeout, &contentP->self);
+    return rv;
 }
 
 ///
@@ -99,15 +104,16 @@ int QZwrClient::request (quint32 timeout, QZmsg *contentP)
 //  and destroys message when done sending it.                     
 int QZwrClient::deliver (QZuuid *sender, QZmsg *contentP)
 {
-    return zwr_client_deliver (self, sender->self, &contentP->self);
+    int rv = zwr_client_deliver (self, sender->self, &contentP->self);
+    return rv;
 }
 
 ///
 //  Receive message from server; caller destroys message when done
 QZmsg * QZwrClient::recv ()
 {
-    QZmsg *retQ_ = new QZmsg (zwr_client_recv (self));
-    return retQ_;
+    QZmsg *rv = new QZmsg (zwr_client_recv (self));
+    return rv;
 }
 
 ///
@@ -115,37 +121,40 @@ QZmsg * QZwrClient::recv ()
 //      "XRAP DELIVER"                                       
 const QString QZwrClient::command ()
 {
-    return QString (zwr_client_command (self));
+    const QString rv = QString (zwr_client_command (self));
+    return rv;
 }
 
 ///
 //  Return last received status
 int QZwrClient::status ()
 {
-    return zwr_client_status (self);
+    int rv = zwr_client_status (self);
+    return rv;
 }
 
 ///
 //  Return last received reason
 const QString QZwrClient::reason ()
 {
-    return QString (zwr_client_reason (self));
+    const QString rv = QString (zwr_client_reason (self));
+    return rv;
 }
 
 ///
 //  Return last received sender
 QZuuid * QZwrClient::sender ()
 {
-    QZuuid *retQ_ = new QZuuid (zwr_client_sender (self));
-    return retQ_;
+    QZuuid *rv = new QZuuid (zwr_client_sender (self));
+    return rv;
 }
 
 ///
 //  Return last received content
 QZmsg * QZwrClient::content ()
 {
-    QZmsg *retQ_ = new QZmsg (zwr_client_content (self));
-    return retQ_;
+    QZmsg *rv = new QZmsg (zwr_client_content (self));
+    return rv;
 }
 
 ///
@@ -153,6 +162,7 @@ QZmsg * QZwrClient::content ()
 void QZwrClient::test (bool verbose)
 {
     zwr_client_test (verbose);
+    
 }
 /*
 ################################################################################

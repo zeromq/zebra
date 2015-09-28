@@ -9,7 +9,7 @@
 
 ///
 //  Private copy-construct to return the proper wrapped c types
-QZmsg::QZmsg (zmsg_t *self, QObject *parent) : QObject (parent)
+QZmsg::QZmsg (zmsg_t *self, QObject *qObjParent) : QObject (qObjParent)
 {
     this->self = self;
 }
@@ -17,7 +17,7 @@ QZmsg::QZmsg (zmsg_t *self, QObject *parent) : QObject (parent)
 
 ///
 //  Create a new empty message object
-QZmsg::QZmsg (QObject *parent) : QObject (parent)
+QZmsg::QZmsg (QObject *qObjParent) : QObject (qObjParent)
 {
     this->self = zmsg_new ();
 }
@@ -36,8 +36,8 @@ QZmsg::~QZmsg ()
 //  before receiving.                                                        
 QZmsg * QZmsg::recv (void *source)
 {
-    QZmsg *retQ_ = new QZmsg (zmsg_recv (source));
-    return retQ_;
+    QZmsg *rv = new QZmsg (zmsg_recv (source));
+    return rv;
 }
 
 ///
@@ -47,7 +47,8 @@ QZmsg * QZmsg::recv (void *source)
 //  it is a destructor).                                                     
 int QZmsg::send (void *dest)
 {
-    return zmsg_send (&self, dest);
+    int rv = zmsg_send (&self, dest);
+    return rv;
 }
 
 ///
@@ -59,21 +60,24 @@ int QZmsg::send (void *dest)
 //  it is a destructor).                                                    
 int QZmsg::sendm (void *dest)
 {
-    return zmsg_sendm (&self, dest);
+    int rv = zmsg_sendm (&self, dest);
+    return rv;
 }
 
 ///
 //  Return size of message, i.e. number of frames (0 or more).
 size_t QZmsg::size ()
 {
-    return zmsg_size (self);
+    size_t rv = zmsg_size (self);
+    return rv;
 }
 
 ///
 //  Return total size of all frames in message.
 size_t QZmsg::contentSize ()
 {
-    return zmsg_content_size (self);
+    size_t rv = zmsg_content_size (self);
+    return rv;
 }
 
 ///
@@ -83,7 +87,8 @@ size_t QZmsg::contentSize ()
 //  nullify the caller's frame reference.                                  
 int QZmsg::prepend (QZframe *frameP)
 {
-    return zmsg_prepend (self, &frameP->self);
+    int rv = zmsg_prepend (self, &frameP->self);
+    return rv;
 }
 
 ///
@@ -93,15 +98,16 @@ int QZmsg::prepend (QZframe *frameP)
 //  caller's frame reference.                                              
 int QZmsg::append (QZframe *frameP)
 {
-    return zmsg_append (self, &frameP->self);
+    int rv = zmsg_append (self, &frameP->self);
+    return rv;
 }
 
 ///
 //  Remove first frame from message, if any. Returns frame, or NULL.
 QZframe * QZmsg::pop ()
 {
-    QZframe *retQ_ = new QZframe (zmsg_pop (self));
-    return retQ_;
+    QZframe *rv = new QZframe (zmsg_pop (self));
+    return rv;
 }
 
 ///
@@ -109,7 +115,8 @@ QZframe * QZmsg::pop ()
 //  Returns 0 on success, -1 on error.                       
 int QZmsg::pushmem (const void *src, size_t size)
 {
-    return zmsg_pushmem (self, src, size);
+    int rv = zmsg_pushmem (self, src, size);
+    return rv;
 }
 
 ///
@@ -117,7 +124,8 @@ int QZmsg::pushmem (const void *src, size_t size)
 //  Returns 0 on success, -1 on error.                            
 int QZmsg::addmem (const void *src, size_t size)
 {
-    return zmsg_addmem (self, src, size);
+    int rv = zmsg_addmem (self, src, size);
+    return rv;
 }
 
 ///
@@ -125,7 +133,8 @@ int QZmsg::addmem (const void *src, size_t size)
 //  Returns 0 on success, -1 on error.           
 int QZmsg::pushstr (const QString &string)
 {
-    return zmsg_pushstr (self, string.toUtf8().data());
+    int rv = zmsg_pushstr (self, string.toUtf8().data());
+    return rv;
 }
 
 ///
@@ -133,7 +142,8 @@ int QZmsg::pushstr (const QString &string)
 //  Returns 0 on success, -1 on error.         
 int QZmsg::addstr (const QString &string)
 {
-    return zmsg_addstr (self, string.toUtf8().data());
+    int rv = zmsg_addstr (self, string.toUtf8().data());
+    return rv;
 }
 
 ///
@@ -141,7 +151,8 @@ int QZmsg::addstr (const QString &string)
 //  Returns 0 on success, -1 on error.                     
 int QZmsg::pushstrf (const QString &format)
 {
-    return zmsg_pushstrf (self, "%s", format.toUtf8().data());
+    int rv = zmsg_pushstrf (self, "%s", format.toUtf8().data());
+    return rv;
 }
 
 ///
@@ -149,7 +160,8 @@ int QZmsg::pushstrf (const QString &format)
 //  Returns 0 on success, -1 on error.                   
 int QZmsg::addstrf (const QString &format)
 {
-    return zmsg_addstrf (self, "%s", format.toUtf8().data());
+    int rv = zmsg_addstrf (self, "%s", format.toUtf8().data());
+    return rv;
 }
 
 ///
@@ -158,9 +170,9 @@ int QZmsg::addstrf (const QString &format)
 QString QZmsg::popstr ()
 {
     char *retStr_ = zmsg_popstr (self);
-    QString retQStr_ = QString (retStr_);
-    free (retStr_);
-    return retQStr_;
+    QString rv = QString (retStr_);
+    free (retStr_);;
+    return rv;
 }
 
 ///
@@ -169,7 +181,8 @@ QString QZmsg::popstr ()
 //  success, -1 on error.                                              
 int QZmsg::addmsg (QZmsg *msgP)
 {
-    return zmsg_addmsg (self, &msgP->self);
+    int rv = zmsg_addmsg (self, &msgP->self);
+    return rv;
 }
 
 ///
@@ -177,8 +190,8 @@ int QZmsg::addmsg (QZmsg *msgP)
 //  decoding was not succesfull.                                            
 QZmsg * QZmsg::popmsg ()
 {
-    QZmsg *retQ_ = new QZmsg (zmsg_popmsg (self));
-    return retQ_;
+    QZmsg *rv = new QZmsg (zmsg_popmsg (self));
+    return rv;
 }
 
 ///
@@ -186,6 +199,7 @@ QZmsg * QZmsg::popmsg ()
 void QZmsg::remove (QZframe *frame)
 {
     zmsg_remove (self, frame->self);
+    
 }
 
 ///
@@ -193,8 +207,8 @@ void QZmsg::remove (QZframe *frame)
 //  message is empty. Use this to navigate the frames as a list.        
 QZframe * QZmsg::first ()
 {
-    QZframe *retQ_ = new QZframe (zmsg_first (self));
-    return retQ_;
+    QZframe *rv = new QZframe (zmsg_first (self));
+    return rv;
 }
 
 ///
@@ -202,16 +216,16 @@ QZframe * QZmsg::first ()
 //  to the first frame call zmsg_first(). Advances the cursor.               
 QZframe * QZmsg::next ()
 {
-    QZframe *retQ_ = new QZframe (zmsg_next (self));
-    return retQ_;
+    QZframe *rv = new QZframe (zmsg_next (self));
+    return rv;
 }
 
 ///
 //  Return the last frame. If there are no frames, returns NULL.
 QZframe * QZmsg::last ()
 {
-    QZframe *retQ_ = new QZframe (zmsg_last (self));
-    return retQ_;
+    QZframe *rv = new QZframe (zmsg_last (self));
+    return rv;
 }
 
 ///
@@ -222,7 +236,8 @@ QZframe * QZmsg::last ()
 //  to arbitrary change.                                                   
 int QZmsg::save (FILE *file)
 {
-    return zmsg_save (self, file);
+    int rv = zmsg_save (self, file);
+    return rv;
 }
 
 ///
@@ -231,8 +246,8 @@ int QZmsg::save (FILE *file)
 //  be loaded.                                                  
 QZmsg * QZmsg::load (QZmsg *self, FILE *file)
 {
-    QZmsg *retQ_ = new QZmsg (zmsg_load (self->self, file));
-    return retQ_;
+    QZmsg *rv = new QZmsg (zmsg_load (self->self, file));
+    return rv;
 }
 
 ///
@@ -242,7 +257,8 @@ QZmsg * QZmsg::load (QZmsg *self, FILE *file)
 //  To decode a serialized message buffer, use zmsg_decode ().               
 size_t QZmsg::encode (byte **buffer)
 {
-    return zmsg_encode (self, buffer);
+    size_t rv = zmsg_encode (self, buffer);
+    return rv;
 }
 
 ///
@@ -251,8 +267,8 @@ size_t QZmsg::encode (byte **buffer)
 //  there was insufficient memory to work.                                   
 QZmsg * QZmsg::decode (const byte *buffer, size_t bufferSize)
 {
-    QZmsg *retQ_ = new QZmsg (zmsg_decode (buffer, bufferSize));
-    return retQ_;
+    QZmsg *rv = new QZmsg (zmsg_decode (buffer, bufferSize));
+    return rv;
 }
 
 ///
@@ -260,8 +276,8 @@ QZmsg * QZmsg::decode (const byte *buffer, size_t bufferSize)
 //  object. If message is null, or memory was exhausted, returns null.   
 QZmsg * QZmsg::dup ()
 {
-    QZmsg *retQ_ = new QZmsg (zmsg_dup (self));
-    return retQ_;
+    QZmsg *rv = new QZmsg (zmsg_dup (self));
+    return rv;
 }
 
 ///
@@ -270,6 +286,7 @@ QZmsg * QZmsg::dup ()
 void QZmsg::print ()
 {
     zmsg_print (self);
+    
 }
 
 ///
@@ -278,7 +295,8 @@ void QZmsg::print ()
 //  other message. As with zframe_eq, return false if either message is NULL.
 bool QZmsg::eq (QZmsg *other)
 {
-    return zmsg_eq (self, other->self);
+    bool rv = zmsg_eq (self, other->self);
+    return rv;
 }
 
 ///
@@ -287,22 +305,24 @@ bool QZmsg::eq (QZmsg *other)
 //  OK). Signals are encoded to be distinguishable from "normal" messages.  
 QZmsg * QZmsg::newSignal (byte status)
 {
-    QZmsg *retQ_ = new QZmsg (zmsg_new_signal (status));
-    return retQ_;
+    QZmsg *rv = new QZmsg (zmsg_new_signal (status));
+    return rv;
 }
 
 ///
 //  Return signal value, 0 or greater, if message is a signal, -1 if not.
 int QZmsg::signal ()
 {
-    return zmsg_signal (self);
+    int rv = zmsg_signal (self);
+    return rv;
 }
 
 ///
 //  Probe the supplied object, and report if it looks like a zmsg_t.
 bool QZmsg::is (void *self)
 {
-    return zmsg_is (self);
+    bool rv = zmsg_is (self);
+    return rv;
 }
 
 ///
@@ -310,6 +330,7 @@ bool QZmsg::is (void *self)
 void QZmsg::test (bool verbose)
 {
     zmsg_test (verbose);
+    
 }
 /*
 ################################################################################
