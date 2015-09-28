@@ -9,14 +9,14 @@ AM_CFLAGS = \
 	-Werror=format-security
 
 AM_CPPFLAGS = \
-    ${zmq_CFLAGS} \
+    ${libzmq_CFLAGS} \
     ${czmq_CFLAGS} \
     ${microhttpd_CFLAGS} \
     ${curl_CFLAGS} \
     -I$(srcdir)/include
 
 project_libs = \
-    ${zmq_LIBS} \
+    ${libzmq_LIBS} \
     ${czmq_LIBS} \
     ${microhttpd_LIBS} \
     ${curl_LIBS}
@@ -42,6 +42,8 @@ EXTRA_DIST = \
     src/zwr_dispatcher.h \
     src/zwebrap_classes.h \
     LICENSE \
+    README.txt \
+    README.md \
     version.sh
 
 include $(srcdir)/src/Makemodule.am

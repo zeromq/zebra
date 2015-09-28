@@ -73,24 +73,24 @@ PREVIOUS_CFLAGS="${CFLAGS}"
 PREVIOUS_LIBS="${LIBS}"
 
 
-was_zmq_check_lib_detected=no
+was_libzmq_check_lib_detected=no
 
-PKG_CHECK_MODULES([zmq], [libzmq >= 2.2.0],
+PKG_CHECK_MODULES([libzmq], [libzmq >= 2.2.0],
     [
     ],
     [
         AC_MSG_ERROR([Cannot find required package for libzmq. Note, pkg-config is required due to specified version >= 2.2.0])
     ])
 
-if test "x$was_zmq_check_lib_detected" = "xno"; then
-    CFLAGS="${zmq_CFLAGS} ${CFLAGS}"
-    LIBS="${zmq_LIBS} ${LIBS}"
+if test "x$was_libzmq_check_lib_detected" = "xno"; then
+    CFLAGS="${libzmq_CFLAGS} ${CFLAGS}"
+    LIBS="${libzmq_LIBS} ${LIBS}"
 fi
 
 
 was_czmq_check_lib_detected=no
 
-PKG_CHECK_MODULES([czmq], [libczmq >= 3.0.0],
+PKG_CHECK_MODULES([czmq], [czmq >= 3.0.0],
     [
     ],
     [
@@ -105,7 +105,7 @@ fi
 
 was_microhttpd_check_lib_detected=no
 
-PKG_CHECK_MODULES([microhttpd], [libmicrohttpd >= 0.0.0],
+PKG_CHECK_MODULES([microhttpd], [microhttpd >= 0.0.0],
     [
     ],
     [
@@ -150,7 +150,7 @@ fi
 
 was_curl_check_lib_detected=no
 
-PKG_CHECK_MODULES([curl], [libcurl >= 7.7.0],
+PKG_CHECK_MODULES([curl], [curl >= 7.7.0],
     [
         AC_DEFINE(HAVE_LIBCURL, 1, [The libcurl library is to be used.])
     ],
