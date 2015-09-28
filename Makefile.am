@@ -11,15 +11,15 @@ AM_CFLAGS = \
 AM_CPPFLAGS = \
     ${libzmq_CFLAGS} \
     ${czmq_CFLAGS} \
-    ${microhttpd_CFLAGS} \
-    ${curl_CFLAGS} \
+    ${libmicrohttpd_CFLAGS} \
+    ${libcurl_CFLAGS} \
     -I$(srcdir)/include
 
 project_libs = \
     ${libzmq_LIBS} \
     ${czmq_LIBS} \
-    ${microhttpd_LIBS} \
-    ${curl_LIBS}
+    ${libmicrohttpd_LIBS} \
+    ${libcurl_LIBS}
 
 SUBDIRS =
 DIST_SUBDIRS =

@@ -90,7 +90,7 @@ fi
 
 was_czmq_check_lib_detected=no
 
-PKG_CHECK_MODULES([czmq], [czmq >= 3.0.0],
+PKG_CHECK_MODULES([czmq], [libczmq >= 3.0.0],
     [
     ],
     [
@@ -103,9 +103,9 @@ if test "x$was_czmq_check_lib_detected" = "xno"; then
 fi
 
 
-was_microhttpd_check_lib_detected=no
+was_libmicrohttpd_check_lib_detected=no
 
-PKG_CHECK_MODULES([microhttpd], [microhttpd >= 0.0.0],
+PKG_CHECK_MODULES([libmicrohttpd], [libmicrohttpd >= 0.0.0],
     [
     ],
     [
@@ -117,49 +117,49 @@ PKG_CHECK_MODULES([microhttpd], [microhttpd >= 0.0.0],
             [search_libmicrohttpd="yes"],
             [])
 
-        microhttpd_synthetic_cflags=""
-        microhttpd_synthetic_libs="-lmicrohttpd"
+        libmicrohttpd_synthetic_cflags=""
+        libmicrohttpd_synthetic_libs="-llibmicrohttpd"
 
         if test "x$search_libmicrohttpd" = "xyes"; then
             if test -r "${with_libmicrohttpd}/include/microhttpd.h"; then
-                microhttpd_synthetic_cflags="-I${with_libmicrohttpd}/include"
-                microhttpd_synthetic_libs="-L${with_libmicrohttpd}/lib -lmicrohttpd"
+                libmicrohttpd_synthetic_cflags="-I${with_libmicrohttpd}/include"
+                libmicrohttpd_synthetic_libs="-L${with_libmicrohttpd}/lib -llibmicrohttpd"
             else
                 AC_MSG_ERROR([${with_libmicrohttpd}/include/microhttpd.h not found. Please check libmicrohttpd prefix])
             fi
         fi
 
-        AC_CHECK_LIB([microhttpd], [mhd_start_daemon],
+        AC_CHECK_LIB([libmicrohttpd], [mhd_start_daemon],
             [
-                CFLAGS="${microhttpd_synthetic_cflags} ${CFLAGS}"
-                LDFLAGS="${microhttpd_synthetic_libs} ${LDFLAGS}"
-                LIBS="${microhttpd_synthetic_libs} ${LIBS}"
+                CFLAGS="${libmicrohttpd_synthetic_cflags} ${CFLAGS}"
+                LDFLAGS="${libmicrohttpd_synthetic_libs} ${LDFLAGS}"
+                LIBS="${libmicrohttpd_synthetic_libs} ${LIBS}"
 
-                AC_SUBST([microhttpd_CFLAGS],[${microhttpd_synthetic_cflags}])
-                AC_SUBST([microhttpd_LIBS],[${microhttpd_synthetic_libs}])
-                was_microhttpd_check_lib_detected=yes
+                AC_SUBST([libmicrohttpd_CFLAGS],[${libmicrohttpd_synthetic_cflags}])
+                AC_SUBST([libmicrohttpd_LIBS],[${libmicrohttpd_synthetic_libs}])
+                was_libmicrohttpd_check_lib_detected=yes
             ],
-            [AC_MSG_ERROR([cannot link with -lmicrohttpd, install libmicrohttpd.])])
+            [AC_MSG_ERROR([cannot link with -llibmicrohttpd, install libmicrohttpd.])])
     ])
 
-if test "x$was_microhttpd_check_lib_detected" = "xno"; then
-    CFLAGS="${microhttpd_CFLAGS} ${CFLAGS}"
-    LIBS="${microhttpd_LIBS} ${LIBS}"
+if test "x$was_libmicrohttpd_check_lib_detected" = "xno"; then
+    CFLAGS="${libmicrohttpd_CFLAGS} ${CFLAGS}"
+    LIBS="${libmicrohttpd_LIBS} ${LIBS}"
 fi
 
 
-was_curl_check_lib_detected=no
+was_libcurl_check_lib_detected=no
 
-PKG_CHECK_MODULES([curl], [curl >= 7.7.0],
+PKG_CHECK_MODULES([libcurl], [libcurl >= 7.7.0],
     [
         AC_DEFINE(HAVE_LIBCURL, 1, [The libcurl library is to be used.])
     ],
     [
     ])
 
-if test "x$was_curl_check_lib_detected" = "xno"; then
-    CFLAGS="${curl_CFLAGS} ${CFLAGS}"
-    LIBS="${curl_LIBS} ${LIBS}"
+if test "x$was_libcurl_check_lib_detected" = "xno"; then
+    CFLAGS="${libcurl_CFLAGS} ${CFLAGS}"
+    LIBS="${libcurl_LIBS} ${LIBS}"
 fi
 
 

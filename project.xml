@@ -41,9 +41,9 @@
         You need not specify subdependencies if they are implied.
     -->
     <use project = "czmq" min_major= "3" min_minor = "0" min_patch = "0" />
-    <use project = "microhttpd"
+    <use project = "libmicrohttpd" includename = "microhttpd"
          repository = "http://ftp.gnu.org/gnu/libmicrohttpd/" test = "MHD_start_daemon" />
-    <use project = "curl" min_major= "7" min_minor = "7" min_patch = "0" optional = "1" implied = "1" />
+    <use project = "libcurl" min_major= "7" min_minor = "7" min_patch = "0" optional = "1" implied = "1" />
 
     <!-- Header Files
          name := The name the header file to include without file ending

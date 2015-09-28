@@ -48,20 +48,20 @@ fi
 }
 
 ##
-# Make sure microhttpd is built and copy the prefix
+# Make sure libmicrohttpd is built and copy the prefix
 
 (android_build_verify_so "libmicrohttpd.so" &> /dev/null) || {
-    # Use a default value assuming the microhttpd project sits alongside this one
-    test -z "$MICROHTTPD_ROOT" && MICROHTTPD_ROOT="$(cd ../../../microhttpd && pwd)"
+    # Use a default value assuming the libmicrohttpd project sits alongside this one
+    test -z "$LIBMICROHTTPD_ROOT" && LIBMICROHTTPD_ROOT="$(cd ../../../libmicrohttpd && pwd)"
 
-    if [ ! -d "$MICROHTTPD_ROOT" ]; then
-        echo "The MICROHTTPD_ROOT directory does not exist"
-        echo "  ${MICROHTTPD_ROOT}"
+    if [ ! -d "$LIBMICROHTTPD_ROOT" ]; then
+        echo "The LIBMICROHTTPD_ROOT directory does not exist"
+        echo "  ${LIBMICROHTTPD_ROOT}"
         exit 1
     fi
 
-    (bash ${MICROHTTPD_ROOT}/builds/qt-android/build.sh) || exit 1
-    UPSTREAM_PREFIX=${MICROHTTPD_ROOT}/builds/qt-android/prefix/${TOOLCHAIN_NAME}
+    (bash ${LIBMICROHTTPD_ROOT}/builds/qt-android/build.sh) || exit 1
+    UPSTREAM_PREFIX=${LIBMICROHTTPD_ROOT}/builds/qt-android/prefix/${TOOLCHAIN_NAME}
     cp -r ${UPSTREAM_PREFIX}/* ${ANDROID_BUILD_PREFIX}
 }
 

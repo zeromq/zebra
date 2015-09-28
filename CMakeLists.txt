@@ -95,22 +95,22 @@ list(APPEND MORE_LIBRARIES ${CZMQ_LIBRARIES})
 ENDIF (CZMQ_FOUND)
 
 ########################################################################
-# MICROHTTPD dependency
+# LIBMICROHTTPD dependency
 ########################################################################
-find_package(Microhttpd REQUIRED)
-IF (MICROHTTPD_FOUND)
-include_directories(${MICROHTTPD_INCLUDE_DIRS})
-list(APPEND MORE_LIBRARIES ${MICROHTTPD_LIBRARIES})
-ENDIF (MICROHTTPD_FOUND)
+find_package(Libmicrohttpd REQUIRED)
+IF (LIBMICROHTTPD_FOUND)
+include_directories(${LIBMICROHTTPD_INCLUDE_DIRS})
+list(APPEND MORE_LIBRARIES ${LIBMICROHTTPD_LIBRARIES})
+ENDIF (LIBMICROHTTPD_FOUND)
 
 ########################################################################
-# CURL dependency
+# LIBCURL dependency
 ########################################################################
-find_package(Curl)
-IF (CURL_FOUND)
-include_directories(${CURL_INCLUDE_DIRS})
-list(APPEND MORE_LIBRARIES ${CURL_LIBRARIES})
-ENDIF (CURL_FOUND)
+find_package(Libcurl)
+IF (LIBCURL_FOUND)
+include_directories(${LIBCURL_INCLUDE_DIRS})
+list(APPEND MORE_LIBRARIES ${LIBCURL_LIBRARIES})
+ENDIF (LIBCURL_FOUND)
 
 ########################################################################
 # includes

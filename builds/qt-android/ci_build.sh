@@ -38,11 +38,11 @@ git clone https://github.com/zeromq/libzmq $LIBZMQ_ROOT
 export CZMQ_ROOT="/tmp/czmq"
 git clone https://github.com/zeromq/czmq $CZMQ_ROOT
 
-export MICROHTTPD_ROOT="/tmp/microhttpd"
-git clone http://ftp.gnu.org/gnu/libmicrohttpd/ $MICROHTTPD_ROOT
+export LIBMICROHTTPD_ROOT="/tmp/libmicrohttpd"
+git clone http://ftp.gnu.org/gnu/libmicrohttpd/ $LIBMICROHTTPD_ROOT
 
-export CURL_ROOT="/tmp/curl"
-git clone https://github.com/bagder/curl $CURL_ROOT
+export LIBCURL_ROOT="/tmp/libcurl"
+git clone https://github.com/bagder/curl $LIBCURL_ROOT
 
 source ./build.sh
 

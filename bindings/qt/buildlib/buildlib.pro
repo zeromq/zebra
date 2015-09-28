@@ -15,12 +15,12 @@ DESTDIR = $$QZWEBRAP_LIBDIR
 
 !packagesExist (libzmq): error ("cannot link with -lzmq, install libzmq.")
 !packagesExist (libczmq): error ("cannot link with -lczmq, install libczmq.")
-!packagesExist (libmicrohttpd): error ("cannot link with -lmicrohttpd, install libmicrohttpd.")
+!packagesExist (libmicrohttpd): error ("cannot link with -llibmicrohttpd, install libmicrohttpd.")
 
 LIBS += \
     -lzmq \
     -lczmq \
-    -lmicrohttpd \
+    -llibmicrohttpd \
     -lzwebrap
 
 win32 {
