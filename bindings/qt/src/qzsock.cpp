@@ -8,7 +8,7 @@
 #include "qzwebrap.h"
 
 ///
-//  Private copy-construct to return the proper wrapped c types
+//  Copy-construct to return the proper wrapped c types
 QZsock::QZsock (zsock_t *self, QObject *qObjParent) : QObject (qObjParent)
 {
     this->self = self;
@@ -149,66 +149,10 @@ QZsock * QZsock::newClient (const QString &endpoint)
 }
 
 ///
-//  Bind a socket to a formatted endpoint. For tcp:// endpoints, supports   
-//  ephemeral ports, if you specify the port number as "*". By default      
-//  zsock uses the IANA designated range from C000 (49152) to FFFF (65535). 
-//  To override this range, follow the "*" with "[first-last]". Either or   
-//  both first and last may be empty. To bind to a random port within the   
-//  range, use "!" in place of "*".                                         
-//                                                                          
-//  Examples:                                                               
-//      tcp://127.0.0.1:*           bind to first free port from C000 up    
-//      tcp://127.0.0.1:!           bind to random port from C000 to FFFF   
-//      tcp://127.0.0.1:*[60000-]   bind to first free port from 60000 up   
-//      tcp://127.0.0.1:![-60000]   bind to random port from C000 to 60000  
-//      tcp://127.0.0.1:![55000-55999]                                      
-//                                  bind to random port from 55000 to 55999 
-//                                                                          
-//  On success, returns the actual port number used, for tcp:// endpoints,  
-//  and 0 for other transports. On failure, returns -1. Note that when using
-//  ephemeral ports, a port may be reused by different services without     
-//  clients being aware. Protocols that run on ephemeral ports should take  
-//  this into account.                                                      
-int QZsock::bind (const QString &format)
-{
-    int rv = zsock_bind (self, "%s", format.toUtf8().data());
-    return rv;
-}
-
-///
 //  Returns last bound endpoint, if any.
 const QString QZsock::endpoint ()
 {
     const QString rv = QString (zsock_endpoint (self));
-    return rv;
-}
-
-///
-//  Unbind a socket from a formatted endpoint.                     
-//  Returns 0 if OK, -1 if the endpoint was invalid or the function
-//  isn't supported.                                               
-int QZsock::unbind (const QString &format)
-{
-    int rv = zsock_unbind (self, "%s", format.toUtf8().data());
-    return rv;
-}
-
-///
-//  Connect a socket to a formatted endpoint        
-//  Returns 0 if OK, -1 if the endpoint was invalid.
-int QZsock::connect (const QString &format)
-{
-    int rv = zsock_connect (self, "%s", format.toUtf8().data());
-    return rv;
-}
-
-///
-//  Disconnect a socket from a formatted endpoint                  
-//  Returns 0 if OK, -1 if the endpoint was invalid or the function
-//  isn't supported.                                               
-int QZsock::disconnect (const QString &format)
-{
-    int rv = zsock_disconnect (self, "%s", format.toUtf8().data());
     return rv;
 }
 
@@ -322,49 +266,6 @@ int QZsock::recv (const QString &picture,  ...)
 int QZsock::vrecv (const QString &picture, va_list argptr)
 {
     int rv = zsock_vrecv (self, picture.toUtf8().data(), argptr);
-    return rv;
-}
-
-///
-//  Send a binary encoded 'picture' message to the socket (or actor). This 
-//  method is similar to zsock_send, except the arguments are encoded in a 
-//  binary format that is compatible with zproto, and is designed to reduce
-//  memory allocations. The pattern argument is a string that defines the  
-//  type of each argument. Supports these argument types:                  
-//                                                                         
-//   pattern    C type                  zproto type:                       
-//      1       uint8_t                 type = "number" size = "1"         
-//      2       uint16_t                type = "number" size = "2"         
-//      4       uint32_t                type = "number" size = "3"         
-//      8       uint64_t                type = "number" size = "4"         
-//      s       char *, 0-255 chars     type = "string"                    
-//      S       char *, 0-2^32-1 chars  type = "longstr"                   
-//      c       zchunk_t *              type = "chunk"                     
-//      f       zframe_t *              type = "frame"                     
-//      u       zuuid_t *               type = "uuid"                      
-//      m       zmsg_t *                type = "msg"                       
-//      p       void *, sends pointer value, only over inproc              
-//                                                                         
-//  Does not change or take ownership of any arguments. Returns 0 if       
-//  successful, -1 if sending failed for any reason.                       
-int QZsock::bsend (const QString &picture)
-{
-    int rv = zsock_bsend (self, picture.toUtf8().data());
-    return rv;
-}
-
-///
-//  Receive a binary encoded 'picture' message from the socket (or actor).  
-//  This method is similar to zsock_recv, except the arguments are encoded  
-//  in a binary format that is compatible with zproto, and is designed to   
-//  reduce memory allocations. The pattern argument is a string that defines
-//  the type of each argument. See zsock_bsend for the supported argument   
-//  types. All arguments must be pointers; this call sets them to point to  
-//  values held on a per-socket basis. Do not modify or destroy the returned
-//  values. Returns 0 if successful, or -1 if it failed to read a message.  
-int QZsock::brecv (const QString &picture)
-{
-    int rv = zsock_brecv (self, picture.toUtf8().data());
     return rv;
 }
 

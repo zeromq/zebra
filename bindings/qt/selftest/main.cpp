@@ -5,6 +5,7 @@
 ################################################################################
 */
 #include <QDebug>
+#include <qczmq.h>
 #include "qzwebrap.h"
 
 int main(int argc, char **argv)
@@ -23,11 +24,6 @@ int main(int argc, char **argv)
     QZuuid::test (verbose);
     QZmsg::test (verbose);
     QZframe::test (verbose);
-
-    QZactor *dispatcher = new QZactor(zwr_server, (void *) "dispatcher");
-    QZactor *webserver = new QZactor(zwr_microhttpd_actor, NULL);
-    dispatcher->deleteLater();
-    webserver->deleteLater();
 
     qDebug() << "Tests passed OK\n";
     return 0;

@@ -302,36 +302,38 @@ answer_to_connection (void *cls,
             return MHD_YES;
     }
     //  Create backend socket to dispatch request
-    zsock_t *client = zsock_new_dealer (">inproc://http_dispatcher");
-    //  Register response dispatch route
-    zstr_sendx (client, "REGISTER", s_concat (s_concat (s_concat ("/", (char *) method), "-OK"), (char *) url), NULL);
-    rc = zsock_wait (client);
-    if (rc != 0) {
-        //  423 - Busy
-        return s_send_static_response (con, "text/html", busypage, MHD_HTTP_LOCKED);
-    }
-    //  Send dispatch request in XRAP format
+    zwr_client_t *client = zwr_client_new ();
+    assert (client);
+
+    //  Connect client to server
+    rc = zwr_client_connect (client, "inproc://http_dispatcher", 1000, "client");
+    assert (rc == 0);
+
+    //  Send Request
     xrap_msg_t *xrap_msg = s_build_xrap_message (self, connection);
     zmsg_t *request = xrap_msg_encode (&xrap_msg);
     assert (request);
-    zmsg_pushstr (request, s_concat (s_concat ("/", (char *) method), (char *) url));
-    zmsg_pushstr (request, "DISPATCH");
-    zmsg_send (&request, client);
-    rc = zsock_wait (client);
-    if (rc != 0) {
+    rc = zwr_client_request (client, 0, &request);
+
+    //  Parse response
+    if (rc == 0) {
+        //  Receive Response
+        zmsg_t *response = zwr_client_recv (client);
+        response = zmsg_dup (response);
+        xrap_msg = xrap_msg_decode (&response);
+        zwr_client_destroy (&client);
+        return s_send_response (con, xrap_msg);
+    }
+    else
+    if (rc == XRAP_TRAFFIC_NOT_FOUND) {
+        zwr_client_destroy (&client);
         //  404 - not found
         return s_send_static_response (con, "text/html", notfoundpage, MHD_HTTP_NOT_FOUND);
     }
-    //  Receive response
-    xrap_msg_t *xrap_response = xrap_msg_recv (client);
-    assert (xrap_response);
-    //  Unregister response dispatch route
-    zstr_sendx (client, "UNREGISTER", s_concat (s_concat (s_concat ("/", (char *) method), "-OK"), (char *) url), NULL);
-    rc = zsock_wait (client);
-    assert (rc == 0);
-    zsock_destroy (&client);
 
-    return s_send_response (con, xrap_response);
+    zwr_client_destroy (&client);
+    //  423 - Busy
+    return s_send_static_response (con, "text/html", busypage, MHD_HTTP_LOCKED);
 }
 
 
@@ -495,85 +497,86 @@ zwr_microhttpd_test (bool verbose)
     rc = zsock_wait (zwr_microhttpd);             //  Wait until endpoint configured
     assert (rc == 0);
 
-    zactor_t *dispatcher = zactor_new (zwr_dispatcher, NULL);
+    zactor_t *dispatcher = zactor_new (zwr_server, "dispatcher");
 
-    zstr_sendx (dispatcher, "VERBOSE", NULL);
-    zsock_wait (dispatcher);
+    zstr_send (dispatcher, "VERBOSE");
+    zstr_sendx (dispatcher, "BIND", "inproc://http_dispatcher", NULL);
 
-    zstr_sendx (dispatcher, "ENDPOINT", "inproc://http_dispatcher", NULL);
-    rc = zsock_wait (dispatcher);             //  Wait until endpoint configured
+    //  Create handler
+    zwr_client_t *handler = zwr_client_new ();
+    assert (handler);
+
+    //  Connect handler to server
+    rc = zwr_client_connect (handler, "inproc://http_dispatcher",  1000, "handler");
+    assert (rc == 0);
+    assert (zwr_client_connected (handler) == true);
+
+    //  Provide GET Offering
+    rc = zwr_client_set_handler (handler, "GET", "/foo/{[^/]}");
     assert (rc == 0);
 
-    zsock_t *handler = zsock_new_dealer (">inproc://http_dispatcher");
-    zstr_sendx (handler, "REGISTER", "/GET/foo/{[^/]+}", NULL);
-    rc = zsock_wait (handler);
-    assert (rc == 0);
+    usleep (250);
 
+    //  Send Request
     zwr_curl_client_t *curl = zwr_curl_client_new ();
     zwr_curl_client_send_get (curl, "http://localhost:8081/foo/bar");
 
-    xrap_msg_t *request = xrap_msg_recv (handler);
+    //  Receive Request
+    zmsg_t *request = zwr_client_recv (handler);
     assert (request);
-    assert (xrap_msg_id (request) == XRAP_MSG_GET);
-    xrap_msg_destroy (&request);
+    request = zmsg_dup (request);
+    xrap_msg_t *xrap_msg = xrap_msg_decode (&request);
+    assert (xrap_msg_id (xrap_msg) == XRAP_MSG_GET);
+    assert (streq ("/foo/bar", xrap_msg_resource (xrap_msg)));
+    xrap_msg_destroy (&xrap_msg);
 
-    xrap_msg_t *response = xrap_msg_new (XRAP_MSG_GET_OK);
-    xrap_msg_set_status_code (response, 200);
-    xrap_msg_set_content_type (response, "text/plain");
-    xrap_msg_set_content_body (response, "test1234");
-    zmsg_t *msg = xrap_msg_encode (&response);
-    assert (msg);
-    zmsg_pushstr (msg, "/GET-OK/foo/bar");
-    zmsg_pushstr (msg, "DISPATCH");
-    zmsg_send (&msg, handler);
+    //  Send Response
+    xrap_msg = xrap_msg_new (XRAP_MSG_GET_OK);
+    xrap_msg_set_status_code (xrap_msg, 200);
+    xrap_msg_set_content_type (xrap_msg, "text/hello");
+    xrap_msg_set_content_body (xrap_msg, "Hello World!");
+    zmsg_t *response = xrap_msg_encode (&xrap_msg);
+    zwr_client_deliver (handler, zwr_client_sender (handler), &response);
 
-    zstr_sendx (handler, "UNREGISTER", "/GET/foo/{[^/]+}", NULL);
-    rc = zsock_wait (handler);
-    assert (rc == 0);
-
+    //  Receive Response
     zwr_curl_client_verify_response (curl, 200, "");
     zwr_curl_client_destroy (&curl);
 
-    /*zsock_destroy (&handler);*/
-    /*handler = zsock_new_dealer (">inproc://http_dispatcher");*/
-
-    zstr_sendx (handler, "REGISTER", "/POST/foo/{[^/]+}", NULL);
-    rc = zsock_wait (handler);
+    //  Provide POST Offering
+    rc = zwr_client_set_handler (handler, "POST", "/foo/{[^/]}");
     assert (rc == 0);
+
+    sleep (1);
 
     curl = zwr_curl_client_new ();
     zwr_curl_client_send_post (curl, "http://localhost:8081/foo/bar", "abc");
 
-    do {
-        msg = zmsg_recv (handler);
-        assert (msg);
-    } while (!is_xrap_msg (msg));
-    request = xrap_msg_decode (&msg);
+    //  Receive Request
+    request = zwr_client_recv (handler);
     assert (request);
-    assert (xrap_msg_id (request) == XRAP_MSG_POST);
-    xrap_msg_destroy (&request);
+    request = zmsg_dup (request);
+    xrap_msg = xrap_msg_decode (&request);
+    assert (xrap_msg_id (xrap_msg) == XRAP_MSG_POST);
+    assert (streq ("/foo/bar", xrap_msg_resource (xrap_msg)));
+    xrap_msg_destroy (&xrap_msg);
 
-    response = xrap_msg_new (XRAP_MSG_POST_OK);
-    xrap_msg_set_status_code (response, 201);
-    xrap_msg_set_location (response, "/foo/bar");
-    xrap_msg_set_etag (response, "a3fsd3");
-    xrap_msg_set_date_modified (response, 0);
-    xrap_msg_set_content_type (response, "text/plain");
-    xrap_msg_set_content_body (response, "test1234");
-    msg = xrap_msg_encode (&response);
-    assert (msg);
-    zmsg_pushstr (msg, "/POST-OK/foo/bar");
-    zmsg_pushstr (msg, "DISPATCH");
-    zmsg_send (&msg, handler);
-
-    zstr_sendx (handler, "UNREGISTER", "/POST/foo/{[^/]+}", NULL);
-    rc = zsock_wait (handler);
-    assert (rc == 0);
-
-    zsock_destroy (&handler);
+    //  Send Response
+    xrap_msg = xrap_msg_new (XRAP_MSG_POST_OK);
+    xrap_msg_set_status_code (xrap_msg, 201);
+    xrap_msg_set_location (xrap_msg, "/foo/bar");
+    xrap_msg_set_etag (xrap_msg, "a3fsd3");
+    xrap_msg_set_date_modified (xrap_msg, 0);
+    xrap_msg_set_content_type (xrap_msg, "text/hello");
+    xrap_msg_set_content_body (xrap_msg, "Hello World!");
+    response = xrap_msg_encode (&xrap_msg);
+    zwr_client_deliver (handler, zwr_client_sender (handler), &response);
 
     //  Give response time to arrive
     usleep (250);
+
+    zwr_curl_client_destroy (&curl);
+    zwr_client_destroy (&handler);
+
     zactor_destroy (&dispatcher);
 
     zstr_send (zwr_microhttpd, "STOP");

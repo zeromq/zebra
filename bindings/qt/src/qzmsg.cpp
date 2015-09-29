@@ -8,7 +8,7 @@
 #include "qzwebrap.h"
 
 ///
-//  Private copy-construct to return the proper wrapped c types
+//  Copy-construct to return the proper wrapped c types
 QZmsg::QZmsg (zmsg_t *self, QObject *qObjParent) : QObject (qObjParent)
 {
     this->self = self;
@@ -143,24 +143,6 @@ int QZmsg::pushstr (const QString &string)
 int QZmsg::addstr (const QString &string)
 {
     int rv = zmsg_addstr (self, string.toUtf8().data());
-    return rv;
-}
-
-///
-//  Push formatted string as new frame to front of message.
-//  Returns 0 on success, -1 on error.                     
-int QZmsg::pushstrf (const QString &format)
-{
-    int rv = zmsg_pushstrf (self, "%s", format.toUtf8().data());
-    return rv;
-}
-
-///
-//  Push formatted string as new frame to end of message.
-//  Returns 0 on success, -1 on error.                   
-int QZmsg::addstrf (const QString &format)
-{
-    int rv = zmsg_addstrf (self, "%s", format.toUtf8().data());
     return rv;
 }
 

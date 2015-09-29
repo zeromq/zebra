@@ -8,7 +8,7 @@
 #include "qzwebrap.h"
 
 ///
-//  Private copy-construct to return the proper wrapped c types
+//  Copy-construct to return the proper wrapped c types
 QZframe::QZframe (zframe_t *self, QObject *qObjParent) : QObject (qObjParent)
 {
     this->self = self;

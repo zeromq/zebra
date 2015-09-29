@@ -8,7 +8,7 @@
 #include "qzwebrap.h"
 
 ///
-//  Private copy-construct to return the proper wrapped c types
+//  Copy-construct to return the proper wrapped c types
 QZwrClient::QZwrClient (zwr_client_t *self, QObject *qObjParent) : QObject (qObjParent)
 {
     this->self = self;

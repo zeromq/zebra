@@ -59,3 +59,14 @@ qmake PREFIX=/usr
 #  Please refer to the README for information about making permanent changes.  #
 ################################################################################
 ```
+
+## Notes
+
+If you're missing some methods in the bindings then because they have been
+excluded. Currently methods are excluded if,
+
+    * they have variadic arguments and don't have a sibling method that
+      accepts a va_list. Most prominent example is probably printf and vprintf.
+
+    * they have char** arguments, as they might get freed which doesn't play
+      well with QString.
