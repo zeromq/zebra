@@ -517,7 +517,7 @@ zwr_microhttpd_test (bool verbose)
 
     usleep (250);
 
-    //  Send Request
+    //  Send GET Request
     zwr_curl_client_t *curl = zwr_curl_client_new ();
     zwr_curl_client_send_get (curl, "http://localhost:8081/foo/bar");
 
@@ -538,8 +538,16 @@ zwr_microhttpd_test (bool verbose)
     zmsg_t *response = xrap_msg_encode (&xrap_msg);
     zwr_client_deliver (handler, zwr_client_sender (handler), &response);
 
-    //  Receive Response
+    //  Receive GET Response
     zwr_curl_client_verify_response (curl, 200, "");
+    zwr_curl_client_destroy (&curl);
+
+    //  Send GET Request 2
+    curl = zwr_curl_client_new ();
+    zwr_curl_client_send_get (curl, "http://localhost:8081/foo/bar/baz");
+
+    //  Receive GET Response 2
+    zwr_curl_client_verify_response (curl, 404, "");
     zwr_curl_client_destroy (&curl);
 
     //  Provide POST Offering
@@ -557,7 +565,7 @@ zwr_microhttpd_test (bool verbose)
     request = zmsg_dup (request);
     xrap_msg = xrap_msg_decode (&request);
     assert (xrap_msg_id (xrap_msg) == XRAP_MSG_POST);
-    assert (streq ("/foo/bar", xrap_msg_resource (xrap_msg)));
+    assert (streq ("/foo/bar", xrap_msg_parent (xrap_msg)));
     xrap_msg_destroy (&xrap_msg);
 
     //  Send Response

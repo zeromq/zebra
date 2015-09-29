@@ -203,19 +203,27 @@ write_message_to_xrap_handler (client_t *self)
 
     zmsg_t *content = zmsg_dup (xrap_traffic_content (self->message));
     xrap_msg_t *msg = xrap_msg_decode (&content);
-    char *route = (char *) xrap_msg_resource (msg);
+    char *route;
     int method = xrap_msg_id (msg);
-    if (method == XRAP_MSG_GET)
+    if (method == XRAP_MSG_GET) {
+        route = (char *) xrap_msg_resource (msg);
         routes = service->get_routes;
+    }
     else
-    if (method == XRAP_MSG_POST)
+    if (method == XRAP_MSG_POST) {
+        route = (char *) xrap_msg_parent (msg);
         routes = service->post_routes;
+    }
     else
-    if (method == XRAP_MSG_PUT)
+    if (method == XRAP_MSG_PUT) {
+        route = (char *) xrap_msg_resource (msg);
         routes = service->put_routes;
+    }
     else
-    if (method == XRAP_MSG_DELETE)
+    if (method == XRAP_MSG_DELETE) {
+        route = (char *) xrap_msg_resource (msg);
         routes = service->delete_routes;
+    }
     else {
         xrap_traffic_set_status_code (self->message, XRAP_TRAFFIC_BAD_REQUEST);
         engine_set_exception (self, fail_event);
@@ -223,7 +231,7 @@ write_message_to_xrap_handler (client_t *self)
 
     client_t *target;
     if (routes && ztrie_matches (routes, route)) {
-        target = (client_t *) ztrie_hit_data (service->get_routes);
+        target = (client_t *) ztrie_hit_data (routes);
         //  Save message for dispatcher
         target->msg = zmsg_dup (xrap_traffic_content (self->message));
         //  Trigger dispatch event
