@@ -10,8 +10,6 @@ include(../src/qzwebrap.pri)
 CONFIG   += console
 CONFIG   -= app_bundle
 
-LIBS += -lqczmq
-
 TEMPLATE = app
 
 SOURCES += main.cpp

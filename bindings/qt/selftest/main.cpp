@@ -5,7 +5,6 @@
 ################################################################################
 */
 #include <QDebug>
-#include <qczmq.h>
 #include "qzwebrap.h"
 
 int main(int argc, char **argv)
