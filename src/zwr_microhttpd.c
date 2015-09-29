@@ -515,8 +515,6 @@ zwr_microhttpd_test (bool verbose)
     rc = zwr_client_set_handler (handler, "GET", "/foo/{[^/]}");
     assert (rc == 0);
 
-    usleep (250);
-
     //  Send GET Request
     zwr_curl_client_t *curl = zwr_curl_client_new ();
     zwr_curl_client_send_get (curl, "http://localhost:8081/foo/bar");
@@ -553,8 +551,6 @@ zwr_microhttpd_test (bool verbose)
     //  Provide POST Offering
     rc = zwr_client_set_handler (handler, "POST", "/foo/{[^/]}");
     assert (rc == 0);
-
-    sleep (1);
 
     curl = zwr_curl_client_new ();
     zwr_curl_client_send_post (curl, "http://localhost:8081/foo/bar", "abc");
