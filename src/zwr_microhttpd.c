@@ -307,28 +307,28 @@ answer_to_connection (void *cls,
 
     //  Connect client to server
     rc = zwr_client_connect (client, "inproc://http_dispatcher", 1000, "client");
-    assert (rc == 0);
+    if (rc == 0) {  //  Interrupted!
+        //  Send Request
+        xrap_msg_t *xrap_msg = s_build_xrap_message (self, connection);
+        zmsg_t *request = xrap_msg_encode (&xrap_msg);
+        assert (request);
+        rc = zwr_client_request (client, 0, &request);
 
-    //  Send Request
-    xrap_msg_t *xrap_msg = s_build_xrap_message (self, connection);
-    zmsg_t *request = xrap_msg_encode (&xrap_msg);
-    assert (request);
-    rc = zwr_client_request (client, 0, &request);
-
-    //  Parse response
-    if (rc == 0) {
-        //  Receive Response
-        zmsg_t *response = zwr_client_recv (client);
-        response = zmsg_dup (response);
-        xrap_msg = xrap_msg_decode (&response);
-        zwr_client_destroy (&client);
-        return s_send_response (con, xrap_msg);
-    }
-    else
-    if (rc == XRAP_TRAFFIC_NOT_FOUND) {
-        zwr_client_destroy (&client);
-        //  404 - not found
-        return s_send_static_response (con, "text/html", notfoundpage, MHD_HTTP_NOT_FOUND);
+        //  Parse response
+        if (rc == 0) {
+            //  Receive Response
+            zmsg_t *response = zwr_client_recv (client);
+            response = zmsg_dup (response);
+            xrap_msg = xrap_msg_decode (&response);
+            zwr_client_destroy (&client);
+            return s_send_response (con, xrap_msg);
+        }
+        else
+        if (rc == XRAP_TRAFFIC_NOT_FOUND) {
+            zwr_client_destroy (&client);
+            //  404 - not found
+            return s_send_static_response (con, "text/html", notfoundpage, MHD_HTTP_NOT_FOUND);
+        }
     }
 
     zwr_client_destroy (&client);
