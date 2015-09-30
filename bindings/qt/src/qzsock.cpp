@@ -149,10 +149,66 @@ QZsock * QZsock::newClient (const QString &endpoint)
 }
 
 ///
+//  Bind a socket to a formatted endpoint. For tcp:// endpoints, supports   
+//  ephemeral ports, if you specify the port number as "*". By default      
+//  zsock uses the IANA designated range from C000 (49152) to FFFF (65535). 
+//  To override this range, follow the "*" with "[first-last]". Either or   
+//  both first and last may be empty. To bind to a random port within the   
+//  range, use "!" in place of "*".                                         
+//                                                                          
+//  Examples:                                                               
+//      tcp://127.0.0.1:*           bind to first free port from C000 up    
+//      tcp://127.0.0.1:!           bind to random port from C000 to FFFF   
+//      tcp://127.0.0.1:*[60000-]   bind to first free port from 60000 up   
+//      tcp://127.0.0.1:![-60000]   bind to random port from C000 to 60000  
+//      tcp://127.0.0.1:![55000-55999]                                      
+//                                  bind to random port from 55000 to 55999 
+//                                                                          
+//  On success, returns the actual port number used, for tcp:// endpoints,  
+//  and 0 for other transports. On failure, returns -1. Note that when using
+//  ephemeral ports, a port may be reused by different services without     
+//  clients being aware. Protocols that run on ephemeral ports should take  
+//  this into account.                                                      
+int QZsock::bind (const QString &param)
+{
+    int rv = zsock_bind (self, "%s", param.toUtf8().data());
+    return rv;
+}
+
+///
 //  Returns last bound endpoint, if any.
 const QString QZsock::endpoint ()
 {
     const QString rv = QString (zsock_endpoint (self));
+    return rv;
+}
+
+///
+//  Unbind a socket from a formatted endpoint.                     
+//  Returns 0 if OK, -1 if the endpoint was invalid or the function
+//  isn't supported.                                               
+int QZsock::unbind (const QString &param)
+{
+    int rv = zsock_unbind (self, "%s", param.toUtf8().data());
+    return rv;
+}
+
+///
+//  Connect a socket to a formatted endpoint        
+//  Returns 0 if OK, -1 if the endpoint was invalid.
+int QZsock::connect (const QString &param)
+{
+    int rv = zsock_connect (self, "%s", param.toUtf8().data());
+    return rv;
+}
+
+///
+//  Disconnect a socket from a formatted endpoint                  
+//  Returns 0 if OK, -1 if the endpoint was invalid or the function
+//  isn't supported.                                               
+int QZsock::disconnect (const QString &param)
+{
+    int rv = zsock_disconnect (self, "%s", param.toUtf8().data());
     return rv;
 }
 

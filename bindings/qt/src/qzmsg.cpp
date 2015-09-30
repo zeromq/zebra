@@ -147,6 +147,24 @@ int QZmsg::addstr (const QString &string)
 }
 
 ///
+//  Push formatted string as new frame to front of message.
+//  Returns 0 on success, -1 on error.                     
+int QZmsg::pushstrf (const QString &param)
+{
+    int rv = zmsg_pushstrf (self, "%s", param.toUtf8().data());
+    return rv;
+}
+
+///
+//  Push formatted string as new frame to end of message.
+//  Returns 0 on success, -1 on error.                   
+int QZmsg::addstrf (const QString &param)
+{
+    int rv = zmsg_addstrf (self, "%s", param.toUtf8().data());
+    return rv;
+}
+
+///
 //  Pop frame off front of message, return as fresh string. If there were
 //  no more frames in the message, returns NULL.                         
 QString QZmsg::popstr ()

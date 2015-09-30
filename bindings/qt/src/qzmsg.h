@@ -80,6 +80,14 @@ public:
     //  Returns 0 on success, -1 on error.         
     int addstr (const QString &string);
 
+    //  Push formatted string as new frame to front of message.
+    //  Returns 0 on success, -1 on error.                     
+    int pushstrf (const QString &param);
+
+    //  Push formatted string as new frame to end of message.
+    //  Returns 0 on success, -1 on error.                   
+    int addstrf (const QString &param);
+
     //  Pop frame off front of message, return as fresh string. If there were
     //  no more frames in the message, returns NULL.                         
     QString popstr ();

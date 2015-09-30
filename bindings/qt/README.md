@@ -62,6 +62,15 @@ qmake PREFIX=/usr
 
 ## Notes
 
+### Dependent classes
+
+If the bindings are generated as part of a zproject that depends on another
+zproject (e.g. zyre on czmq), the Qt bindings will automatically detect all
+dependent classes and generate bindings for them too. Check the ./generate.sh
+output the see which dependent classes couldn't be resolved.
+
+### Excluded methods
+
 If you're missing some methods in the bindings then because they have been
 excluded. Currently methods are excluded if,
 
