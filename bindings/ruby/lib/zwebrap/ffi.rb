@@ -36,7 +36,6 @@ module Zwebrap
       
       attach_function :zwr_client_new, [], :pointer, **opts
       attach_function :zwr_client_destroy, [:pointer], :void, **opts
-      attach_function :zwr_client_print, [:pointer], :void, **opts
       attach_function :zwr_client_actor, [:pointer], :pointer, **opts
       attach_function :zwr_client_msgpipe, [:pointer], :pointer, **opts
       attach_function :zwr_client_connected, [:pointer], :bool, **opts

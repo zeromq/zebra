@@ -9,10 +9,6 @@ JNIEXPORT void JNICALL Java_org_zeromq_ZwrClient_create (JNIEnv *env, jobject th
 JNIEXPORT void JNICALL Java_org_zeromq_ZwrClient_destroy (JNIEnv *env, jobject thisObj) {
 }
 
-//  Print properties of the zwr_client object.
-JNIEXPORT void JNICALL Java_org_zeromq_ZwrClient_print (JNIEnv *env, jobject thisObj) {
-}
-
 //  Return actor, when caller wants to work with multiple actors and/or
 //  input sockets asynchronously.                                      
 JNIEXPORT void JNICALL Java_org_zeromq_ZwrClient_actor (JNIEnv *env, jobject thisObj) {

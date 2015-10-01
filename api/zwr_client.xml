@@ -12,6 +12,8 @@
         Destroy the zwr_client and free all memory used by the object.
     </destructor>
 
+    <method name = "print" exclude = "1" />
+
     <method name = "actor">
         Return actor, when caller wants to work with multiple actors and/or
         input sockets asynchronously.

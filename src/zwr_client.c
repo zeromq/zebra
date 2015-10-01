@@ -312,15 +312,6 @@ get_next_replay_command (client_t *self)
     s_replay_execute (self, replay);
 }
 
-void
-zwr_client_print (zwr_client_t *self)
-{
-    printf ("zwr_client: {\n");
-    printf ("  is connected: %s\n", zwr_client_connected (self)? "true": "false");
-    printf ("}\n");
-}
-
-
 //  ---------------------------------------------------------------------------
 //  Selftest
 

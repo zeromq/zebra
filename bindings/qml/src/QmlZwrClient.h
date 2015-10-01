@@ -28,9 +28,6 @@ public:
     static QObject* qmlAttachedProperties(QObject* object); // defined in QmlZwrClient.cpp
     
 public slots:
-    //  Print properties of the zwr_client object.
-    void print ();
-
     //  Return actor, when caller wants to work with multiple actors and/or
     //  input sockets asynchronously.                                      
     zactor_t *actor ();

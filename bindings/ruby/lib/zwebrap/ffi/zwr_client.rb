@@ -67,13 +67,6 @@ module Zwebrap
         result
       end
       
-      # Print properties of the zwr_client object.
-      def print
-        raise DestroyedError unless @ptr
-        result = ::Zwebrap::FFI.zwr_client_print @ptr
-        result
-      end
-      
       # Return actor, when caller wants to work with multiple actors and/or
       # input sockets asynchronously.                                      
       def actor

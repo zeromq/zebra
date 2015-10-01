@@ -55,8 +55,6 @@ lib.zwr_client_new.restype = zwr_client_p
 lib.zwr_client_new.argtypes = []
 lib.zwr_client_destroy.restype = None
 lib.zwr_client_destroy.argtypes = [POINTER(zwr_client_p)]
-lib.zwr_client_print.restype = None
-lib.zwr_client_print.argtypes = [zwr_client_p]
 lib.zwr_client_actor.restype = zactor_p
 lib.zwr_client_actor.argtypes = [zwr_client_p]
 lib.zwr_client_msgpipe.restype = zsock_p
@@ -115,10 +113,6 @@ if construction failed due to lack of available memory."""
     def __nonzero__(self):
         "Determine whether the object is valid by converting to boolean" # Python 2
         return self._as_parameter_.__nonzero__()
-
-    def print(self):
-        """Print properties of the zwr_client object."""
-        return lib.zwr_client_print(self._as_parameter_)
 
     def actor(self):
         """Return actor, when caller wants to work with multiple actors and/or
