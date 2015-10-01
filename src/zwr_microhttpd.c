@@ -180,6 +180,8 @@ s_send_response (struct MHD_Connection *con, xrap_msg_t *response)
         return MHD_NO;
     rc = MHD_queue_response (con, status_code, http_response);
     printf ("Send Page: %d\n", status_code);
+    //  Cleanup
+    xrap_msg_destroy (&response);
     MHD_destroy_response (http_response);
     return rc;
 }
@@ -318,8 +320,10 @@ answer_to_connection (void *cls,
         if (rc == 0) {
             //  Receive Response
             zmsg_t *response = zwr_client_recv (client);
-            response = zmsg_dup (response);
             xrap_msg = xrap_msg_decode (&response);
+            //  Cleanup before resonding
+            zuuid_t *sender = zwr_client_sender (client);
+            zuuid_destroy (&sender);
             zwr_client_destroy (&client);
             return s_send_response (con, xrap_msg);
         }
@@ -445,6 +449,8 @@ zwr_microhttpd_recv_api (zwr_microhttpd_t *self)
         zsys_error ("invalid command '%s'", command);
         assert (false);
     }
+    zstr_free (&command);
+    zmsg_destroy (&request);
 }
 
 
@@ -479,6 +485,10 @@ void
 zwr_microhttpd_test (bool verbose)
 {
     printf (" * zwr_microhttpd: ");
+    verbose = true;
+    if (verbose)
+        printf ("\n");
+
 #if defined (HAVE_LIBCURL)
     int rc = 0;
     //  @selftest
@@ -499,7 +509,8 @@ zwr_microhttpd_test (bool verbose)
 
     zactor_t *dispatcher = zactor_new (zwr_server, "dispatcher");
 
-    zstr_send (dispatcher, "VERBOSE");
+    if (verbose)
+        zstr_send (dispatcher, "VERBOSE");
     zstr_sendx (dispatcher, "BIND", "inproc://http_dispatcher", NULL);
 
     //  Create handler
@@ -522,11 +533,12 @@ zwr_microhttpd_test (bool verbose)
     //  Receive Request
     zmsg_t *request = zwr_client_recv (handler);
     assert (request);
-    request = zmsg_dup (request);
     xrap_msg_t *xrap_msg = xrap_msg_decode (&request);
     assert (xrap_msg_id (xrap_msg) == XRAP_MSG_GET);
     assert (streq ("/foo/bar", xrap_msg_resource (xrap_msg)));
     xrap_msg_destroy (&xrap_msg);
+    zuuid_t *sender = zwr_client_sender (handler);
+    zuuid_destroy (&sender);
 
     //  Send Response
     xrap_msg = xrap_msg_new (XRAP_MSG_GET_OK);
@@ -558,11 +570,12 @@ zwr_microhttpd_test (bool verbose)
     //  Receive Request
     request = zwr_client_recv (handler);
     assert (request);
-    request = zmsg_dup (request);
     xrap_msg = xrap_msg_decode (&request);
     assert (xrap_msg_id (xrap_msg) == XRAP_MSG_POST);
     assert (streq ("/foo/bar", xrap_msg_parent (xrap_msg)));
     xrap_msg_destroy (&xrap_msg);
+    sender = zwr_client_sender (handler);
+    zuuid_destroy (&sender);
 
     //  Send Response
     xrap_msg = xrap_msg_new (XRAP_MSG_POST_OK);
@@ -576,7 +589,7 @@ zwr_microhttpd_test (bool verbose)
     zwr_client_deliver (handler, zwr_client_sender (handler), &response);
 
     //  Give response time to arrive
-    usleep (250);
+    sleep (1);
 
     zwr_curl_client_destroy (&curl);
     zwr_client_destroy (&handler);

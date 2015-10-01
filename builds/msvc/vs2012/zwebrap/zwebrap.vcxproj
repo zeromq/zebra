@@ -106,9 +106,6 @@
     <ClCompile Include="..\..\..\..\src\zwr_client.c">
       <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\zwr_dispatcher.c">
-      <CompileAs>CompileAsCpp</CompileAs>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\..\zwebrap.rc" />

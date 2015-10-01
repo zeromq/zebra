@@ -126,7 +126,6 @@ set (zwebrap_headers
     include/xrap_traffic.h
     include/zwr_server.h
     include/zwr_client.h
-    src/zwr_dispatcher.h
     src/zwr_server_engine.inc
 )
 source_group ("Header Files" FILES ${zwebrap_headers})
@@ -145,7 +144,6 @@ set (zwebrap_sources
     src/xrap_traffic.c
     src/zwr_server.c
     src/zwr_client.c
-    src/zwr_dispatcher.c
 )
 source_group ("Source Files" FILES ${zwebrap_sources})
 if (NOT DEFINED BUILD_SHARED_LIBS)

@@ -68,7 +68,6 @@
         about actors.
     <actor name = "someactor" private = "1">Private actor description</actor>
     -->
-    <actor name = "zwr_dispatcher" private = "1">XRAP message dispatcher</actor>
 
     <!--
         Main programs built by the project

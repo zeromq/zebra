@@ -40,7 +40,6 @@ main (int argc, char *argv [])
     xrap_traffic_test (verbose);
     zwr_server_test (verbose);
     zwr_client_test (verbose);
-    zwr_dispatcher_test (verbose);
 
     printf ("Tests passed OK\n");
     return 0;

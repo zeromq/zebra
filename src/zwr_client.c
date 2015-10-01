@@ -259,7 +259,7 @@ pass_xrap_message_to_app (client_t *self)
     zstr_sendm (self->msgpipe, "XRAP DELIVER");
     zsock_bsend (self->msgpipe, "up",
                  xrap_traffic_sender (self->message),
-                 xrap_traffic_content (self->message));
+                 xrap_traffic_get_content (self->message));
 }
 
 
@@ -328,10 +328,10 @@ void
 zwr_client_test (bool verbose)
 {
     printf (" * zwr_client: ");
+    verbose = true;
     if (verbose)
         printf ("\n");
 
-    verbose = true;
     //  @selftest
     zwr_client_verbose = verbose;
 
@@ -374,7 +374,6 @@ zwr_client_test (bool verbose)
 
     //  Receive Request
     msg = zwr_client_recv (handler);
-    msg = zmsg_dup (msg);
     xmsg = xrap_msg_decode (&msg);
     assert (xrap_msg_id (xmsg) == XRAP_MSG_GET);
     assert (streq ("/foo/bar", xrap_msg_resource (xmsg)));
@@ -387,16 +386,19 @@ zwr_client_test (bool verbose)
     xrap_msg_set_content_body (xmsg, "Hello World!");
     msg = xrap_msg_encode (&xmsg);
     zwr_client_deliver (handler, handler->sender, &msg);
+    zuuid_t *sender = zwr_client_sender (handler);
+    zuuid_destroy (&sender);
 
     //  Receive Response
     msg = zwr_client_recv (client);
-    msg = zmsg_dup (msg);
     xmsg = xrap_msg_decode (&msg);
     assert (xrap_msg_id (xmsg) == XRAP_MSG_GET_OK);
     assert (xrap_msg_status_code (xmsg) == 200);
     assert (streq ("text/hello", xrap_msg_content_type (xmsg)));
     assert (streq ("Hello World!", xrap_msg_content_body (xmsg)));
     xrap_msg_destroy (&xmsg);
+    sender = zwr_client_sender (client);
+    zuuid_destroy (&sender);
 
     //  Send Request 2
     xmsg = xrap_msg_new (XRAP_MSG_GET);

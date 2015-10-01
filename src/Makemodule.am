@@ -33,7 +33,6 @@ src_libzwebrap_la_SOURCES = \
     src/xrap_traffic.c \
     src/zwr_server.c \
     src/zwr_client.c \
-    src/zwr_dispatcher.c \
     src/zwr_server_engine.inc \
     src/platform.h
 

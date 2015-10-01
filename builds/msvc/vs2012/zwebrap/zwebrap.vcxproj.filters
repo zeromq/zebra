@@ -31,9 +31,6 @@
     <ClCompile Include="..\..\..\..\src\zwr_client.c">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\zwr_dispatcher.c">
-      <Filter>src</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\include\zwebrap_library.h">

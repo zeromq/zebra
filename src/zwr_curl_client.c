@@ -78,6 +78,7 @@ zwr_curl_client_send_get (zwr_curl_client_t *self, char *url)
     //  Send GET request
     curl_multi_add_handle (self->multi_handle, curl);
     curl_multi_perform (self->multi_handle, &dontcare);
+    curl_easy_cleanup (curl);
 }
 
 //  --------------------------------------------------------------------------
@@ -107,7 +108,9 @@ zwr_curl_client_send_post (zwr_curl_client_t *self, char *url, char *data)
     curl_multi_add_handle (self->multi_handle, curl);
     curl_multi_perform (self->multi_handle, &dontcare);
     //  Cleanup
+    free (result);
     curl_slist_free_all (header);
+    curl_easy_cleanup (curl);
 }
 
 

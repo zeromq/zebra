@@ -10,7 +10,7 @@ INCDIR=-I$(PREFIX)/include -I.
 LIBDIR=-L$(PREFIX)/lib
 CFLAGS=-Wall -Os -g -DLIBZWEBRAP_EXPORTS $(INCDIR)
 
-OBJS = zwr_request.o zwr_response.o zwr_connection.o zwr_microhttpd.o xrap_msg.o xrap_traffic.o zwr_server.o zwr_client.o zwr_dispatcher.o
+OBJS = zwr_request.o zwr_response.o zwr_connection.o zwr_microhttpd.o xrap_msg.o xrap_traffic.o zwr_server.o zwr_client.o
 %.o: ../../src/%.c
 	$(CC) -c -o $@ $< $(CFLAGS)
 

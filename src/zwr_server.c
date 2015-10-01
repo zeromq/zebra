@@ -242,6 +242,9 @@ write_message_to_xrap_handler (client_t *self)
         xrap_traffic_set_status_code (self->message, XRAP_TRAFFIC_NOT_FOUND);
         self->rc = -1;
     }
+
+    //  Clean up
+    xrap_msg_destroy (&msg);
 }
 
 
