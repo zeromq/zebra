@@ -110,8 +110,8 @@ on_client_connect (void *cls,
                    const struct sockaddr *addr,
                    socklen_t addrlen)
 {
-    struct sockaddr_in *client_addr = (struct sockaddr_in *) addr;
-    printf ("Client-Addr: %s:%d\n", inet_ntoa (client_addr->sin_addr), ntohs (client_addr->sin_port));
+    /*struct sockaddr_in *client_addr = (struct sockaddr_in *) addr;*/
+    /*printf ("Client-Addr: %s:%d\n", inet_ntoa (client_addr->sin_addr), ntohs (client_addr->sin_port));*/
     return MHD_YES;
 }
 
@@ -128,7 +128,6 @@ s_send_static_response (struct MHD_Connection *con, char *content_type, char *co
     if (!http_response)
         return MHD_NO;
     rc = MHD_queue_response (con, status_code, http_response);
-    printf ("Send Page: %d\n", status_code);
     MHD_destroy_response (http_response);
     return rc;
 }
@@ -179,9 +178,7 @@ s_send_response (struct MHD_Connection *con, xrap_msg_t *response)
     if (!http_response)
         return MHD_NO;
     rc = MHD_queue_response (con, status_code, http_response);
-    printf ("Send Page: %d\n", status_code);
     //  Cleanup
-    xrap_msg_destroy (&response);
     MHD_destroy_response (http_response);
     return rc;
 }
@@ -295,7 +292,8 @@ answer_to_connection (void *cls,
         connection = (zwr_connection_t *) *con_cls;
     }
     //  DEBUG: debug print of http request
-    zwr_request_print (zwr_connection_request (connection));
+    /*zwr_request_print (zwr_connection_request (connection));*/
+
     //  Start request processing
     if ((0 == strcmp (method, MHD_HTTP_METHOD_POST) ||
          0 == strcmp (method, MHD_HTTP_METHOD_PUT)) && *uploaded_data_size != 0) {
@@ -320,12 +318,12 @@ answer_to_connection (void *cls,
         if (rc == 0) {
             //  Receive Response
             zmsg_t *response = zwr_client_recv (client);
-            xrap_msg = xrap_msg_decode (&response);
+            zwr_connection_set_response (connection, xrap_msg_decode (&response));
             //  Cleanup before resonding
             zuuid_t *sender = zwr_client_sender (client);
             zuuid_destroy (&sender);
             zwr_client_destroy (&client);
-            return s_send_response (con, xrap_msg);
+            return s_send_response (con, zwr_connection_response (connection));
         }
         else
         if (rc == XRAP_TRAFFIC_NOT_FOUND) {
@@ -485,7 +483,6 @@ void
 zwr_microhttpd_test (bool verbose)
 {
     printf (" * zwr_microhttpd: ");
-    verbose = true;
     if (verbose)
         printf ("\n");
 
@@ -537,8 +534,6 @@ zwr_microhttpd_test (bool verbose)
     assert (xrap_msg_id (xrap_msg) == XRAP_MSG_GET);
     assert (streq ("/foo/bar", xrap_msg_resource (xrap_msg)));
     xrap_msg_destroy (&xrap_msg);
-    zuuid_t *sender = zwr_client_sender (handler);
-    zuuid_destroy (&sender);
 
     //  Send Response
     xrap_msg = xrap_msg_new (XRAP_MSG_GET_OK);
@@ -547,9 +542,11 @@ zwr_microhttpd_test (bool verbose)
     xrap_msg_set_content_body (xrap_msg, "Hello World!");
     zmsg_t *response = xrap_msg_encode (&xrap_msg);
     zwr_client_deliver (handler, zwr_client_sender (handler), &response);
+    zuuid_t *sender = zwr_client_sender (handler);
+    zuuid_destroy (&sender);
 
     //  Receive GET Response
-    zwr_curl_client_verify_response (curl, 200, "");
+    zwr_curl_client_verify_response (curl, 200, "Hello World!");
     zwr_curl_client_destroy (&curl);
 
     //  Send GET Request 2
@@ -557,7 +554,8 @@ zwr_microhttpd_test (bool verbose)
     zwr_curl_client_send_get (curl, "http://localhost:8081/foo/bar/baz");
 
     //  Receive GET Response 2
-    zwr_curl_client_verify_response (curl, 404, "");
+    zwr_curl_client_verify_response (curl, 404,
+                                     "<html><body>The requested resource does not exist.</body></html>");
     zwr_curl_client_destroy (&curl);
 
     //  Provide POST Offering
@@ -574,8 +572,6 @@ zwr_microhttpd_test (bool verbose)
     assert (xrap_msg_id (xrap_msg) == XRAP_MSG_POST);
     assert (streq ("/foo/bar", xrap_msg_parent (xrap_msg)));
     xrap_msg_destroy (&xrap_msg);
-    sender = zwr_client_sender (handler);
-    zuuid_destroy (&sender);
 
     //  Send Response
     xrap_msg = xrap_msg_new (XRAP_MSG_POST_OK);
@@ -587,13 +583,16 @@ zwr_microhttpd_test (bool verbose)
     xrap_msg_set_content_body (xrap_msg, "Hello World!");
     response = xrap_msg_encode (&xrap_msg);
     zwr_client_deliver (handler, zwr_client_sender (handler), &response);
+    sender = zwr_client_sender (handler);
+    zuuid_destroy (&sender);
 
     //  Give response time to arrive
-    sleep (1);
+    usleep (250);
 
+    zwr_curl_client_verify_response (curl, 201, "Hello World!");
     zwr_curl_client_destroy (&curl);
-    zwr_client_destroy (&handler);
 
+    zwr_client_destroy (&handler);
     zactor_destroy (&dispatcher);
 
     zstr_send (zwr_microhttpd, "STOP");

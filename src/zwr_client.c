@@ -319,7 +319,6 @@ void
 zwr_client_test (bool verbose)
 {
     printf (" * zwr_client: ");
-    verbose = true;
     if (verbose)
         printf ("\n");
 

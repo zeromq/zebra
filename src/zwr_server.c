@@ -337,10 +337,9 @@ void
 zwr_server_test (bool verbose)
 {
     printf (" * zwr_server: ");
-
-    verbose = true;
     if (verbose)
         printf ("\n");
+
     //  @selftest
     zactor_t *server = zactor_new (zwr_server, "dispatcher");
     if (verbose)

@@ -25,7 +25,7 @@
 
 struct _zwr_connection_t {
     zwr_request_t *request;
-    zwr_response_t *response;
+    xrap_msg_t *response;
 };
 
 
@@ -58,7 +58,7 @@ zwr_connection_destroy (zwr_connection_t **self_p)
         //  Free class properties
         zwr_request_destroy (&self->request);
         if (self->response)
-            zwr_response_destroy (&self->response);
+            xrap_msg_destroy (&self->response);
 
         //  Free object itself
         free (self);
@@ -79,7 +79,7 @@ zwr_connection_request (zwr_connection_t *self)
 //  --------------------------------------------------------------------------
 //  Get the response for this connection
 
-zwr_response_t *
+xrap_msg_t *
 zwr_connection_response (zwr_connection_t *self)
 {
     assert (self);
@@ -90,7 +90,7 @@ zwr_connection_response (zwr_connection_t *self)
 //  Set the response for this connection
 
 void
-zwr_connection_set_response (zwr_connection_t *self, zwr_response_t *response)
+zwr_connection_set_response (zwr_connection_t *self, xrap_msg_t *response)
 {
     assert (self);
     self->response = response;
