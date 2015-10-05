@@ -466,7 +466,7 @@ zwr_microhttpd_actor (zsock_t *pipe, void *args)
     zsock_signal (self->pipe, 0);
 
     while (!self->terminated) {
-       zsock_t *which = (zsock_t *) zpoller_wait (self->poller, 0);
+       zsock_t *which = (zsock_t *) zpoller_wait (self->poller, -1);
        if (which == self->pipe)
           zwr_microhttpd_recv_api (self);
        //  Add other sockets when you need them.
