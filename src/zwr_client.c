@@ -99,7 +99,7 @@ static int
 client_initialize (client_t *self)
 {
     //  We'll ping the server once per second
-    self->heartbeat_timer = 1000;
+    self->heartbeat_timer = 5000;
     self->replays = zlistx_new ();
     zlistx_set_destructor (self->replays, (czmq_destructor *) s_replay_destroy);
     return 0;
