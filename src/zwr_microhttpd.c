@@ -308,13 +308,13 @@ answer_to_connection (void *cls,
     zwr_client_t *client = zwr_client_new ();
     assert (client);
 
+    xrap_msg_t *xrap_msg = s_build_xrap_message (self, connection);
+    if (!xrap_msg)
+        return s_send_static_response (con, "text/html", notimplemented, MHD_HTTP_NOT_IMPLEMENTED);
     //  Connect client to server
     rc = zwr_client_connect (client, "inproc://http_dispatcher", 1000, "client");
     if (rc == 0) {  //  Interrupted!
         //  Send Request
-        xrap_msg_t *xrap_msg = s_build_xrap_message (self, connection);
-        if (!xrap_msg)
-            return s_send_static_response (con, "text/html", notimplemented, MHD_HTTP_NOT_IMPLEMENTED);
         zmsg_t *request = xrap_msg_encode (&xrap_msg);
         assert (request);
         rc = zwr_client_request (client, 0, &request);
@@ -336,6 +336,9 @@ answer_to_connection (void *cls,
             //  404 - not found
             return s_send_static_response (con, "text/html", notfoundpage, MHD_HTTP_NOT_FOUND);
         }
+    }
+    else {
+        xrap_msg_destroy (&xrap_msg);
     }
 
     zwr_client_destroy (&client);
