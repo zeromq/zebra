@@ -151,6 +151,7 @@ s_send_response (struct MHD_Connection *con, xrap_msg_t *response)
                                                          (void *) content_body,
                                                          MHD_RESPMEM_PERSISTENT);
         MHD_add_response_header (http_response, MHD_HTTP_HEADER_CONTENT_TYPE, content_type);
+        MHD_add_response_header (http_response, MHD_HTTP_HEADER_ETAG, xrap_msg_etag (response));
     }
     else
     if (XRAP_MSG_ERROR == xrap_msg_id (response)) {
@@ -170,7 +171,6 @@ s_send_response (struct MHD_Connection *con, xrap_msg_t *response)
     if (XRAP_MSG_POST_OK == xrap_msg_id (response) ||
         XRAP_MSG_PUT_OK  == xrap_msg_id (response)) {
         MHD_add_response_header (http_response, MHD_HTTP_HEADER_LOCATION, xrap_msg_location (response));
-        MHD_add_response_header (http_response, MHD_HTTP_HEADER_ETAG, xrap_msg_etag (response));
         char modified[64];
         rc = sprintf (modified, "%"PRIu64, xrap_msg_date_modified (response));
         if (rc > 0)
