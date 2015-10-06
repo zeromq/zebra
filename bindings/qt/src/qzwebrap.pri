@@ -9,7 +9,8 @@ DEPENDPATH += $$PWD
 qzwebrap-uselib:!qzwebrap-buildlib {
     LIBS += -L$$QZWEBRAP_LIBDIR -l$$QZWEBRAP_LIBNAME
 } else {
-    HEADERS       += $$PWD/qzwebrap.h \
+    HEADERS       += \
+                     $$PWD/qzwebrap.h \
                      $$PWD/qzwrclient.h \
                      $$PWD/qzactor.h \
                      $$PWD/qzsock.h \

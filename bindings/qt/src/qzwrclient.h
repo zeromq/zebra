@@ -14,8 +14,8 @@ class QT_ZWEBRAP_EXPORT QZwrClient : public QObject
     Q_OBJECT
 public:
 
-   //  Copy-construct to return the proper wrapped c types
-   QZwrClient (zwr_client_t *self, QObject *qObjParent = 0);
+    //  Copy-construct to return the proper wrapped c types
+    QZwrClient (zwr_client_t *self, QObject *qObjParent = 0);
 
     //  Create a new zwr_client, return the reference if successful, or NULL
     //  if construction failed due to lack of available memory.             
