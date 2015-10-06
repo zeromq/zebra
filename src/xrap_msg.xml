@@ -26,6 +26,7 @@ Success response for POST.
 
 <message name = "GET" id = "3">
     <field name = "resource" type = "string">Schema/type/name</field>
+    <field name = "parameters" type = "hash">Filtering/sorting/selecting/paging</field>
     <field name = "if modified since" type = "number" size="8">GET if more recent</field>
     <field name = "if none match" type = "string">GET if changed</field>
     <field name = "content type" type = "string">Desired content type</field>
@@ -34,8 +35,10 @@ Retrieve a known resource.
 
 <message name = "GET OK" id = "4">
     <field name = "status code" type = "number" size = "2">Response status code 2xx</field>
+    <field name = "etag" type = "string">Opaque hash tag</field>
     <field name = "content type" type = "string">Actual content type</field>
     <field name = "content body" type = "longstr">Resource specification</field>
+    <field name = "metadata" type = "hash">Custom data: collection size/version/links</field>
 Success response for GET.
 </message>
 

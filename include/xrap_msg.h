@@ -42,14 +42,17 @@
 
     GET - Retrieve a known resource.
         resource            string      Schema/type/name
+        parameters          hash        Filtering/sorting/selecting/paging
         if_modified_since   number 8    GET if more recent
         if_none_match       string      GET if changed
         content_type        string      Desired content type
 
     GET_OK - Success response for GET.
         status_code         number 2    Response status code 2xx
+        etag                string      Opaque hash tag
         content_type        string      Actual content type
         content_body        longstr     Resource specification
+        metadata            hash        Custom data: collection size/version/links
 
     GET_EMPTY - Conditional GET returned 304 Not Modified.
         status_code         number 2    Response status code 3xx
@@ -170,6 +173,7 @@ zmsg_t *
 zmsg_t *
     xrap_msg_encode_get (
         const char *resource,
+        zhash_t *parameters,
         uint64_t if_modified_since,
         const char *if_none_match,
         const char *content_type);
@@ -178,8 +182,10 @@ zmsg_t *
 zmsg_t *
     xrap_msg_encode_get_ok (
         uint16_t status_code,
+        const char *etag,
         const char *content_type,
-        const char *content_body);
+        const char *content_body,
+        zhash_t *metadata);
 
 //  Encode the GET_EMPTY 
 zmsg_t *
@@ -246,6 +252,7 @@ int
 int
     xrap_msg_send_get (void *output,
         const char *resource,
+        zhash_t *parameters,
         uint64_t if_modified_since,
         const char *if_none_match,
         const char *content_type);
@@ -255,8 +262,10 @@ int
 int
     xrap_msg_send_get_ok (void *output,
         uint16_t status_code,
+        const char *etag,
         const char *content_type,
-        const char *content_body);
+        const char *content_body,
+        zhash_t *metadata);
     
 //  Send the GET_EMPTY to the output in one step
 //  WARNING, this call will fail if output is of type ZMQ_ROUTER.
@@ -374,6 +383,29 @@ const char *
 void
     xrap_msg_set_resource (xrap_msg_t *self, const char *format, ...);
 
+//  Get/set the parameters field
+zhash_t *
+    xrap_msg_parameters (xrap_msg_t *self);
+//  Get the parameters field and transfer ownership to caller
+zhash_t *
+    xrap_msg_get_parameters (xrap_msg_t *self);
+//  Set the parameters field, transferring ownership from caller
+void
+    xrap_msg_set_parameters (xrap_msg_t *self, zhash_t **parameters_p);
+    
+//  Get/set a value in the parameters dictionary
+const char *
+    xrap_msg_parameters_string (xrap_msg_t *self,
+        const char *key, const char *default_value);
+uint64_t
+    xrap_msg_parameters_number (xrap_msg_t *self,
+        const char *key, uint64_t default_value);
+void
+    xrap_msg_parameters_insert (xrap_msg_t *self,
+        const char *key, const char *format, ...);
+size_t
+    xrap_msg_parameters_size (xrap_msg_t *self);
+
 //  Get/set the if_modified_since field
 uint64_t
     xrap_msg_if_modified_since (xrap_msg_t *self);
@@ -385,6 +417,29 @@ const char *
     xrap_msg_if_none_match (xrap_msg_t *self);
 void
     xrap_msg_set_if_none_match (xrap_msg_t *self, const char *format, ...);
+
+//  Get/set the metadata field
+zhash_t *
+    xrap_msg_metadata (xrap_msg_t *self);
+//  Get the metadata field and transfer ownership to caller
+zhash_t *
+    xrap_msg_get_metadata (xrap_msg_t *self);
+//  Set the metadata field, transferring ownership from caller
+void
+    xrap_msg_set_metadata (xrap_msg_t *self, zhash_t **metadata_p);
+    
+//  Get/set a value in the metadata dictionary
+const char *
+    xrap_msg_metadata_string (xrap_msg_t *self,
+        const char *key, const char *default_value);
+uint64_t
+    xrap_msg_metadata_number (xrap_msg_t *self,
+        const char *key, uint64_t default_value);
+void
+    xrap_msg_metadata_insert (xrap_msg_t *self,
+        const char *key, const char *format, ...);
+size_t
+    xrap_msg_metadata_size (xrap_msg_t *self);
 
 //  Get/set the if_unmodified_since field
 uint64_t

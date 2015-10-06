@@ -46,8 +46,12 @@ struct _xrap_msg_t {
     char *etag;                         //  Opaque hash tag
     uint64_t date_modified;             //  Date and time modified
     char *resource;                     //  Schema/type/name
+    zhash_t *parameters;                //  Filtering/sorting/selecting/paging
+    size_t parameters_bytes;            //  Filtering/sorting/selecting/paging
     uint64_t if_modified_since;         //  GET if more recent
     char *if_none_match;                //  GET if changed
+    zhash_t *metadata;                  //  Custom data: collection size/version/links
+    size_t metadata_bytes;              //  Custom data: collection size/version/links
     uint64_t if_unmodified_since;       //  Update if same date
     char *if_match;                     //  Update if same ETag
     char *status_text;                  //  Response status text
@@ -219,7 +223,9 @@ xrap_msg_destroy (xrap_msg_t **self_p)
         free (self->location);
         free (self->etag);
         free (self->resource);
+        zhash_destroy (&self->parameters);
         free (self->if_none_match);
+        zhash_destroy (&self->metadata);
         free (self->if_match);
         free (self->status_text);
 
@@ -324,6 +330,20 @@ xrap_msg_decode (zmsg_t **msg_p)
 
         case XRAP_MSG_GET:
             GET_STRING (self->resource);
+            {
+                size_t hash_size;
+                GET_NUMBER4 (hash_size);
+                self->parameters = zhash_new ();
+                zhash_autofree (self->parameters);
+                while (hash_size--) {
+                    char *key, *value;
+                    GET_STRING (key);
+                    GET_LONGSTR (value);
+                    zhash_insert (self->parameters, key, value);
+                    free (key);
+                    free (value);
+                }
+            }
             GET_NUMBER8 (self->if_modified_since);
             GET_STRING (self->if_none_match);
             GET_STRING (self->content_type);
@@ -331,8 +351,23 @@ xrap_msg_decode (zmsg_t **msg_p)
 
         case XRAP_MSG_GET_OK:
             GET_NUMBER2 (self->status_code);
+            GET_STRING (self->etag);
             GET_STRING (self->content_type);
             GET_LONGSTR (self->content_body);
+            {
+                size_t hash_size;
+                GET_NUMBER4 (hash_size);
+                self->metadata = zhash_new ();
+                zhash_autofree (self->metadata);
+                while (hash_size--) {
+                    char *key, *value;
+                    GET_STRING (key);
+                    GET_LONGSTR (value);
+                    zhash_insert (self->metadata, key, value);
+                    free (key);
+                    free (value);
+                }
+            }
             break;
 
         case XRAP_MSG_GET_EMPTY:
@@ -446,6 +481,19 @@ xrap_msg_encode (xrap_msg_t **self_p)
             frame_size++;       //  Size is one octet
             if (self->resource)
                 frame_size += strlen (self->resource);
+            //  parameters is an array of key=value strings
+            frame_size += 4;    //  Size is 4 octets
+            if (self->parameters) {
+                self->parameters_bytes = 0;
+                //  Add up size of dictionary contents
+                char *item = (char *) zhash_first (self->parameters);
+                while (item) {
+                    self->parameters_bytes += 1 + strlen ((const char *) zhash_cursor (self->parameters));
+                    self->parameters_bytes += 4 + strlen (item);
+                    item = (char *) zhash_next (self->parameters);
+                }
+            }
+            frame_size += self->parameters_bytes;
             //  if_modified_since is a 8-byte integer
             frame_size += 8;
             //  if_none_match is a string with 1-byte length
@@ -461,6 +509,10 @@ xrap_msg_encode (xrap_msg_t **self_p)
         case XRAP_MSG_GET_OK:
             //  status_code is a 2-byte integer
             frame_size += 2;
+            //  etag is a string with 1-byte length
+            frame_size++;       //  Size is one octet
+            if (self->etag)
+                frame_size += strlen (self->etag);
             //  content_type is a string with 1-byte length
             frame_size++;       //  Size is one octet
             if (self->content_type)
@@ -469,6 +521,19 @@ xrap_msg_encode (xrap_msg_t **self_p)
             frame_size += 4;
             if (self->content_body)
                 frame_size += strlen (self->content_body);
+            //  metadata is an array of key=value strings
+            frame_size += 4;    //  Size is 4 octets
+            if (self->metadata) {
+                self->metadata_bytes = 0;
+                //  Add up size of dictionary contents
+                char *item = (char *) zhash_first (self->metadata);
+                while (item) {
+                    self->metadata_bytes += 1 + strlen ((const char *) zhash_cursor (self->metadata));
+                    self->metadata_bytes += 4 + strlen (item);
+                    item = (char *) zhash_next (self->metadata);
+                }
+            }
+            frame_size += self->metadata_bytes;
             break;
             
         case XRAP_MSG_GET_EMPTY:
@@ -600,6 +665,17 @@ xrap_msg_encode (xrap_msg_t **self_p)
             }
             else
                 PUT_NUMBER1 (0);    //  Empty string
+            if (self->parameters) {
+                PUT_NUMBER4 (zhash_size (self->parameters));
+                char *item = (char *) zhash_first (self->parameters);
+                while (item) {
+                    PUT_STRING ((const char *) zhash_cursor ((zhash_t *) self->parameters));
+                    PUT_LONGSTR (item);
+                    item = (char *) zhash_next (self->parameters);
+                }
+            }
+            else
+                PUT_NUMBER4 (0);    //  Empty dictionary
             PUT_NUMBER8 (self->if_modified_since);
             if (self->if_none_match) {
                 PUT_STRING (self->if_none_match);
@@ -615,6 +691,11 @@ xrap_msg_encode (xrap_msg_t **self_p)
 
         case XRAP_MSG_GET_OK:
             PUT_NUMBER2 (self->status_code);
+            if (self->etag) {
+                PUT_STRING (self->etag);
+            }
+            else
+                PUT_NUMBER1 (0);    //  Empty string
             if (self->content_type) {
                 PUT_STRING (self->content_type);
             }
@@ -625,6 +706,17 @@ xrap_msg_encode (xrap_msg_t **self_p)
             }
             else
                 PUT_NUMBER4 (0);    //  Empty string
+            if (self->metadata) {
+                PUT_NUMBER4 (zhash_size (self->metadata));
+                char *item = (char *) zhash_first (self->metadata);
+                while (item) {
+                    PUT_STRING ((const char *) zhash_cursor ((zhash_t *) self->metadata));
+                    PUT_LONGSTR (item);
+                    item = (char *) zhash_next (self->metadata);
+                }
+            }
+            else
+                PUT_NUMBER4 (0);    //  Empty dictionary
             break;
 
         case XRAP_MSG_GET_EMPTY:
@@ -858,12 +950,15 @@ xrap_msg_encode_post_ok (
 zmsg_t * 
 xrap_msg_encode_get (
     const char *resource,
+    zhash_t *parameters,
     uint64_t if_modified_since,
     const char *if_none_match,
     const char *content_type)
 {
     xrap_msg_t *self = xrap_msg_new (XRAP_MSG_GET);
     xrap_msg_set_resource (self, "%s", resource);
+    zhash_t *parameters_copy = zhash_dup (parameters);
+    xrap_msg_set_parameters (self, &parameters_copy);
     xrap_msg_set_if_modified_since (self, if_modified_since);
     xrap_msg_set_if_none_match (self, "%s", if_none_match);
     xrap_msg_set_content_type (self, "%s", content_type);
@@ -877,13 +972,18 @@ xrap_msg_encode_get (
 zmsg_t * 
 xrap_msg_encode_get_ok (
     uint16_t status_code,
+    const char *etag,
     const char *content_type,
-    const char *content_body)
+    const char *content_body,
+    zhash_t *metadata)
 {
     xrap_msg_t *self = xrap_msg_new (XRAP_MSG_GET_OK);
     xrap_msg_set_status_code (self, status_code);
+    xrap_msg_set_etag (self, "%s", etag);
     xrap_msg_set_content_type (self, "%s", content_type);
     xrap_msg_set_content_body (self, "%s", content_body);
+    zhash_t *metadata_copy = zhash_dup (metadata);
+    xrap_msg_set_metadata (self, &metadata_copy);
     return xrap_msg_encode (&self);
 }
 
@@ -1035,12 +1135,15 @@ int
 xrap_msg_send_get (
     void *output,
     const char *resource,
+    zhash_t *parameters,
     uint64_t if_modified_since,
     const char *if_none_match,
     const char *content_type)
 {
     xrap_msg_t *self = xrap_msg_new (XRAP_MSG_GET);
     xrap_msg_set_resource (self, resource);
+    zhash_t *parameters_copy = zhash_dup (parameters);
+    xrap_msg_set_parameters (self, &parameters_copy);
     xrap_msg_set_if_modified_since (self, if_modified_since);
     xrap_msg_set_if_none_match (self, if_none_match);
     xrap_msg_set_content_type (self, content_type);
@@ -1055,13 +1158,18 @@ int
 xrap_msg_send_get_ok (
     void *output,
     uint16_t status_code,
+    const char *etag,
     const char *content_type,
-    const char *content_body)
+    const char *content_body,
+    zhash_t *metadata)
 {
     xrap_msg_t *self = xrap_msg_new (XRAP_MSG_GET_OK);
     xrap_msg_set_status_code (self, status_code);
+    xrap_msg_set_etag (self, etag);
     xrap_msg_set_content_type (self, content_type);
     xrap_msg_set_content_body (self, content_body);
+    zhash_t *metadata_copy = zhash_dup (metadata);
+    xrap_msg_set_metadata (self, &metadata_copy);
     return xrap_msg_send (&self, output);
 }
 
@@ -1200,6 +1308,7 @@ xrap_msg_dup (xrap_msg_t *self)
 
         case XRAP_MSG_GET:
             copy->resource = self->resource? strdup (self->resource): NULL;
+            copy->parameters = self->parameters? zhash_dup (self->parameters): NULL;
             copy->if_modified_since = self->if_modified_since;
             copy->if_none_match = self->if_none_match? strdup (self->if_none_match): NULL;
             copy->content_type = self->content_type? strdup (self->content_type): NULL;
@@ -1207,8 +1316,10 @@ xrap_msg_dup (xrap_msg_t *self)
 
         case XRAP_MSG_GET_OK:
             copy->status_code = self->status_code;
+            copy->etag = self->etag? strdup (self->etag): NULL;
             copy->content_type = self->content_type? strdup (self->content_type): NULL;
             copy->content_body = self->content_body? strdup (self->content_body): NULL;
+            copy->metadata = self->metadata? zhash_dup (self->metadata): NULL;
             break;
 
         case XRAP_MSG_GET_EMPTY:
@@ -1302,6 +1413,16 @@ xrap_msg_print (xrap_msg_t *self)
                 zsys_debug ("    resource='%s'", self->resource);
             else
                 zsys_debug ("    resource=");
+            zsys_debug ("    parameters=");
+            if (self->parameters) {
+                char *item = (char *) zhash_first (self->parameters);
+                while (item) {
+                    zsys_debug ("        %s=%s", zhash_cursor (self->parameters), item);
+                    item = (char *) zhash_next (self->parameters);
+                }
+            }
+            else
+                zsys_debug ("(NULL)");
             zsys_debug ("    if_modified_since=%ld", (long) self->if_modified_since);
             if (self->if_none_match)
                 zsys_debug ("    if_none_match='%s'", self->if_none_match);
@@ -1316,6 +1437,10 @@ xrap_msg_print (xrap_msg_t *self)
         case XRAP_MSG_GET_OK:
             zsys_debug ("XRAP_MSG_GET_OK:");
             zsys_debug ("    status_code=%ld", (long) self->status_code);
+            if (self->etag)
+                zsys_debug ("    etag='%s'", self->etag);
+            else
+                zsys_debug ("    etag=");
             if (self->content_type)
                 zsys_debug ("    content_type='%s'", self->content_type);
             else
@@ -1324,6 +1449,16 @@ xrap_msg_print (xrap_msg_t *self)
                 zsys_debug ("    content_body='%s'", self->content_body);
             else
                 zsys_debug ("    content_body=");
+            zsys_debug ("    metadata=");
+            if (self->metadata) {
+                char *item = (char *) zhash_first (self->metadata);
+                while (item) {
+                    zsys_debug ("        %s=%s", zhash_cursor (self->metadata), item);
+                    item = (char *) zhash_next (self->metadata);
+                }
+            }
+            else
+                zsys_debug ("(NULL)");
             break;
             
         case XRAP_MSG_GET_EMPTY:
@@ -1649,6 +1784,94 @@ xrap_msg_set_resource (xrap_msg_t *self, const char *format, ...)
 
 
 //  --------------------------------------------------------------------------
+//  Get the parameters field without transferring ownership
+
+zhash_t *
+xrap_msg_parameters (xrap_msg_t *self)
+{
+    assert (self);
+    return self->parameters;
+}
+
+//  Get the parameters field and transfer ownership to caller
+
+zhash_t *
+xrap_msg_get_parameters (xrap_msg_t *self)
+{
+    zhash_t *parameters = self->parameters;
+    self->parameters = NULL;
+    return parameters;
+}
+
+//  Set the parameters field, transferring ownership from caller
+
+void
+xrap_msg_set_parameters (xrap_msg_t *self, zhash_t **parameters_p)
+{
+    assert (self);
+    assert (parameters_p);
+    zhash_destroy (&self->parameters);
+    self->parameters = *parameters_p;
+    *parameters_p = NULL;
+}
+
+//  --------------------------------------------------------------------------
+//  Get/set a value in the parameters dictionary
+
+const char *
+xrap_msg_parameters_string (xrap_msg_t *self, const char *key, const char *default_value)
+{
+    assert (self);
+    const char *value = NULL;
+    if (self->parameters)
+        value = (const char *) (zhash_lookup (self->parameters, key));
+    if (!value)
+        value = default_value;
+
+    return value;
+}
+
+uint64_t
+xrap_msg_parameters_number (xrap_msg_t *self, const char *key, uint64_t default_value)
+{
+    assert (self);
+    uint64_t value = default_value;
+    char *string = NULL;
+    if (self->parameters)
+        string = (char *) (zhash_lookup (self->parameters, key));
+    if (string)
+        value = atol (string);
+
+    return value;
+}
+
+void
+xrap_msg_parameters_insert (xrap_msg_t *self, const char *key, const char *format, ...)
+{
+    //  Format into newly allocated string
+    assert (self);
+    va_list argptr;
+    va_start (argptr, format);
+    char *string = zsys_vprintf (format, argptr);
+    va_end (argptr);
+
+    //  Store string in hash table
+    if (!self->parameters) {
+        self->parameters = zhash_new ();
+        zhash_autofree (self->parameters);
+    }
+    zhash_update (self->parameters, key, string);
+    free (string);
+}
+
+size_t
+xrap_msg_parameters_size (xrap_msg_t *self)
+{
+    return zhash_size (self->parameters);
+}
+
+
+//  --------------------------------------------------------------------------
 //  Get/set the if_modified_since field
 
 uint64_t
@@ -1686,6 +1909,94 @@ xrap_msg_set_if_none_match (xrap_msg_t *self, const char *format, ...)
     free (self->if_none_match);
     self->if_none_match = zsys_vprintf (format, argptr);
     va_end (argptr);
+}
+
+
+//  --------------------------------------------------------------------------
+//  Get the metadata field without transferring ownership
+
+zhash_t *
+xrap_msg_metadata (xrap_msg_t *self)
+{
+    assert (self);
+    return self->metadata;
+}
+
+//  Get the metadata field and transfer ownership to caller
+
+zhash_t *
+xrap_msg_get_metadata (xrap_msg_t *self)
+{
+    zhash_t *metadata = self->metadata;
+    self->metadata = NULL;
+    return metadata;
+}
+
+//  Set the metadata field, transferring ownership from caller
+
+void
+xrap_msg_set_metadata (xrap_msg_t *self, zhash_t **metadata_p)
+{
+    assert (self);
+    assert (metadata_p);
+    zhash_destroy (&self->metadata);
+    self->metadata = *metadata_p;
+    *metadata_p = NULL;
+}
+
+//  --------------------------------------------------------------------------
+//  Get/set a value in the metadata dictionary
+
+const char *
+xrap_msg_metadata_string (xrap_msg_t *self, const char *key, const char *default_value)
+{
+    assert (self);
+    const char *value = NULL;
+    if (self->metadata)
+        value = (const char *) (zhash_lookup (self->metadata, key));
+    if (!value)
+        value = default_value;
+
+    return value;
+}
+
+uint64_t
+xrap_msg_metadata_number (xrap_msg_t *self, const char *key, uint64_t default_value)
+{
+    assert (self);
+    uint64_t value = default_value;
+    char *string = NULL;
+    if (self->metadata)
+        string = (char *) (zhash_lookup (self->metadata, key));
+    if (string)
+        value = atol (string);
+
+    return value;
+}
+
+void
+xrap_msg_metadata_insert (xrap_msg_t *self, const char *key, const char *format, ...)
+{
+    //  Format into newly allocated string
+    assert (self);
+    va_list argptr;
+    va_start (argptr, format);
+    char *string = zsys_vprintf (format, argptr);
+    va_end (argptr);
+
+    //  Store string in hash table
+    if (!self->metadata) {
+        self->metadata = zhash_new ();
+        zhash_autofree (self->metadata);
+    }
+    zhash_update (self->metadata, key, string);
+    free (string);
+}
+
+size_t
+xrap_msg_metadata_size (xrap_msg_t *self)
+{
+    return zhash_size (self->metadata);
 }
 
 
@@ -1845,6 +2156,8 @@ xrap_msg_test (bool verbose)
     xrap_msg_destroy (&copy);
 
     xrap_msg_set_resource (self, "Life is short but Now lasts for ever");
+    xrap_msg_parameters_insert (self, "Name", "Brutus");
+    xrap_msg_parameters_insert (self, "Age", "%d", 43);
     xrap_msg_set_if_modified_since (self, 123);
     xrap_msg_set_if_none_match (self, "Life is short but Now lasts for ever");
     xrap_msg_set_content_type (self, "Life is short but Now lasts for ever");
@@ -1858,6 +2171,9 @@ xrap_msg_test (bool verbose)
         assert (xrap_msg_routing_id (self));
         
         assert (streq (xrap_msg_resource (self), "Life is short but Now lasts for ever"));
+        assert (xrap_msg_parameters_size (self) == 2);
+        assert (streq (xrap_msg_parameters_string (self, "Name", "?"), "Brutus"));
+        assert (xrap_msg_parameters_number (self, "Age", 0) == 43);
         assert (xrap_msg_if_modified_since (self) == 123);
         assert (streq (xrap_msg_if_none_match (self), "Life is short but Now lasts for ever"));
         assert (streq (xrap_msg_content_type (self), "Life is short but Now lasts for ever"));
@@ -1871,8 +2187,11 @@ xrap_msg_test (bool verbose)
     xrap_msg_destroy (&copy);
 
     xrap_msg_set_status_code (self, 123);
+    xrap_msg_set_etag (self, "Life is short but Now lasts for ever");
     xrap_msg_set_content_type (self, "Life is short but Now lasts for ever");
     xrap_msg_set_content_body (self, "Life is short but Now lasts for ever");
+    xrap_msg_metadata_insert (self, "Name", "Brutus");
+    xrap_msg_metadata_insert (self, "Age", "%d", 43);
     //  Send twice from same object
     xrap_msg_send_again (self, output);
     xrap_msg_send (&self, output);
@@ -1883,8 +2202,12 @@ xrap_msg_test (bool verbose)
         assert (xrap_msg_routing_id (self));
         
         assert (xrap_msg_status_code (self) == 123);
+        assert (streq (xrap_msg_etag (self), "Life is short but Now lasts for ever"));
         assert (streq (xrap_msg_content_type (self), "Life is short but Now lasts for ever"));
         assert (streq (xrap_msg_content_body (self), "Life is short but Now lasts for ever"));
+        assert (xrap_msg_metadata_size (self) == 2);
+        assert (streq (xrap_msg_metadata_string (self, "Name", "?"), "Brutus"));
+        assert (xrap_msg_metadata_number (self, "Age", 0) == 43);
         xrap_msg_destroy (&self);
     }
     self = xrap_msg_new (XRAP_MSG_GET_EMPTY);

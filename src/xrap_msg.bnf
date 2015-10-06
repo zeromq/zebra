@@ -22,18 +22,21 @@ The following ABNF grammar defines the XRAP serialization over ZMTP:
 
     ;  Retrieve a known resource.                                            
 
-    GET             = signature %d3 resource if_modified_since if_none_match content_type
+    GET             = signature %d3 resource parameters if_modified_since if_none_match content_type
     resource        = string                ; Schema/type/name
+    parameters      = hash                  ; Filtering/sorting/selecting/paging
     if_modified_since = number-8            ; GET if more recent
     if_none_match   = string                ; GET if changed
     content_type    = string                ; Desired content type
 
     ;  Success response for GET.                                             
 
-    GET-OK          = signature %d4 status_code content_type content_body
+    GET-OK          = signature %d4 status_code etag content_type content_body metadata
     status_code     = number-2              ; Response status code 2xx
+    etag            = string                ; Opaque hash tag
     content_type    = string                ; Actual content type
     content_body    = longstr               ; Resource specification
+    metadata        = hash                  ; Custom data: collection size/version/links
 
     ;  Conditional GET returned 304 Not Modified.                            
 
@@ -74,6 +77,12 @@ The following ABNF grammar defines the XRAP serialization over ZMTP:
     ERROR           = signature %d10 status_code status_text
     status_code     = number-2              ; Response status code, 4xx or 5xx
     status_text     = string                ; Response status text
+
+    ; A list of name/value pairs
+    hash            = hash-count *( hash-name hash-value )
+    hash-count      = number-4
+    hash-value      = longstr
+    hash-name       = string
 
     ; Strings are always length + text contents
     string          = number-1 *VCHAR
