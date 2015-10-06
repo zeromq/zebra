@@ -304,13 +304,14 @@ answer_to_connection (void *cls,
             *uploaded_data_size = 0;
             return MHD_YES;
     }
-    //  Create backend socket to dispatch request
-    zwr_client_t *client = zwr_client_new ();
-    assert (client);
-
     xrap_msg_t *xrap_msg = s_build_xrap_message (self, connection);
     if (!xrap_msg)
         return s_send_static_response (con, "text/html", notimplemented, MHD_HTTP_NOT_IMPLEMENTED);
+
+    //  Create client socket to dispatch request
+    zwr_client_t *client = zwr_client_new ();
+    assert (client);
+
     //  Connect client to server
     rc = zwr_client_connect (client, "inproc://http_dispatcher", 1000, "client");
     if (rc == 0) {  //  Interrupted!
