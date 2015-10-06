@@ -110,7 +110,7 @@ on_client_connect (void *cls,
                    const struct sockaddr *addr,
                    socklen_t addrlen)
 {
-    zwr_microhttpd_t *self = (zwr_microhttpd_t *) cls;
+    /*zwr_microhttpd_t *self = (zwr_microhttpd_t *) cls;*/
     /*struct sockaddr_in *client_addr = (struct sockaddr_in *) addr;*/
     /*printf ("Client-Addr: %s:%d\n", inet_ntoa (client_addr->sin_addr), ntohs (client_addr->sin_port));*/
     return MHD_YES;
