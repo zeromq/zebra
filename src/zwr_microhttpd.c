@@ -28,6 +28,7 @@
 #define errorpage "<html><body>This doesn't seem to be right.</body></html>"
 #define busypage "<html><body>Service is busy, try again later.</body></html>"
 #define notfoundpage "<html><body>The requested resource does not exist.</body></html>"
+#define notimplemented "<html><body>The requested method is not implemented.</body></html>"
 
 //  Structure of our actor
 
@@ -312,6 +313,8 @@ answer_to_connection (void *cls,
     if (rc == 0) {  //  Interrupted!
         //  Send Request
         xrap_msg_t *xrap_msg = s_build_xrap_message (self, connection);
+        if (!xrap_msg)
+            return s_send_static_response (con, "text/html", notimplemented, MHD_HTTP_NOT_IMPLEMENTED);
         zmsg_t *request = xrap_msg_encode (&xrap_msg);
         assert (request);
         rc = zwr_client_request (client, 0, &request);
