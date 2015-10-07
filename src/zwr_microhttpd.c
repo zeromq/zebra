@@ -220,8 +220,10 @@ s_build_xrap_message (zwr_microhttpd_t *self, zwr_connection_t *con)
         xrap_msg_set_if_none_match (xrap_msg, if_none_match);
         const char *content_type = (const char *) zhash_lookup (req_header, MHD_HTTP_HEADER_ACCEPT);
         xrap_msg_set_content_type (xrap_msg, content_type);
-        if (zhash_size (parameters) > 0)
-            xrap_msg_set_parameters (xrap_msg, &parameters);
+        if (zhash_size (parameters) > 0) {
+            zhash_t *parameters_dup = zhash_dup (parameters);
+            xrap_msg_set_parameters (xrap_msg, &parameters_dup);
+        }
     }
     else
     if (streq (MHD_HTTP_METHOD_POST, method)) {
@@ -352,7 +354,7 @@ answer_to_connection (void *cls,
 
 
 static void
-request_completed (void *cls, struct MHD_Connection *con,
+s_request_completed (void *cls, struct MHD_Connection *con,
                    void **con_cls, enum MHD_RequestTerminationCode toe)
 {
     assert (con_cls);
@@ -375,7 +377,7 @@ zwr_microhttpd_start (zwr_microhttpd_t *self)
     self->daemon = MHD_start_daemon (MHD_USE_THREAD_PER_CONNECTION, self->port,
                                      &on_client_connect, self,
                                      &answer_to_connection, self,
-                                     MHD_OPTION_NOTIFY_COMPLETED, &request_completed, self,
+                                     MHD_OPTION_NOTIFY_COMPLETED, &s_request_completed, self,
                                      MHD_OPTION_END);
     if (self->daemon)
         return 0;
@@ -537,7 +539,7 @@ zwr_microhttpd_test (bool verbose)
 
     //  Send GET Request
     zwr_curl_client_t *curl = zwr_curl_client_new ();
-    zwr_curl_client_send_get (curl, "http://localhost:8081/foo/bar");
+    zwr_curl_client_send_get (curl, "http://localhost:8081/foo/bar?page=10");
 
     //  Receive Request
     zmsg_t *request = zwr_client_recv (handler);

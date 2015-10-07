@@ -53,7 +53,9 @@ zwr_request_new (const char *path, const char *action, const char *version)
     self->data = NULL;
     self->data_size = 0;
     self->header = zhash_new ();
+    zhash_autofree (self->header);
     self->query = zhash_new ();
+    zhash_autofree (self->query);
 
     return self;
 }
