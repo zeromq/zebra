@@ -61,11 +61,11 @@ ZWEBRAP_EXPORT size_t
     zwr_request_data_size (zwr_request_t *self);
 
 //  Get the request's header, maybe empty
-ZWEBRAP_EXPORT zhashx_t *
+ZWEBRAP_EXPORT zhash_t *
     zwr_request_header (zwr_request_t *self);
 
 //  Get the request's query, maybe empty
-ZWEBRAP_EXPORT zhashx_t *
+ZWEBRAP_EXPORT zhash_t *
     zwr_request_query (zwr_request_t *self);
 
 //  Print properties of object

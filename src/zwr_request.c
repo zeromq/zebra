@@ -30,8 +30,8 @@ struct _zwr_request_t {
     const char *version;
     const char *data;
     size_t data_size;
-    zhashx_t *header;
-    zhashx_t *query;
+    zhash_t *header;
+    zhash_t *query;
 };
 
 
@@ -52,8 +52,8 @@ zwr_request_new (const char *path, const char *action, const char *version)
     self->version = version;
     self->data = NULL;
     self->data_size = 0;
-    self->header = zhashx_new ();
-    self->query = zhashx_new ();
+    self->header = zhash_new ();
+    self->query = zhash_new ();
 
     return self;
 }
@@ -69,8 +69,8 @@ zwr_request_destroy (zwr_request_t **self_p)
         zwr_request_t *self = *self_p;
 
         //  Free class properties
-        zhashx_destroy (&self->header);
-        zhashx_destroy (&self->query);
+        zhash_destroy (&self->header);
+        zhash_destroy (&self->query);
 
         //  Free object itself
         free (self);
@@ -153,7 +153,7 @@ zwr_request_data_size (zwr_request_t *self)
 //  --------------------------------------------------------------------------
 //  Get the request's header, maybe empty
 
-zhashx_t *
+zhash_t *
 zwr_request_header (zwr_request_t *self)
 {
     assert (self);
@@ -164,7 +164,7 @@ zwr_request_header (zwr_request_t *self)
 //  --------------------------------------------------------------------------
 //  Get the request's query, maybe empty
 
-zhashx_t *
+zhash_t *
 zwr_request_query (zwr_request_t *self)
 {
     assert (self);
@@ -183,27 +183,25 @@ zwr_request_print (zwr_request_t *self)
     printf ("  Action: %s,\n", self->action);
     printf ("  Version: %s,\n", self->version);
     //  Print HTTP header
-    zlistx_t *header_keys = zhashx_keys (self->header);
-    zlistx_sort (header_keys);
-    char *header_key = (char *) zlistx_first (header_keys);
+    zlist_t *header_keys = zhash_keys (self->header);
+    char *header_key = (char *) zlist_first (header_keys);
     printf ("  Header {\n");
     while (header_key) {
-        printf ("    %s: %s,\n", header_key, (char *) zhashx_lookup (self->header, header_key));
-        header_key = (char *) zlistx_next (header_keys);
+        printf ("    %s: %s,\n", header_key, (char *) zhash_lookup (self->header, header_key));
+        header_key = (char *) zlist_next (header_keys);
     }
-    zlistx_destroy (&header_keys);
+    zlist_destroy (&header_keys);
     printf ("  }\n");
     //  Print query arguments, if any
-    if (zhashx_size (self->query)) {
-        zlistx_t *query_keys = zhashx_keys (self->query);
-        zlistx_sort (query_keys);
-        char *query_key = (char *) zlistx_first (query_keys);
+    if (zhash_size (self->query)) {
+        zlist_t *query_keys = zhash_keys (self->query);
+        char *query_key = (char *) zlist_first (query_keys);
         printf ("  Query {\n");
         while (query_key) {
-            printf ("    %s: %s,\n", query_key, (char *) zhashx_lookup (self->query, query_key));
-            query_key = (char *) zlistx_next (query_keys);
+            printf ("    %s: %s,\n", query_key, (char *) zhash_lookup (self->query, query_key));
+            query_key = (char *) zlist_next (query_keys);
         }
-        zlistx_destroy (&query_keys);
+        zlist_destroy (&query_keys);
         printf ("  }\n");
     }
     //  Print data, if any

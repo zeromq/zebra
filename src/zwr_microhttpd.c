@@ -191,7 +191,7 @@ s_append_connection_value (void *cls, enum MHD_ValueKind kind, const char *key, 
 {
     assert (cls);
     zwr_request_t *request = (zwr_request_t *) cls;
-    zhashx_t *mapping = NULL;
+    zhash_t *mapping = NULL;
     if (MHD_HEADER_KIND == kind)
         mapping = zwr_request_header (request);
     else
@@ -199,7 +199,7 @@ s_append_connection_value (void *cls, enum MHD_ValueKind kind, const char *key, 
         mapping = zwr_request_query (request);
     else
         return MHD_NO;
-    zhashx_insert (mapping, (char *) key, (char *) value);
+    zhash_insert (mapping, (char *) key, (char *) value);
     return MHD_YES;
 }
 
@@ -208,23 +208,26 @@ s_build_xrap_message (zwr_microhttpd_t *self, zwr_connection_t *con)
 {
     zwr_request_t *req = zwr_connection_request (con);
     const char *method = zwr_request_action (req);
-    zhashx_t *req_header = zwr_request_header (req);
+    zhash_t *req_header = zwr_request_header (req);
+    zhash_t *parameters = zwr_request_query (req);
 
     xrap_msg_t *xrap_msg = NULL;
     if (streq (MHD_HTTP_METHOD_GET, method)) {
         xrap_msg = xrap_msg_new (XRAP_MSG_GET);
         xrap_msg_set_resource (xrap_msg, zwr_request_path (req));
         xrap_msg_set_if_modified_since (xrap_msg, 0);
-        const char *if_none_match = (const char *) zhashx_lookup (req_header, MHD_HTTP_HEADER_IF_NONE_MATCH);
+        const char *if_none_match = (const char *) zhash_lookup (req_header, MHD_HTTP_HEADER_IF_NONE_MATCH);
         xrap_msg_set_if_none_match (xrap_msg, if_none_match);
-        const char *content_type = (const char *) zhashx_lookup (req_header, MHD_HTTP_HEADER_ACCEPT);
+        const char *content_type = (const char *) zhash_lookup (req_header, MHD_HTTP_HEADER_ACCEPT);
         xrap_msg_set_content_type (xrap_msg, content_type);
+        if (zhash_size (parameters) > 0)
+            xrap_msg_set_parameters (xrap_msg, &parameters);
     }
     else
     if (streq (MHD_HTTP_METHOD_POST, method)) {
         xrap_msg = xrap_msg_new (XRAP_MSG_POST);
         xrap_msg_set_parent (xrap_msg, zwr_request_path (req));
-        const char *content_type = (const char *) zhashx_lookup (req_header, MHD_HTTP_HEADER_CONTENT_TYPE);
+        const char *content_type = (const char *) zhash_lookup (req_header, MHD_HTTP_HEADER_CONTENT_TYPE);
         xrap_msg_set_content_type (xrap_msg, content_type);
         xrap_msg_set_content_body (xrap_msg, zwr_request_data (req));
     }
@@ -233,9 +236,9 @@ s_build_xrap_message (zwr_microhttpd_t *self, zwr_connection_t *con)
         xrap_msg = xrap_msg_new (XRAP_MSG_PUT);
         xrap_msg_set_resource (xrap_msg, zwr_request_path (req));
         xrap_msg_set_if_unmodified_since (xrap_msg, 0);
-        const char *if_match = (const char *) zhashx_lookup (req_header, MHD_HTTP_HEADER_IF_MATCH);
+        const char *if_match = (const char *) zhash_lookup (req_header, MHD_HTTP_HEADER_IF_MATCH);
         xrap_msg_set_if_match (xrap_msg, if_match);
-        const char *content_type = (const char *) zhashx_lookup (req_header, MHD_HTTP_HEADER_CONTENT_TYPE);
+        const char *content_type = (const char *) zhash_lookup (req_header, MHD_HTTP_HEADER_CONTENT_TYPE);
         xrap_msg_set_content_type (xrap_msg, content_type);
         xrap_msg_set_content_body (xrap_msg, zwr_request_data (req));
     }
@@ -244,7 +247,7 @@ s_build_xrap_message (zwr_microhttpd_t *self, zwr_connection_t *con)
         xrap_msg = xrap_msg_new (XRAP_MSG_DELETE);
         xrap_msg_set_resource (xrap_msg, zwr_request_path (req));
         xrap_msg_set_if_unmodified_since (xrap_msg, 0);
-        const char *if_match = (const char *) zhashx_lookup (req_header, MHD_HTTP_HEADER_IF_MATCH);
+        const char *if_match = (const char *) zhash_lookup (req_header, MHD_HTTP_HEADER_IF_MATCH);
         xrap_msg_set_if_match (xrap_msg, if_match);
     }
 
@@ -278,7 +281,7 @@ answer_to_connection (void *cls,
         *con_cls = (void *) connection;
 
         if (streq (method, MHD_HTTP_METHOD_POST) || streq (method, MHD_HTTP_METHOD_PUT)) {
-            char *content_type = (char *) zhashx_lookup (zwr_request_header (request) , "Content-Type");
+            char *content_type = (char *) zhash_lookup (zwr_request_header (request) , "Content-Type");
             if (content_type) {
                 //  POST and PUT data is provided on second call to this method,
                 //  thus return MHD_YES which indicates that the request is not yet finished.
