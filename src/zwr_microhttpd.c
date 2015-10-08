@@ -25,10 +25,16 @@
 #include "zwr_curl_client.c"
 #endif
 
-#define errorpage "<html><body>This doesn't seem to be right.</body></html>"
-#define busypage "<html><body>Service is busy, try again later.</body></html>"
-#define notfoundpage "<html><body>The requested resource does not exist.</body></html>"
-#define notimplemented "<html><body>The requested method is not implemented.</body></html>"
+#define PAGE_USER_AGENT_REQUIRED "Request forbidden by administrative rules.\n \
+                                  Please make sure your request has a User-Agent header."
+#define PAGE_CONTENT_TYPE_REQUIRED "Problems parsing content.\n \
+                                    Please make sure your request has a Content-Type header."
+#define PAGE_METHOD_NOT_IMPLEMENTED "Request HTTP method is not implemented.\n \
+                                 Please make sure your request method is GET, POST, PUT or DELETE"
+#define PAGE_NOT_FOUND "The requested resource does not exist.\n \
+                        Please make sure to request a valid resource."
+#define PAGE_BUSY "The service is currently busy.\n \
+                   Please try again later."
 
 //  Structure of our actor
 
@@ -305,7 +311,8 @@ answer_to_connection (void *cls,
             }
             else {
                 //  If Content-Type is not set for POST/PUT something must have went wrong
-                return s_send_static_response (con, "text/html", errorpage, MHD_HTTP_BAD_REQUEST);
+                return s_send_static_response (con, "text/html",
+                                               PAGE_CONTENT_TYPE_REQUIRED, MHD_HTTP_BAD_REQUEST);
             }
         }
     }
@@ -325,7 +332,8 @@ answer_to_connection (void *cls,
     }
     xrap_msg_t *xrap_msg = s_build_xrap_message (self, connection);
     if (!xrap_msg)
-        return s_send_static_response (con, "text/html", notimplemented, MHD_HTTP_NOT_IMPLEMENTED);
+        return s_send_static_response (con, "text/html",
+                                       PAGE_METHOD_NOT_IMPLEMENTED, MHD_HTTP_NOT_IMPLEMENTED);
 
     //  Create client socket to dispatch request
     zwr_client_t *client = zwr_client_new ();
@@ -354,7 +362,7 @@ answer_to_connection (void *cls,
         if (rc == XRAP_TRAFFIC_NOT_FOUND) {
             zwr_client_destroy (&client);
             //  404 - not found
-            return s_send_static_response (con, "text/html", notfoundpage, MHD_HTTP_NOT_FOUND);
+            return s_send_static_response (con, "text/html", PAGE_NOT_FOUND, MHD_HTTP_NOT_FOUND);
         }
     }
     else {
@@ -363,7 +371,7 @@ answer_to_connection (void *cls,
 
     zwr_client_destroy (&client);
     //  423 - Busy
-    return s_send_static_response (con, "text/html", busypage, MHD_HTTP_LOCKED);
+    return s_send_static_response (con, "text/html", PAGE_BUSY, MHD_HTTP_SERVICE_UNAVAILABLE);
 }
 
 
@@ -582,8 +590,7 @@ zwr_microhttpd_test (bool verbose)
     zwr_curl_client_send_get (curl, "http://localhost:8081/foo/bar/baz");
 
     //  Receive GET Response 2
-    zwr_curl_client_verify_response (curl, 404,
-                                     "<html><body>The requested resource does not exist.</body></html>");
+    zwr_curl_client_verify_response (curl, 404, PAGE_NOT_FOUND);
     zwr_curl_client_destroy (&curl);
 
     //  Provide POST Offering

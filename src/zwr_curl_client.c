@@ -87,9 +87,15 @@ zwr_curl_client_send_get (zwr_curl_client_t *self, char *url)
     curl_easy_setopt (curl, CURLOPT_FOLLOWLOCATION, 1L);
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback_func);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, &self->data);
+    curl_easy_setopt (curl, CURLOPT_HEADER, true);
+    struct curl_slist *header = NULL;
+    header = curl_slist_append (header, "User-Agent: curl test client");
+    curl_easy_setopt (curl, CURLOPT_HTTPHEADER, header);
     //  Send GET request
     curl_multi_add_handle (self->multi_handle, curl);
     curl_multi_perform (self->multi_handle, &self->still_running);
+    //  Cleanup
+    curl_slist_free_all (header);
 }
 
 //  --------------------------------------------------------------------------
@@ -109,6 +115,7 @@ zwr_curl_client_send_post (zwr_curl_client_t *self, char *url, char *data)
     //  Set HTTP header
     struct curl_slist *header = NULL;
     header = curl_slist_append (header, "Content-Type: text/plain");
+    header = curl_slist_append (header, "User-Agent: curl test client");
     size_t len1 = 16;
     size_t len2 = strlen (data);
     char *result = (char *) malloc (len1 + len2 + 1);    //+1 for the zero-terminator
