@@ -318,7 +318,7 @@ answer_to_connection (void *cls,
     assert (client);
 
     //  Connect client to server
-    rc = zwr_client_connect (client, "inproc://http_dispatcher", 1000, "client");
+    rc = zwr_client_connect (client, self->endpoints, 1000, "client");
     if (rc == 0) {  //  Interrupted!
         //  Send Request
         zmsg_t *request = xrap_msg_encode (&xrap_msg);
