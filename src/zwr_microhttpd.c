@@ -46,8 +46,11 @@ struct _zwr_microhttpd_t {
     //  Declare properties
     struct timeval *start_time;
     struct MHD_Daemon *daemon;
-    char *endpoints;          //  Address of dispatching endpoint
+    char *endpoints;             //  Address of dispatching endpoint
     int port;
+    //  Rate Limiting
+    zloop_t *rate_timer;         //  Timer to reset remaining request
+    zhashx_t *rate_remaining;   //  Holds the remaining request for this rate.
 };
 
 
@@ -85,6 +88,10 @@ zwr_microhttpd_new (zsock_t *pipe, void *args)
     self->daemon = NULL;
     self->port = 8888;      //  Set 8888 to be the default port
 
+    self->rate_timer = zloop_new ();
+    zloop_set_ticket_delay (self->rate_timer, 60);
+    self->rate_remaining = zhashx_new ();
+
     return self;
 }
 
@@ -103,6 +110,8 @@ zwr_microhttpd_destroy (zwr_microhttpd_t **self_p)
         if (self->endpoints)
             free (self->endpoints);
         free (self->start_time);
+        zloop_destroy (&self->rate_timer);
+        zhashx_destroy (&self->rate_remaining);
 
         //  Free object itself
         zpoller_destroy (&self->poller);
@@ -117,9 +126,21 @@ on_client_connect (void *cls,
                    const struct sockaddr *addr,
                    socklen_t addrlen)
 {
-    /*zwr_microhttpd_t *self = (zwr_microhttpd_t *) cls;*/
-    /*struct sockaddr_in *client_addr = (struct sockaddr_in *) addr;*/
-    /*printf ("Client-Addr: %s:%d\n", inet_ntoa (client_addr->sin_addr), ntohs (client_addr->sin_port));*/
+    zwr_microhttpd_t *self = (zwr_microhttpd_t *) cls;
+    struct sockaddr_in *client_addr = (struct sockaddr_in *) addr;
+    const char *ip = inet_ntoa (client_addr->sin_addr);
+    size_t *remaining = (size_t *) zhashx_lookup (self->rate_remaining, ip);
+    if (remaining) {
+        (*remaining)--;
+        if (*remaining == 0)
+            return MHD_NO;
+    }
+    else {
+        remaining = (size_t *) zmalloc (sizeof (size_t));
+        *remaining = 10;
+        zhashx_insert (self->rate_remaining, ip, remaining);
+    }
+    zsys_info ("Remainng requests for %s = %d\n", ip, *remaining);
     return MHD_YES;
 }
 
@@ -142,7 +163,7 @@ s_send_static_response (struct MHD_Connection *con, char *content_type, char *co
 
 
 static int
-s_send_response (struct MHD_Connection *con, xrap_msg_t *response)
+s_send_response (struct MHD_Connection *con, xrap_msg_t *response, zwr_microhttpd_t *self)
 {
     int rc = 0;
     struct MHD_Response *http_response;
@@ -194,6 +215,11 @@ s_send_response (struct MHD_Connection *con, xrap_msg_t *response)
             key = (const char *) zlist_next (keys);
         }
     }
+
+    //  Rate-Limiting
+    MHD_add_response_header (http_response, "X-RateLimit-Limit", "60");
+    MHD_add_response_header (http_response, "X-RateLimit-Remaining", "60");
+    MHD_add_response_header (http_response, "X-RateLimit-Reset", "60");
 
     if (!http_response)
         return MHD_NO;
@@ -356,7 +382,7 @@ answer_to_connection (void *cls,
             zuuid_t *sender = zwr_client_sender (client);
             zuuid_destroy (&sender);
             zwr_client_destroy (&client);
-            return s_send_response (con, zwr_connection_response (connection));
+            return s_send_response (con, zwr_connection_response (connection), self);
         }
         else
         if (rc == XRAP_TRAFFIC_NOT_FOUND) {
