@@ -318,6 +318,7 @@ answer_to_connection (void *cls,
     assert (client);
 
     //  Connect client to server
+    zsys_info ("Connect to: %s\n", self->endpoints);
     rc = zwr_client_connect (client, self->endpoints, 1000, "client");
     if (rc == 0) {  //  Interrupted!
         //  Send Request
