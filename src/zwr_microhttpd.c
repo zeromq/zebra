@@ -293,6 +293,9 @@ answer_to_connection (void *cls,
         //  The connection wrapper is passed as parameter to this function
         *con_cls = (void *) connection;
 
+        if (!zhash_lookup (zwr_request_header (request), "User-Agent"))
+            return s_send_static_response (con, "text/html", PAGE_USER_AGENT_REQUIRED, MHD_HTTP_FORBIDDEN);
+
         if (streq (method, MHD_HTTP_METHOD_POST) || streq (method, MHD_HTTP_METHOD_PUT)) {
             char *content_type = (char *) zhash_lookup (zwr_request_header (request) , "Content-Type");
             if (content_type) {
