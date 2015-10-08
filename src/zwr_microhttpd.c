@@ -178,6 +178,17 @@ s_send_response (struct MHD_Connection *con, xrap_msg_t *response)
             MHD_add_response_header (http_response, MHD_HTTP_HEADER_LAST_MODIFIED, modified);
     }
 
+    //  Attache custom headers
+    zhash_t *metadata = xrap_msg_metadata (response);
+    if (metadata && zhash_size (metadata) > 0) {
+        zlist_t *keys = zhash_keys (metadata);
+        const char *key = (const char *) zlist_first (keys);
+        while (key) {
+            MHD_add_response_header (http_response, key, (char *) zhash_lookup (metadata, key));
+            key = (const char *) zlist_next (keys);
+        }
+    }
+
     if (!http_response)
         return MHD_NO;
     rc = MHD_queue_response (con, status_code, http_response);
@@ -318,7 +329,6 @@ answer_to_connection (void *cls,
     assert (client);
 
     //  Connect client to server
-    zsys_info ("Connect to: %s\n", self->endpoints);
     rc = zwr_client_connect (client, self->endpoints, 1000, "client");
     if (rc == 0) {  //  Interrupted!
         //  Send Request
