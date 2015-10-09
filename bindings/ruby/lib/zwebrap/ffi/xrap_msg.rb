@@ -140,9 +140,9 @@ module Zwebrap
       
       # Encode xrap_msg into zmsg and destroy it. Returns a newly created       
       # object or NULL if error. Use when not in control of sending the message.
-      def self.encode self_p
-        self_p = self_p.__ptr_give_ref
-        result = ::Zwebrap::FFI.xrap_msg_encode self_p
+      def self.encode xrap_msg_p
+        xrap_msg_p = xrap_msg_p.__ptr_give_ref
+        result = ::Zwebrap::FFI.xrap_msg_encode xrap_msg_p
         result
       end
       
@@ -288,9 +288,9 @@ module Zwebrap
       end
       
       # 
-      def set_data_modified data_modified
+      def set_date_modified date_modified
         raise DestroyedError unless @ptr
-        result = ::Zwebrap::FFI.xrap_msg_set_data_modified @ptr, data_modified
+        result = ::Zwebrap::FFI.xrap_msg_set_date_modified @ptr, date_modified
         result
       end
       

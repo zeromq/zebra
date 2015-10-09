@@ -80,7 +80,7 @@ public slots:
     uint64_t dateModified ();
 
     //  
-    void setDataModified (uint64_t dataModified);
+    void setDateModified (uint64_t dateModified);
 
     //  Get/set the resource field
     const QString resource ();
@@ -149,7 +149,7 @@ public slots:
 
     //  Encode xrap_msg into zmsg and destroy it. Returns a newly created       
     //  object or NULL if error. Use when not in control of sending the message.
-    zmsg_t *encode (QmlXrapMsg *selfP);
+    zmsg_t *encode (QmlXrapMsg *xrapMsgP);
 
     //  Receive and parse a xrap_msg from the socket. Returns new object,
     //  or NULL if error. Will block if there's no message waiting.      

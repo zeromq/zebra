@@ -103,7 +103,7 @@ JNIEXPORT void JNICALL Java_org_zeromq_XrapMsg_dateModified (JNIEnv *env, jobjec
 }
 
 //  
-JNIEXPORT void JNICALL Java_org_zeromq_XrapMsg_setDataModified (JNIEnv *env, jobject thisObj) {
+JNIEXPORT void JNICALL Java_org_zeromq_XrapMsg_setDateModified (JNIEnv *env, jobject thisObj) {
 }
 
 //  Get/set the resource field

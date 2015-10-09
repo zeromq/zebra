@@ -33,7 +33,7 @@ public:
 
     //  Encode xrap_msg into zmsg and destroy it. Returns a newly created       
     //  object or NULL if error. Use when not in control of sending the message.
-    QZmsg * encode ();
+    static QZmsg * encode (QXrapMsg *xrapMsgP);
 
     //  Receive and parse a xrap_msg from the socket. Returns new object,
     //  or NULL if error. Will block if there's no message waiting.      
@@ -95,7 +95,7 @@ public:
     quint64 dateModified ();
 
     //  
-    void setDataModified (quint64 dataModified);
+    void setDateModified (quint64 dateModified);
 
     //  Get/set the resource field
     const QString resource ();

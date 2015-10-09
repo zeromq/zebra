@@ -89,7 +89,7 @@
     <method name = "encode" singleton = "1">
         Encode xrap_msg into zmsg and destroy it. Returns a newly created
         object or NULL if error. Use when not in control of sending the message.
-        <argument name = "self_p" type = "xrap_msg" by_reference = "1" />
+        <argument name = "xrap_msg_p" type = "xrap_msg" by_reference = "1" />
         <return type = "zmsg" />
     </method>
 
@@ -188,8 +188,8 @@
         <return type = "number" size = "8" />
     </method>
 
-    <method name = "set data modified">
-        <argument name = "data modified" type = "number" size = "8" />
+    <method name = "set date modified">
+        <argument name = "date modified" type = "number" size = "8" />
     </method>
 
     <method name = "resource">

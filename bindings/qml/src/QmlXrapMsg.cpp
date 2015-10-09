@@ -112,8 +112,8 @@ uint64_t QmlXrapMsg::dateModified () {
 
 ///
 //  
-void QmlXrapMsg::setDataModified (uint64_t dataModified) {
-    xrap_msg_set_data_modified (self, dataModified);
+void QmlXrapMsg::setDateModified (uint64_t dateModified) {
+    xrap_msg_set_date_modified (self, dateModified);
 };
 
 ///
@@ -231,8 +231,8 @@ QmlXrapMsg *QmlXrapMsgAttached::decode (zmsg_t **msgP) {
 ///
 //  Encode xrap_msg into zmsg and destroy it. Returns a newly created       
 //  object or NULL if error. Use when not in control of sending the message.
-zmsg_t *QmlXrapMsgAttached::encode (QmlXrapMsg *selfP) {
-    return xrap_msg_encode (&selfP->self);
+zmsg_t *QmlXrapMsgAttached::encode (QmlXrapMsg *xrapMsgP) {
+    return xrap_msg_encode (&xrapMsgP->self);
 };
 
 ///

@@ -103,8 +103,8 @@ lib.xrap_msg_set_etag.restype = None
 lib.xrap_msg_set_etag.argtypes = [xrap_msg_p, c_char_p]
 lib.xrap_msg_date_modified.restype = number_p
 lib.xrap_msg_date_modified.argtypes = [xrap_msg_p]
-lib.xrap_msg_set_data_modified.restype = None
-lib.xrap_msg_set_data_modified.argtypes = [xrap_msg_p, number_p]
+lib.xrap_msg_set_date_modified.restype = None
+lib.xrap_msg_set_date_modified.argtypes = [xrap_msg_p, number_p]
 lib.xrap_msg_resource.restype = c_char_p
 lib.xrap_msg_resource.argtypes = [xrap_msg_p]
 lib.xrap_msg_set_resource.restype = None
@@ -246,10 +246,10 @@ nullifies the msg reference."""
         return lib.xrap_msg_decode(byref(zmsg_p.from_param(msg_p)))
 
     @staticmethod
-    def encode(self_p):
+    def encode(xrap_msg_p):
         """Encode xrap_msg into zmsg and destroy it. Returns a newly created
 object or NULL if error. Use when not in control of sending the message."""
-        return lib.xrap_msg_encode(byref(xrap_msg_p.from_param(self_p)))
+        return lib.xrap_msg_encode(byref(xrap_msg_p.from_param(xrap_msg_p)))
 
     @staticmethod
     def recv(input):
@@ -332,9 +332,9 @@ or NULL either if there was no input waiting, or the recv was interrupted."""
         """Get/set the date_modified field"""
         return lib.xrap_msg_date_modified(self._as_parameter_)
 
-    def set_data_modified(self, data_modified):
+    def set_date_modified(self, date_modified):
         """"""
-        return lib.xrap_msg_set_data_modified(self._as_parameter_, data_modified)
+        return lib.xrap_msg_set_date_modified(self._as_parameter_, date_modified)
 
     def resource(self):
         """Get/set the resource field"""

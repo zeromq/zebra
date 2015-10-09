@@ -58,7 +58,7 @@ module Zwebrap
       attach_function :xrap_msg_etag, [:pointer], :string, **opts
       attach_function :xrap_msg_set_etag, [:pointer, :string, :varargs], :void, **opts
       attach_function :xrap_msg_date_modified, [:pointer], :pointer, **opts
-      attach_function :xrap_msg_set_data_modified, [:pointer, :pointer], :void, **opts
+      attach_function :xrap_msg_set_date_modified, [:pointer, :pointer], :void, **opts
       attach_function :xrap_msg_resource, [:pointer], :string, **opts
       attach_function :xrap_msg_set_resource, [:pointer, :string, :varargs], :void, **opts
       attach_function :xrap_msg_parameters_string, [:pointer, :string, :string], :string, **opts

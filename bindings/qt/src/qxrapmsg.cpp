@@ -50,9 +50,9 @@ QXrapMsg * QXrapMsg::decode (QZmsg *msgP)
 ///
 //  Encode xrap_msg into zmsg and destroy it. Returns a newly created       
 //  object or NULL if error. Use when not in control of sending the message.
-QZmsg * QXrapMsg::encode ()
+QZmsg * QXrapMsg::encode (QXrapMsg *xrapMsgP)
 {
-    QZmsg *rv = new QZmsg (xrap_msg_encode (&self, ));
+    QZmsg *rv = new QZmsg (xrap_msg_encode (&xrapMsgP->self));
     return rv;
 }
 
@@ -212,9 +212,9 @@ quint64 QXrapMsg::dateModified ()
 
 ///
 //  
-void QXrapMsg::setDataModified (quint64 dataModified)
+void QXrapMsg::setDateModified (quint64 dateModified)
 {
-    xrap_msg_set_data_modified (self, (uint64_t) dataModified);
+    xrap_msg_set_date_modified (self, (uint64_t) dateModified);
     
 }
 
