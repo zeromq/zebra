@@ -11,19 +11,21 @@ qzwebrap-uselib:!qzwebrap-buildlib {
 } else {
     HEADERS       += \
                      $$PWD/qzwebrap.h \
+                     $$PWD/qxrapmsg.h \
                      $$PWD/qzwrclient.h \
+                     $$PWD/qzmsg.h \
                      $$PWD/qzactor.h \
                      $$PWD/qzsock.h \
                      $$PWD/qzuuid.h \
-                     $$PWD/qzmsg.h \
                      $$PWD/qzframe.h
 
     SOURCES       += \
+                     $$PWD/qxrapmsg.cpp \
                      $$PWD/qzwrclient.cpp \
+                     $$PWD/qzmsg.cpp \
                      $$PWD/qzactor.cpp \
                      $$PWD/qzsock.cpp \
                      $$PWD/qzuuid.cpp \
-                     $$PWD/qzmsg.cpp \
                      $$PWD/qzframe.cpp
 }
 

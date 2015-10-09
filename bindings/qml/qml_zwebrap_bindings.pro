@@ -38,9 +38,11 @@ LIBS += -lzwebrap
 
 HEADERS += \
   $$SRCDIR/qml_zwebrap_plugin.h \
+  $$SRCDIR/QmlXrapMsg.h \
   $$SRCDIR/QmlZwrClient.h 
 
 SOURCES += \
+  $$SRCDIR/QmlXrapMsg.cpp \
   $$SRCDIR/QmlZwrClient.cpp 
 
 OBJECTS_DIR = $$BUILDDIR/.obj

@@ -11,9 +11,12 @@
 #include <QQmlExtensionPlugin>
 #include <qqml.h>
 
+class QmlXrapMsg;
+class QmlXrapMsgAttached;
 class QmlZwrClient;
 class QmlZwrClientAttached;
 
+#include "QmlXrapMsg.h"
 #include "QmlZwrClient.h"
 
 class QmlZwebrapPlugin : public QQmlExtensionPlugin
@@ -24,6 +27,8 @@ class QmlZwebrapPlugin : public QQmlExtensionPlugin
 public:
     void registerTypes (const char *uri)
     {
+        qmlRegisterType<QmlXrapMsg> (uri, 1, 0, "QmlXrapMsg");
+        qmlRegisterType<QmlXrapMsgAttached>();
         qmlRegisterType<QmlZwrClient> (uri, 1, 0, "QmlZwrClient");
         qmlRegisterType<QmlZwrClientAttached>();
     };

@@ -28,19 +28,21 @@
 #endif
 
 //  Opaque class structures to allow forward references
+class QXrapMsg;
 class QZwrClient;
+class QZmsg;
 class QZactor;
 class QZsock;
 class QZuuid;
-class QZmsg;
 class QZframe;
 
 //  Public API classes
+#include "qxrapmsg.h"
 #include "qzwrclient.h"
+#include "qzmsg.h"
 #include "qzactor.h"
 #include "qzsock.h"
 #include "qzuuid.h"
-#include "qzmsg.h"
 #include "qzframe.h"
 
 #endif //  Q_ZWEBRAP_H

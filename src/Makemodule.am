@@ -65,6 +65,7 @@ src_zwebrap_selftest_SOURCES = src/zwebrap_selftest.c
 # Install api files into /usr/local/share/zproject
 apidir = @datadir@/zproject/zwebrap
 dist_api_DATA = \
+    api/xrap_msg.xml \
     api/zwr_client.xml
 
 # define custom target for all products of /src

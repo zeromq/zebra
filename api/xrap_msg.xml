@@ -1,0 +1,281 @@
+<class name = "xrap msg">
+    XRAP serialization over ZMTP
+
+/*  These are the xrap_msg messages:
+
+    POST - Create a new, dynamically named resource in some parent.
+        parent              string      Schema/type/name
+        content_type        string      Content type
+        content_body        longstr     New resource specification
+
+    POST_OK - Success response for POST.
+        status_code         number 2    Response status code 2xx
+        location            string      Schema/type/name
+        etag                string      Opaque hash tag
+        date_modified       number 8    Date and time modified
+        content_type        string      Content type
+        content_body        longstr     Resource contents
+
+    GET - Retrieve a known resource.
+        resource            string      Schema/type/name
+        if_modified_since   number 8    GET if more recent
+        if_none_match       string      GET if changed
+        content_type        string      Desired content type
+
+    GET_OK - Success response for GET.
+        status_code         number 2    Response status code 2xx
+        content_type        string      Actual content type
+        content_body        longstr     Resource specification
+
+    GET_EMPTY - Conditional GET returned 304 Not Modified.
+        status_code         number 2    Response status code 3xx
+
+    PUT - Update a known resource.
+        resource            string      Schema/type/name
+        if_unmodified_since  number 8   Update if same date
+        if_match            string      Update if same ETag
+        content_type        string      Content type
+        content_body        longstr     New resource specification
+
+    PUT_OK - Success response for PUT.
+        status_code         number 2    Response status code 2xx
+        location            string      Schema/type/name
+        etag                string      Opaque hash tag
+        date_modified       number 8    Date and time modified
+
+    DELETE - Remove a known resource.
+        resource            string      schema/type/name
+        if_unmodified_since  number 8   DELETE if same date
+        if_match            string      DELETE if same ETag
+
+    DELETE_OK - Success response for DELETE.
+        status_code         number 2    Response status code 2xx
+
+    ERROR - Error response for any request.
+        status_code         number 2    Response status code, 4xx or 5xx
+        status_text         string      Response status text
+*/
+
+    <include filename = "../license.xml" />
+
+    <constant name = "post"        value = "1" />
+    <constant name = "post ok"     value = "2" />
+    <constant name = "get"         value = "3" />
+    <constant name = "get ok"      value = "4" />
+    <constant name = "get empty"   value = "5" />
+    <constant name = "put"         value = "6" />
+    <constant name = "put ok"      value = "7" />
+    <constant name = "delete"      value = "8" />
+    <constant name = "delete ok"   value = "9" />
+    <constant name = "error"       value = "10" />
+
+    <constructor>
+        Create a new xrap_msg
+        <argument name = "id" type = "integer" />
+    </constructor>
+
+    <destructor>
+        Destroy the xrap_msg
+    </destructor>
+
+    <method name = "is xrap msg">
+        Parse a zmsg_t and decides whether it is xrap_msg. Returns
+        true if it is, false otherwise. Doesn't destroy or modify the
+        original message.
+        <return type = "boolean" />
+    </method>
+
+    <method name = "decode" singleton = "1">
+        Parse a xrap_msg from zmsg_t. Returns a new object, or NULL if
+        the message could not be parsed, or was NULL. Destroys msg and
+        nullifies the msg reference.
+        <argument name = "msg_p" type = "zmsg" by_reference = "1" />
+        <return type = "xrap_msg" />
+    </method>
+
+    <method name = "encode" singleton = "1">
+        Encode xrap_msg into zmsg and destroy it. Returns a newly created
+        object or NULL if error. Use when not in control of sending the message.
+        <argument name = "self_p" type = "xrap_msg" by_reference = "1" />
+        <return type = "zmsg" />
+    </method>
+
+    <method name = "recv" singleton = "1">
+        Receive and parse a xrap_msg from the socket. Returns new object, 
+        or NULL if error. Will block if there's no message waiting.
+        <argument name = "input" type = "anything" />
+        <return type = "xrap_msg" />
+    </method>
+
+    <method  name = "recv nowait" singleton = "1">
+        Receive and parse a xrap_msg from the socket. Returns new object, 
+        or NULL either if there was no input waiting, or the recv was interrupted.
+        <argument name = "input" type = "anything" />
+        <return type = "xrap_msg" />
+    </method>
+
+    <method name = "send" singleton = "1">
+        Send the xrap_msg to the output, and destroy it
+        <argument name = "self_p" type = "xrap_msg" by_reference = "1" />
+        <argument name = "output" type = "anything" />
+        <return type = "integer" />
+    </method>
+
+    <method name = "send again">
+        Send the xrap_msg to the output, and destroy it
+        <argument name = "output" type = "anything" />
+        <return type = "integer" />
+    </method>
+
+    <method name = "id">
+        Get the xrap_msg id and printable command
+        <return type = "integer" />
+    </method>
+
+    <method name = "set id">
+        <argument name = "id" type = "integer" />
+    </method>
+
+    <method name = "parent">
+        Get/set the parent field
+        <return type = "string" constant = "1" />
+    </method>
+
+    <method name = "set parent">
+        <argument name = "format" type = "format" />
+    </method>
+
+    <method name = "content type">
+        Get/set the content_type field
+        <return type = "string" constant = "1" />
+    </method>
+
+    <method name = "set content type">
+        <argument name = "format" type = "format" />
+    </method>
+
+    <method name = "content body">
+        Get/set the parent field
+        <return type = "string" constant = "1" />
+    </method>
+
+    <method name = "set content body">
+        <argument name = "format" type = "format" />
+    </method>
+
+    <method name = "status code">
+        Get/set the status_code field
+        <return type = "number" size = "2" />
+    </method>
+
+    <method name = "set status code">
+        <argument name = "status code" type = "number" size = "2" />
+    </method>
+
+    <method name = "location">
+        Get/set the location field
+        <return type = "string" constant = "1" />
+    </method>
+
+    <method name = "set location">
+        <argument name = "format" type = "format" />
+    </method>
+
+    <method name = "etag">
+        Get/set the etag field
+        <return type = "string" constant = "1" />
+    </method>
+
+    <method name = "set etag">
+        <argument name = "format" type = "format" />
+    </method>
+
+    <method name = "date modified">
+        Get/set the date_modified field
+        <return type = "number" size = "8" />
+    </method>
+
+    <method name = "set data modified">
+        <argument name = "data modified" type = "number" size = "8" />
+    </method>
+
+    <method name = "resource">
+        Get/set the resource field
+        <return type = "string" constant = "1" />
+    </method>
+
+    <method name = "set resource">
+        <argument name = "format" type = "format" />
+    </method>
+
+    <method name = "parameters string">
+        Get/set the parameters field
+        <argument name = "key" type = "string" constant = "1" />
+        <argument name = "default_value" type = "string" constant = "1" />
+        <return type = "string" constant = "1" />
+    </method>
+
+    <method name = "parameters insert">
+        <argument name = "key" type = "string" constant = "1" />
+        <argument name = "format" type = "format" />
+    </method>
+
+    <method name = "if modified since">
+        Get/set the if_modified_since field
+        <return type = "number" size = "8" />
+    </method>
+
+    <method name = "set if modified since">
+        <argument name = "if modified since" type = "number" size = "8" />
+    </method>
+
+    <method name = "if none match">
+        Get/set the if_none_match field
+        <return type = "string" constant = "1" />
+    </method>
+
+    <method name = "set if none match">
+        <argument name = "format" type = "format" />
+    </method>
+
+    <method name = "metadata string">
+        Get/set the parameters field
+        <argument name = "key" type = "string" constant = "1" />
+        <argument name = "default_value" type = "string" constant = "1" />
+        <return type = "string" constant = "1" />
+    </method>
+
+    <method name = "metadata insert">
+        <argument name = "key" type = "string" constant = "1" />
+        <argument name = "format" type = "format" />
+    </method>
+
+    <method name = "if unmodified since">
+        Get/set the if_unmodified_since field
+        <return type = "number" size = "8" />
+    </method>
+
+    <method name = "set if unmodified since">
+        <argument name = "if unmodified since" type = "number" size = "8" />
+    </method>
+
+    <method name = "if match">
+        Get/set the if_match field
+        <return type = "string" constant = "1" />
+    </method>
+
+    <method name = "set if match">
+        <argument name = "format" type = "format" />
+    </method>
+
+    <method name = "status text">
+        Get/set the status_text field
+        <return type = "string" constant = "1" />
+    </method>
+
+    <method name = "set status text">
+        <argument name = "format" type = "format" />
+    </method>
+
+</class>
+

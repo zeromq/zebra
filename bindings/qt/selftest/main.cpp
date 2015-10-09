@@ -17,11 +17,12 @@ int main(int argc, char **argv)
 
     qDebug() << "Running qzwebrap selftests...\n";
 
+    QXrapMsg::test (verbose);
     QZwrClient::test (verbose);
+    QZmsg::test (verbose);
     QZactor::test (verbose);
     QZsock::test (verbose);
     QZuuid::test (verbose);
-    QZmsg::test (verbose);
     QZframe::test (verbose);
 
     qDebug() << "Tests passed OK\n";
