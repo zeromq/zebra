@@ -18,8 +18,8 @@ void QmlXrapMsg::print () {
 //  Parse a zmsg_t and decides whether it is xrap_msg. Returns   
 //  true if it is, false otherwise. Doesn't destroy or modify the
 //  original message.                                            
-bool QmlXrapMsg::isXrapMsg () {
-    return xrap_msg_is_xrap_msg (self);
+bool QmlXrapMsg::isXrapMsg (zmsg_t *msg) {
+    return xrap_msg_is_xrap_msg (self, msg);
 };
 
 ///

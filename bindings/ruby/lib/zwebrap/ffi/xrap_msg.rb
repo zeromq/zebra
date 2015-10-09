@@ -132,9 +132,9 @@ module Zwebrap
       # Parse a zmsg_t and decides whether it is xrap_msg. Returns   
       # true if it is, false otherwise. Doesn't destroy or modify the
       # original message.                                            
-      def is_xrap_msg
+      def is_xrap_msg msg
         raise DestroyedError unless @ptr
-        result = ::Zwebrap::FFI.xrap_msg_is_xrap_msg @ptr
+        result = ::Zwebrap::FFI.xrap_msg_is_xrap_msg @ptr, msg
         result
       end
       

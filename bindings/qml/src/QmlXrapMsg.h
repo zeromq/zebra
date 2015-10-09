@@ -34,7 +34,7 @@ public slots:
     //  Parse a zmsg_t and decides whether it is xrap_msg. Returns   
     //  true if it is, false otherwise. Doesn't destroy or modify the
     //  original message.                                            
-    bool isXrapMsg ();
+    bool isXrapMsg (zmsg_t *msg);
 
     //  Send the xrap_msg to the output, and destroy it
     int sendAgain (void *output);

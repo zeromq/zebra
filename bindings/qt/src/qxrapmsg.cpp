@@ -41,9 +41,9 @@ void QXrapMsg::print ()
 //  Parse a zmsg_t and decides whether it is xrap_msg. Returns   
 //  true if it is, false otherwise. Doesn't destroy or modify the
 //  original message.                                            
-bool QXrapMsg::isXrapMsg ()
+bool QXrapMsg::isXrapMsg (QZmsg *msg)
 {
-    bool rv = xrap_msg_is_xrap_msg (self);
+    bool rv = xrap_msg_is_xrap_msg (self, msg->self);
     return rv;
 }
 

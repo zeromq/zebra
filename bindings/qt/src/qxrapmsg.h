@@ -29,7 +29,7 @@ public:
     //  Parse a zmsg_t and decides whether it is xrap_msg. Returns   
     //  true if it is, false otherwise. Doesn't destroy or modify the
     //  original message.                                            
-    bool isXrapMsg ();
+    bool isXrapMsg (QZmsg *msg);
 
     //  Parse a xrap_msg from zmsg_t. Returns a new object, or NULL if
     //  the message could not be parsed, or was NULL. Destroys msg and

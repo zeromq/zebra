@@ -62,7 +62,7 @@ lib.xrap_msg_destroy.argtypes = [POINTER(xrap_msg_p)]
 lib.xrap_msg_print.restype = None
 lib.xrap_msg_print.argtypes = [xrap_msg_p]
 lib.xrap_msg_is_xrap_msg.restype = c_bool
-lib.xrap_msg_is_xrap_msg.argtypes = [xrap_msg_p]
+lib.xrap_msg_is_xrap_msg.argtypes = [xrap_msg_p, zmsg_p]
 lib.xrap_msg_decode.restype = xrap_msg_p
 lib.xrap_msg_decode.argtypes = [POINTER(zmsg_p)]
 lib.xrap_msg_encode.restype = zmsg_p
@@ -240,11 +240,11 @@ class XrapMsg(object):
         """Print properties of the xrap msg object."""
         return lib.xrap_msg_print(self._as_parameter_)
 
-    def is_xrap_msg(self):
+    def is_xrap_msg(self, msg):
         """Parse a zmsg_t and decides whether it is xrap_msg. Returns
 true if it is, false otherwise. Doesn't destroy or modify the
 original message."""
-        return lib.xrap_msg_is_xrap_msg(self._as_parameter_)
+        return lib.xrap_msg_is_xrap_msg(self._as_parameter_, msg)
 
     @staticmethod
     def decode(msg_p):

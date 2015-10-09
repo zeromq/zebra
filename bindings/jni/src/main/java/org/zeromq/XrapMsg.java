@@ -4,7 +4,6 @@ public class XrapMsg {
     public native void create ();
     public native void destroy ();
     public native void print ();
-    public native boolean isXrapMsg ();
     public native int sendAgain (void Output);
     public native int id ();
     public native void setId (int Id);
