@@ -13,12 +13,6 @@ JNIEXPORT void JNICALL Java_org_zeromq_XrapMsg_destroy (JNIEnv *env, jobject thi
 JNIEXPORT void JNICALL Java_org_zeromq_XrapMsg_print (JNIEnv *env, jobject thisObj) {
 }
 
-//  Parse a zmsg_t and decides whether it is xrap_msg. Returns   
-//  true if it is, false otherwise. Doesn't destroy or modify the
-//  original message.                                            
-JNIEXPORT void JNICALL Java_org_zeromq_XrapMsg_isXrapMsg (JNIEnv *env, jobject thisObj) {
-}
-
 //  Parse a xrap_msg from zmsg_t. Returns a new object, or NULL if
 //  the message could not be parsed, or was NULL. Destroys msg and
 //  nullifies the msg reference.                                  
@@ -30,8 +24,8 @@ JNIEXPORT void JNICALL Java_org_zeromq_XrapMsg_decode (JNIEnv *env, jobject this
 JNIEXPORT void JNICALL Java_org_zeromq_XrapMsg_encode (JNIEnv *env, jobject thisObj) {
 }
 
-//  Receive and parse a xrap_msg from the socket. Returns new object, 
-//  or NULL if error. Will block if there's no message waiting.       
+//  Receive and parse a xrap_msg from the socket. Returns new object,
+//  or NULL if error. Will block if there's no message waiting.      
 JNIEXPORT void JNICALL Java_org_zeromq_XrapMsg_recv (JNIEnv *env, jobject thisObj) {
 }
 

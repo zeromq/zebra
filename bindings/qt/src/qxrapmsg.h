@@ -26,11 +26,6 @@ public:
     //  Print properties of the xrap msg object.
     void print ();
 
-    //  Parse a zmsg_t and decides whether it is xrap_msg. Returns   
-    //  true if it is, false otherwise. Doesn't destroy or modify the
-    //  original message.                                            
-    bool isXrapMsg (QZmsg *msg);
-
     //  Parse a xrap_msg from zmsg_t. Returns a new object, or NULL if
     //  the message could not be parsed, or was NULL. Destroys msg and
     //  nullifies the msg reference.                                  
@@ -40,8 +35,8 @@ public:
     //  object or NULL if error. Use when not in control of sending the message.
     QZmsg * encode ();
 
-    //  Receive and parse a xrap_msg from the socket. Returns new object, 
-    //  or NULL if error. Will block if there's no message waiting.       
+    //  Receive and parse a xrap_msg from the socket. Returns new object,
+    //  or NULL if error. Will block if there's no message waiting.      
     static QXrapMsg * recv (void *input);
 
     //  Receive and parse a xrap_msg from the socket. Returns new object,         

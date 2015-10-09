@@ -38,16 +38,6 @@ void QXrapMsg::print ()
 }
 
 ///
-//  Parse a zmsg_t and decides whether it is xrap_msg. Returns   
-//  true if it is, false otherwise. Doesn't destroy or modify the
-//  original message.                                            
-bool QXrapMsg::isXrapMsg (QZmsg *msg)
-{
-    bool rv = xrap_msg_is_xrap_msg (self, msg->self);
-    return rv;
-}
-
-///
 //  Parse a xrap_msg from zmsg_t. Returns a new object, or NULL if
 //  the message could not be parsed, or was NULL. Destroys msg and
 //  nullifies the msg reference.                                  
@@ -67,8 +57,8 @@ QZmsg * QXrapMsg::encode ()
 }
 
 ///
-//  Receive and parse a xrap_msg from the socket. Returns new object, 
-//  or NULL if error. Will block if there's no message waiting.       
+//  Receive and parse a xrap_msg from the socket. Returns new object,
+//  or NULL if error. Will block if there's no message waiting.      
 QXrapMsg * QXrapMsg::recv (void *input)
 {
     QXrapMsg *rv = new QXrapMsg (xrap_msg_recv (input));

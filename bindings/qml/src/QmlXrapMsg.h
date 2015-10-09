@@ -31,11 +31,6 @@ public slots:
     //  Print properties of the xrap msg object.
     void print ();
 
-    //  Parse a zmsg_t and decides whether it is xrap_msg. Returns   
-    //  true if it is, false otherwise. Doesn't destroy or modify the
-    //  original message.                                            
-    bool isXrapMsg (zmsg_t *msg);
-
     //  Send the xrap_msg to the output, and destroy it
     int sendAgain (void *output);
 
@@ -156,8 +151,8 @@ public slots:
     //  object or NULL if error. Use when not in control of sending the message.
     zmsg_t *encode (QmlXrapMsg *selfP);
 
-    //  Receive and parse a xrap_msg from the socket. Returns new object, 
-    //  or NULL if error. Will block if there's no message waiting.       
+    //  Receive and parse a xrap_msg from the socket. Returns new object,
+    //  or NULL if error. Will block if there's no message waiting.      
     QmlXrapMsg *recv (void *input);
 
     //  Receive and parse a xrap_msg from the socket. Returns new object,         

@@ -61,8 +61,6 @@ lib.xrap_msg_destroy.restype = None
 lib.xrap_msg_destroy.argtypes = [POINTER(xrap_msg_p)]
 lib.xrap_msg_print.restype = None
 lib.xrap_msg_print.argtypes = [xrap_msg_p]
-lib.xrap_msg_is_xrap_msg.restype = c_bool
-lib.xrap_msg_is_xrap_msg.argtypes = [xrap_msg_p, zmsg_p]
 lib.xrap_msg_decode.restype = xrap_msg_p
 lib.xrap_msg_decode.argtypes = [POINTER(zmsg_p)]
 lib.xrap_msg_encode.restype = zmsg_p
@@ -240,12 +238,6 @@ class XrapMsg(object):
         """Print properties of the xrap msg object."""
         return lib.xrap_msg_print(self._as_parameter_)
 
-    def is_xrap_msg(self, msg):
-        """Parse a zmsg_t and decides whether it is xrap_msg. Returns
-true if it is, false otherwise. Doesn't destroy or modify the
-original message."""
-        return lib.xrap_msg_is_xrap_msg(self._as_parameter_, msg)
-
     @staticmethod
     def decode(msg_p):
         """Parse a xrap_msg from zmsg_t. Returns a new object, or NULL if
@@ -261,13 +253,13 @@ object or NULL if error. Use when not in control of sending the message."""
 
     @staticmethod
     def recv(input):
-        """Receive and parse a xrap_msg from the socket. Returns new object, 
+        """Receive and parse a xrap_msg from the socket. Returns new object,
 or NULL if error. Will block if there's no message waiting."""
         return lib.xrap_msg_recv(input)
 
     @staticmethod
     def recv_nowait(input):
-        """Receive and parse a xrap_msg from the socket. Returns new object, 
+        """Receive and parse a xrap_msg from the socket. Returns new object,
 or NULL either if there was no input waiting, or the recv was interrupted."""
         return lib.xrap_msg_recv_nowait(input)
 

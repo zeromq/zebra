@@ -129,15 +129,6 @@ module Zwebrap
         result
       end
       
-      # Parse a zmsg_t and decides whether it is xrap_msg. Returns   
-      # true if it is, false otherwise. Doesn't destroy or modify the
-      # original message.                                            
-      def is_xrap_msg msg
-        raise DestroyedError unless @ptr
-        result = ::Zwebrap::FFI.xrap_msg_is_xrap_msg @ptr, msg
-        result
-      end
-      
       # Parse a xrap_msg from zmsg_t. Returns a new object, or NULL if
       # the message could not be parsed, or was NULL. Destroys msg and
       # nullifies the msg reference.                                  
@@ -155,8 +146,8 @@ module Zwebrap
         result
       end
       
-      # Receive and parse a xrap_msg from the socket. Returns new object, 
-      # or NULL if error. Will block if there's no message waiting.       
+      # Receive and parse a xrap_msg from the socket. Returns new object,
+      # or NULL if error. Will block if there's no message waiting.      
       def self.recv input
         result = ::Zwebrap::FFI.xrap_msg_recv input
         result = XrapMsg.__new result, false

@@ -37,7 +37,6 @@ module Zwebrap
       attach_function :xrap_msg_new, [:int], :pointer, **opts
       attach_function :xrap_msg_destroy, [:pointer], :void, **opts
       attach_function :xrap_msg_print, [:pointer], :void, **opts
-      attach_function :xrap_msg_is_xrap_msg, [:pointer, :pointer], :bool, **opts
       attach_function :xrap_msg_decode, [:pointer], :pointer, **opts
       attach_function :xrap_msg_encode, [:pointer], :pointer, **opts
       attach_function :xrap_msg_recv, [:pointer], :pointer, **opts
