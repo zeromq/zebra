@@ -89,7 +89,7 @@ zwr_curl_client_send_get (zwr_curl_client_t *self, char *url)
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, &self->data);
     curl_easy_setopt (curl, CURLOPT_HEADER, true);
     struct curl_slist *header = NULL;
-    header = curl_slist_append (header, "User-Agent: curl test client");
+    header = curl_slist_append (header, "User-Agent: Curl-Test-Client");
     curl_easy_setopt (curl, CURLOPT_HTTPHEADER, header);
     //  Send GET request
     curl_multi_add_handle (self->multi_handle, curl);

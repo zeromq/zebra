@@ -34,12 +34,12 @@ ZWEBRAP_EXPORT zwr_request_t *
     zwr_connection_request (zwr_connection_t *self);
 
 //  Get the response for this connection
-ZWEBRAP_EXPORT xrap_msg_t *
+ZWEBRAP_EXPORT zwr_response_t *
     zwr_connection_response (zwr_connection_t *self);
 
 //  Set the response for this connection
 ZWEBRAP_EXPORT void
-    zwr_connection_set_response (zwr_connection_t *self, xrap_msg_t *response);
+    zwr_connection_set_response (zwr_connection_t *self, zwr_response_t *response);
 
 //  Print properties of object
 ZWEBRAP_EXPORT void

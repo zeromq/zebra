@@ -25,18 +25,43 @@
 #include "zwr_curl_client.c"
 #endif
 
-#define PAGE_USER_AGENT_REQUIRED "Request forbidden by administrative rules.\n \
-                                  Please make sure your request has a User-Agent header."
-#define PAGE_CONTENT_TYPE_REQUIRED "Problems parsing content.\n \
-                                    Please make sure your request has a Content-Type header."
-#define PAGE_METHOD_NOT_IMPLEMENTED "Request HTTP method is not implemented.\n \
-                                 Please make sure your request method is GET, POST, PUT or DELETE"
-#define PAGE_NOT_FOUND "The requested resource does not exist.\n \
-                        Please make sure to request a valid resource."
-#define PAGE_BUSY "The service is currently busy.\n \
-                   Please try again later."
+#define X_RATELIMIT_LIMIT 10
+#define X_RATELIMIT_INTERVAL 60
+
+#define PAGE_USER_AGENT_REQUIRED "\
+Request forbidden by administrative rules.\n\
+Please make sure your request has a User-Agent header."
+
+#define PAGE_CONTENT_TYPE_REQUIRED "\
+Problems parsing content.\n\
+Please make sure your request has a Content-Type header."
+
+#define PAGE_METHOD_NOT_IMPLEMENTED "\
+Request HTTP method is not implemented.\n\
+Please make sure your request method is GET, POST, PUT or DELETE"
+
+#define PAGE_NOT_FOUND "\
+The requested resource does not exist.\n\
+Please make sure to request a valid resource."
+
+#define PAGE_LIMIT_EXCEEDED "\
+API rate limit exceeded.\n\
+Wait until rate limit resets to make further request"
+
+#define PAGE_BUSY "\
+The service is currently busy.\n\
+Please try again later."
 
 //  Structure of our actor
+
+struct _zwr_ratelimit_t {
+        void *ticket;
+        int limit;
+        int remaining;
+        int interval;
+        size_t reset;
+};
+typedef struct _zwr_ratelimit_t zwr_ratelimit_t;
 
 struct _zwr_microhttpd_t {
     zsock_t *pipe;              //  Actor command pipe
@@ -49,8 +74,8 @@ struct _zwr_microhttpd_t {
     char *endpoints;             //  Address of dispatching endpoint
     int port;
     //  Rate Limiting
-    zloop_t *rate_timer;         //  Timer to reset remaining request
-    zhashx_t *rate_remaining;   //  Holds the remaining request for this rate.
+    zloop_t *ratelimit_timer;    //  Timer to reset the remaining requests
+    zhashx_t *ratelimit_clients; //  Holds ratelimit for all clients
 };
 
 
@@ -67,6 +92,9 @@ s_concat (char *s1, char *s2)
     memcpy (result + len1, s2, len2 + 1);       //+1 to copy the null-terminator
     return result;
 }
+
+static void
+s_destroy_ratelimit (void **self_p);
 
 //  --------------------------------------------------------------------------
 //  Create a new zwr_microhttpdd.
@@ -88,9 +116,10 @@ zwr_microhttpd_new (zsock_t *pipe, void *args)
     self->daemon = NULL;
     self->port = 8888;      //  Set 8888 to be the default port
 
-    self->rate_timer = zloop_new ();
-    zloop_set_ticket_delay (self->rate_timer, 60);
-    self->rate_remaining = zhashx_new ();
+    self->ratelimit_timer = zloop_new ();
+    zloop_set_ticket_delay (self->ratelimit_timer, 60);
+    self->ratelimit_clients = zhashx_new ();
+    zhashx_set_destructor (self->ratelimit_clients, s_destroy_ratelimit);
 
     return self;
 }
@@ -98,6 +127,17 @@ zwr_microhttpd_new (zsock_t *pipe, void *args)
 
 //  --------------------------------------------------------------------------
 //  Destroy the zwr_microhttpdd.
+
+static void
+s_destroy_ratelimit (void **self_p)
+{
+    assert (self_p);
+    if (*self_p) {
+        zwr_ratelimit_t *self = (zwr_ratelimit_t * ) *self_p;
+        free (self);
+    }
+}
+
 
 static void
 zwr_microhttpd_destroy (zwr_microhttpd_t **self_p)
@@ -110,8 +150,8 @@ zwr_microhttpd_destroy (zwr_microhttpd_t **self_p)
         if (self->endpoints)
             free (self->endpoints);
         free (self->start_time);
-        zloop_destroy (&self->rate_timer);
-        zhashx_destroy (&self->rate_remaining);
+        zloop_destroy (&self->ratelimit_timer);
+        zhashx_destroy (&self->ratelimit_clients);
 
         //  Free object itself
         zpoller_destroy (&self->poller);
@@ -120,27 +160,64 @@ zwr_microhttpd_destroy (zwr_microhttpd_t **self_p)
     }
 }
 
+static int
+zwr_microhttpd_reset_limit (zloop_t *loop, int timer_id, void *arg)
+{
+    assert (loop);
+    zwr_ratelimit_t *ratelimit = (zwr_ratelimit_t *) arg;
+    assert (ratelimit);
+    zloop_ticket_reset (loop, ratelimit->ticket);
+    ratelimit->remaining = ratelimit->limit;
+#if defined (__UNIX__)
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    ratelimit->reset = tv.tv_sec + ratelimit->interval;
+#endif
+    return 0;
+}
+
+static zwr_ratelimit_t *
+zwr_microhttpd_update_limit (zwr_microhttpd_t *self, char *id)
+{
+    assert (self);
+    zwr_ratelimit_t *ratelimit = (zwr_ratelimit_t *) zhashx_lookup (self->ratelimit_clients, id);
+    if (ratelimit)
+        ratelimit->remaining--;
+    else {
+        ratelimit = (zwr_ratelimit_t *) zmalloc (sizeof (zwr_ratelimit_t));
+        ratelimit->limit = X_RATELIMIT_LIMIT;
+        ratelimit->remaining = ratelimit->limit - 1;
+        ratelimit->interval = X_RATELIMIT_INTERVAL;
+#if defined (__UNIX__)
+        struct timeval tv;
+        gettimeofday(&tv, NULL);
+        ratelimit->reset = tv.tv_sec + ratelimit->interval;
+#endif
+        ratelimit->ticket = zloop_ticket (self->ratelimit_timer, zwr_microhttpd_reset_limit, ratelimit);
+        zhashx_insert (self->ratelimit_clients, id, ratelimit);
+    }
+    return ratelimit;
+}
+
+static bool
+zwr_microhttpd_limit_exceeded (zwr_microhttpd_t *self, char *id)
+{
+    assert (self);
+    zwr_ratelimit_t *ratelimit = (zwr_ratelimit_t *) zhashx_lookup (self->ratelimit_clients, id);
+    if (ratelimit)
+       if (ratelimit->remaining == 0)
+        return true;
+    return false;
+}
 
 static int
 on_client_connect (void *cls,
                    const struct sockaddr *addr,
                    socklen_t addrlen)
 {
-    zwr_microhttpd_t *self = (zwr_microhttpd_t *) cls;
-    struct sockaddr_in *client_addr = (struct sockaddr_in *) addr;
-    const char *ip = inet_ntoa (client_addr->sin_addr);
-    size_t *remaining = (size_t *) zhashx_lookup (self->rate_remaining, ip);
-    if (remaining) {
-        (*remaining)--;
-        if (*remaining == 0)
-            return MHD_NO;
-    }
-    else {
-        remaining = (size_t *) zmalloc (sizeof (size_t));
-        *remaining = 10;
-        zhashx_insert (self->rate_remaining, ip, remaining);
-    }
-    zsys_info ("Remainng requests for %s = %d\n", ip, *remaining);
+    /*zwr_microhttpd_t *self = (zwr_microhttpd_t *) cls;*/
+    /*struct sockaddr_in *client_addr = (struct sockaddr_in *) addr;*/
+    /*const char *ip = inet_ntoa (client_addr->sin_addr);*/
     return MHD_YES;
 }
 
@@ -163,10 +240,12 @@ s_send_static_response (struct MHD_Connection *con, char *content_type, char *co
 
 
 static int
-s_send_response (struct MHD_Connection *con, xrap_msg_t *response, zwr_microhttpd_t *self)
+s_send_response (struct MHD_Connection *con, zwr_connection_t *connection, zwr_microhttpd_t *self)
 {
     int rc = 0;
     struct MHD_Response *http_response;
+    zwr_response_t *zwr_response = zwr_connection_response (connection);
+    xrap_msg_t *response = zwr_response_xresponse (zwr_response);
     int status_code = xrap_msg_status_code (response);
     //  Create new http response
     if (XRAP_MSG_GET_OK  == xrap_msg_id (response) ||
@@ -217,9 +296,15 @@ s_send_response (struct MHD_Connection *con, xrap_msg_t *response, zwr_microhttp
     }
 
     //  Rate-Limiting
-    MHD_add_response_header (http_response, "X-RateLimit-Limit", "60");
-    MHD_add_response_header (http_response, "X-RateLimit-Remaining", "60");
-    MHD_add_response_header (http_response, "X-RateLimit-Reset", "60");
+    char limit[10];
+    sprintf (limit, "%d", zwr_response_rate_limit (zwr_response));
+    char remaining[10];
+    sprintf (remaining, "%d", zwr_response_rate_remaining (zwr_response));
+    char reset[20];
+    sprintf (reset, "%zu", zwr_response_rate_reset (zwr_response));
+    MHD_add_response_header (http_response, "X-RateLimit-Limit", limit);
+    MHD_add_response_header (http_response, "X-RateLimit-Remaining", remaining);
+    MHD_add_response_header (http_response, "X-RateLimit-Reset", reset);
 
     if (!http_response)
         return MHD_NO;
@@ -325,8 +410,12 @@ answer_to_connection (void *cls,
         //  The connection wrapper is passed as parameter to this function
         *con_cls = (void *) connection;
 
-        if (!zhash_lookup (zwr_request_header (request), "User-Agent"))
+        char *user_agent =  (char *) zhash_lookup (zwr_request_header (request), "User-Agent");
+        if (!user_agent)
             return s_send_static_response (con, "text/html", PAGE_USER_AGENT_REQUIRED, MHD_HTTP_FORBIDDEN);
+
+        if (zwr_microhttpd_limit_exceeded (self, user_agent))
+            return s_send_static_response (con, "text/html", PAGE_LIMIT_EXCEEDED, MHD_HTTP_FORBIDDEN);
 
         if (streq (method, MHD_HTTP_METHOD_POST) || streq (method, MHD_HTTP_METHOD_PUT)) {
             char *content_type = (char *) zhash_lookup (zwr_request_header (request) , "Content-Type");
@@ -377,12 +466,21 @@ answer_to_connection (void *cls,
         if (rc == 0) {
             //  Receive Response
             zmsg_t *response = zwr_client_recv (client);
-            zwr_connection_set_response (connection, xrap_msg_decode (&response));
+            //  Create response object
+            zwr_response_t *zwr_response = zwr_response_new (xrap_msg_decode (&response));
+            zwr_request_t *zwr_request = zwr_connection_request (connection);
+            char *user_agent =  (char *) zhash_lookup (zwr_request_header (zwr_request), "User-Agent");
+            zwr_ratelimit_t *ratelimit = zwr_microhttpd_update_limit (self, user_agent);
+            zwr_response_set_ratelimit (zwr_response,
+                                        ratelimit->limit,
+                                        ratelimit->remaining,
+                                        ratelimit->reset);
+            zwr_connection_set_response (connection, zwr_response);
             //  Cleanup before resonding
             zuuid_t *sender = zwr_client_sender (client);
             zuuid_destroy (&sender);
             zwr_client_destroy (&client);
-            return s_send_response (con, zwr_connection_response (connection), self);
+            return s_send_response (con, connection, self);
         }
         else
         if (rc == XRAP_TRAFFIC_NOT_FOUND) {

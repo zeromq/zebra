@@ -23,23 +23,31 @@ typedef struct _zwr_response_t zwr_response_t;
 //  @interface
 //  Create a new zwr_response
 ZWEBRAP_EXPORT zwr_response_t *
-    zwr_response_new (char *data, const char *mime_type, unsigned int status_code, int mode);
+   zwr_response_new (xrap_msg_t *xresponse);
 
 //  Destroy the zwr_response
 ZWEBRAP_EXPORT void
     zwr_response_destroy (zwr_response_t **self_p);
 
 //  Get the response data
-ZWEBRAP_EXPORT const char *
-    zwr_response_data (zwr_response_t *self);
+ZWEBRAP_EXPORT xrap_msg_t *
+   zwr_response_xresponse (zwr_response_t *self);
 
-//  Get the response mime type
-ZWEBRAP_EXPORT const char *
-    zwr_response_mime_type (zwr_response_t *self);
+//  Get the rate limit
+ZWEBRAP_EXPORT int
+   zwr_response_rate_limit (zwr_response_t *self);
 
-//  Get the response staus code
-ZWEBRAP_EXPORT unsigned int
-    zwr_response_status_code (zwr_response_t *self);
+//  Get the rate remaining
+ZWEBRAP_EXPORT int
+   zwr_response_rate_remaining (zwr_response_t *self);
+
+//  Get the rate reset
+ZWEBRAP_EXPORT size_t
+zwr_response_rate_reset (zwr_response_t *self);
+
+//  Set parameters for rate limit
+ZWEBRAP_EXPORT void
+zwr_response_set_ratelimit (zwr_response_t *self, int limit, int remaining, size_t reset);
 
 //  Print properties of object
 ZWEBRAP_EXPORT void
