@@ -26,7 +26,7 @@
 #endif
 
 #define X_RATELIMIT_LIMIT 10
-#define X_RATELIMIT_INTERVAL 60
+#define X_RATELIMIT_INTERVAL 60000
 
 #define PAGE_USER_AGENT_REQUIRED "\
 Request forbidden by administrative rules.\n\
@@ -59,13 +59,13 @@ struct _zwr_ratelimit_t {
         int limit;
         int remaining;
         int interval;
-        size_t reset;
+        int64_t reset;
 };
 typedef struct _zwr_ratelimit_t zwr_ratelimit_t;
 
 struct _zwr_microhttpd_t {
     zsock_t *pipe;              //  Actor command pipe
-    zpoller_t *poller;          //  Socket poller
+    zloop_t *reactor;           //  Socket poller and ratelimit timer
     bool terminated;            //  Did caller ask us to quit?
     bool verbose;               //  Verbose logging enabled?
     //  Declare properties
@@ -74,7 +74,6 @@ struct _zwr_microhttpd_t {
     char *endpoints;             //  Address of dispatching endpoint
     int port;
     //  Rate Limiting
-    zloop_t *ratelimit_timer;    //  Timer to reset the remaining requests
     zhashx_t *ratelimit_clients; //  Holds ratelimit for all clients
 };
 
@@ -108,7 +107,6 @@ zwr_microhttpd_new (zsock_t *pipe, void *args)
     self->pipe = pipe;
     self->endpoints = NULL;
     self->terminated = false;
-    self->poller = zpoller_new (self->pipe, NULL);
 
     //  Initialize properties
     self->start_time = (struct timeval *) zmalloc (sizeof (struct timeval));
@@ -116,8 +114,8 @@ zwr_microhttpd_new (zsock_t *pipe, void *args)
     self->daemon = NULL;
     self->port = 8888;      //  Set 8888 to be the default port
 
-    self->ratelimit_timer = zloop_new ();
-    zloop_set_ticket_delay (self->ratelimit_timer, 60);
+    self->reactor = zloop_new ();
+    zloop_set_ticket_delay (self->reactor, X_RATELIMIT_INTERVAL);
     self->ratelimit_clients = zhashx_new ();
     zhashx_set_destructor (self->ratelimit_clients, s_destroy_ratelimit);
 
@@ -150,11 +148,10 @@ zwr_microhttpd_destroy (zwr_microhttpd_t **self_p)
         if (self->endpoints)
             free (self->endpoints);
         free (self->start_time);
-        zloop_destroy (&self->ratelimit_timer);
+        zloop_destroy (&self->reactor);
         zhashx_destroy (&self->ratelimit_clients);
 
         //  Free object itself
-        zpoller_destroy (&self->poller);
         free (self);
         *self_p = NULL;
     }
@@ -163,16 +160,13 @@ zwr_microhttpd_destroy (zwr_microhttpd_t **self_p)
 static int
 zwr_microhttpd_reset_limit (zloop_t *loop, int timer_id, void *arg)
 {
+    zsys_info ("Reset ticket %d\n", timer_id);
     assert (loop);
     zwr_ratelimit_t *ratelimit = (zwr_ratelimit_t *) arg;
     assert (ratelimit);
     zloop_ticket_reset (loop, ratelimit->ticket);
     ratelimit->remaining = ratelimit->limit;
-#if defined (__UNIX__)
-    struct timeval tv;
-    gettimeofday(&tv, NULL);
-    ratelimit->reset = tv.tv_sec + ratelimit->interval;
-#endif
+    ratelimit->reset = zclock_mono () + ratelimit->interval;
     return 0;
 }
 
@@ -188,12 +182,8 @@ zwr_microhttpd_update_limit (zwr_microhttpd_t *self, char *id)
         ratelimit->limit = X_RATELIMIT_LIMIT;
         ratelimit->remaining = ratelimit->limit - 1;
         ratelimit->interval = X_RATELIMIT_INTERVAL;
-#if defined (__UNIX__)
-        struct timeval tv;
-        gettimeofday(&tv, NULL);
-        ratelimit->reset = tv.tv_sec + ratelimit->interval;
-#endif
-        ratelimit->ticket = zloop_ticket (self->ratelimit_timer, zwr_microhttpd_reset_limit, ratelimit);
+        ratelimit->reset = zclock_mono () + ratelimit->interval;
+        ratelimit->ticket = zloop_ticket (self->reactor, zwr_microhttpd_reset_limit, ratelimit);
         zhashx_insert (self->ratelimit_clients, id, ratelimit);
     }
     return ratelimit;
@@ -301,7 +291,7 @@ s_send_response (struct MHD_Connection *con, zwr_connection_t *connection, zwr_m
     char remaining[10];
     sprintf (remaining, "%d", zwr_response_rate_remaining (zwr_response));
     char reset[20];
-    sprintf (reset, "%zu", zwr_response_rate_reset (zwr_response));
+    sprintf (reset, "%"PRId64, zwr_response_rate_reset (zwr_response));
     MHD_add_response_header (http_response, "X-RateLimit-Limit", limit);
     MHD_add_response_header (http_response, "X-RateLimit-Remaining", remaining);
     MHD_add_response_header (http_response, "X-RateLimit-Reset", reset);
@@ -574,14 +564,16 @@ s_configure_port (zwr_microhttpd_t *self, zmsg_t *request)
 
 //  Here we handle incomming message from the node
 
-static void
-zwr_microhttpd_recv_api (zwr_microhttpd_t *self)
+static int
+zwr_microhttpd_recv_api (zloop_t *loop, zsock_t *pipe, void *arg)
 {
-//  Get the whole message of the pipe in one go
+    zwr_microhttpd_t *self = (zwr_microhttpd_t *) arg;
+    //  Get the whole message of the pipe in one go
     zmsg_t *request = zmsg_recv (self->pipe);
     if (!request)
-       return;        //  Interrupted
+       return -1;        //  Interrupted
 
+    int rc = 0;
     char *command = zmsg_popstr (request);
     if (streq (command, "START"))
         zsock_signal (self->pipe, zwr_microhttpd_start (self));
@@ -600,15 +592,19 @@ zwr_microhttpd_recv_api (zwr_microhttpd_t *self)
         zsock_signal (self->pipe, 0);
     }
     else
-    if (streq (command, "$TERM"))
+    if (streq (command, "$TERM")) {
         //  The $TERM command is send by zactor_destroy() method
         self->terminated = true;
+        zmsg_destroy (&request);
+        rc = -1;      //  Tells zloop to return control
+    }
     else {
         zsys_error ("invalid command '%s'", command);
         assert (false);
     }
     zstr_free (&command);
     zmsg_destroy (&request);
+    return rc;
 }
 
 
@@ -625,11 +621,9 @@ zwr_microhttpd_actor (zsock_t *pipe, void *args)
     //  Signal actor successfully initiated
     zsock_signal (self->pipe, 0);
 
+    zloop_reader (self->reactor, self->pipe, zwr_microhttpd_recv_api, self);
     while (!self->terminated) {
-       zsock_t *which = (zsock_t *) zpoller_wait (self->poller, -1);
-       if (which == self->pipe)
-          zwr_microhttpd_recv_api (self);
-       //  Add other sockets when you need them.
+        zloop_start (self->reactor);
     }
 
     zwr_microhttpd_destroy (&self);

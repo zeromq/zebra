@@ -42,12 +42,12 @@ ZWEBRAP_EXPORT int
    zwr_response_rate_remaining (zwr_response_t *self);
 
 //  Get the rate reset
-ZWEBRAP_EXPORT size_t
+ZWEBRAP_EXPORT int64_t
 zwr_response_rate_reset (zwr_response_t *self);
 
 //  Set parameters for rate limit
 ZWEBRAP_EXPORT void
-zwr_response_set_ratelimit (zwr_response_t *self, int limit, int remaining, size_t reset);
+zwr_response_set_ratelimit (zwr_response_t *self, int limit, int remaining, int64_t reset);
 
 //  Print properties of object
 ZWEBRAP_EXPORT void

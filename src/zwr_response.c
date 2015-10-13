@@ -103,7 +103,7 @@ zwr_response_rate_remaining (zwr_response_t *self)
 //  --------------------------------------------------------------------------
 //  Get the rate reset
 
-size_t
+int64_t
 zwr_response_rate_reset (zwr_response_t *self)
 {
     assert (self);
@@ -115,7 +115,7 @@ zwr_response_rate_reset (zwr_response_t *self)
 //  Set parameters for rate limit
 
 void
-zwr_response_set_ratelimit (zwr_response_t *self, int limit, int remaining, size_t reset)
+zwr_response_set_ratelimit (zwr_response_t *self, int limit, int remaining, int64_t reset)
 {
     assert (self);
     self->rate_limit = limit;
