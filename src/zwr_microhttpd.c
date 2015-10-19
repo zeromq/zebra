@@ -170,9 +170,10 @@ zwr_microhttpd_reset_limit (zloop_t *loop, int timer_id, void *arg)
     assert (loop);
     zwr_ratelimit_t *ratelimit = (zwr_ratelimit_t *) arg;
     assert (ratelimit);
-    zloop_ticket_reset (loop, ratelimit->ticket);
+    zloop_ticket_delete (loop, ratelimit->ticket);
     ratelimit->remaining = ratelimit->limit;
     ratelimit->reset = zclock_mono () + ratelimit->interval;
+    ratelimit->ticket = zloop_ticket (loop, zwr_microhttpd_reset_limit, ratelimit);
     return 0;
 }
 
