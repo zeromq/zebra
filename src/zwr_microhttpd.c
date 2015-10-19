@@ -172,7 +172,7 @@ zwr_microhttpd_reset_limit (zloop_t *loop, int timer_id, void *arg)
     assert (ratelimit);
     zloop_ticket_delete (loop, ratelimit->ticket);
     ratelimit->remaining = ratelimit->limit;
-    ratelimit->reset = zclock_mono () + ratelimit->interval;
+    ratelimit->reset = (zclock_time () + ratelimit->interval) / 1000;
     ratelimit->ticket = zloop_ticket (loop, zwr_microhttpd_reset_limit, ratelimit);
     return 0;
 }
@@ -189,7 +189,7 @@ zwr_microhttpd_update_limit (zwr_microhttpd_t *self, char *id)
         ratelimit->limit = X_RATELIMIT_LIMIT;
         ratelimit->remaining = ratelimit->limit - 1;
         ratelimit->interval = X_RATELIMIT_INTERVAL;
-        ratelimit->reset = zclock_mono () + ratelimit->interval;
+        ratelimit->reset = (zclock_time () + ratelimit->interval) / 1000;
         ratelimit->ticket = zloop_ticket (self->reactor, zwr_microhttpd_reset_limit, ratelimit);
         zhashx_insert (self->ratelimit_clients, id, ratelimit);
     }
