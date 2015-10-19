@@ -95,6 +95,12 @@ s_concat (char *s1, char *s2)
 static void
 s_destroy_ratelimit (void **self_p);
 
+static int
+s_timer_dummy (zloop_t *self, int timer_id, void *arg)
+{
+    return 0;
+}
+
 //  --------------------------------------------------------------------------
 //  Create a new zwr_microhttpdd.
 
@@ -116,6 +122,7 @@ zwr_microhttpd_new (zsock_t *pipe, void *args)
 
     self->reactor = zloop_new ();
     zloop_set_ticket_delay (self->reactor, X_RATELIMIT_INTERVAL);
+    zloop_timer (self->reactor, 1000, 0, s_timer_dummy, NULL);
     self->ratelimit_clients = zhashx_new ();
     zhashx_set_destructor (self->ratelimit_clients, s_destroy_ratelimit);
 
@@ -160,7 +167,6 @@ zwr_microhttpd_destroy (zwr_microhttpd_t **self_p)
 static int
 zwr_microhttpd_reset_limit (zloop_t *loop, int timer_id, void *arg)
 {
-    zsys_info ("Reset ticket %d\n", timer_id);
     assert (loop);
     zwr_ratelimit_t *ratelimit = (zwr_ratelimit_t *) arg;
     assert (ratelimit);
