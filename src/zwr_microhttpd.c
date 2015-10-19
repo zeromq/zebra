@@ -178,21 +178,16 @@ zwr_microhttpd_reset_limit (zloop_t *loop, int timer_id, void *arg)
 }
 
 static zwr_ratelimit_t *
-zwr_microhttpd_update_limit (zwr_microhttpd_t *self, char *id)
+zwr_microhttpd_ratelimit_new (zwr_microhttpd_t *self, char *id)
 {
     assert (self);
-    zwr_ratelimit_t *ratelimit = (zwr_ratelimit_t *) zhashx_lookup (self->ratelimit_clients, id);
-    if (ratelimit)
-        ratelimit->remaining--;
-    else {
-        ratelimit = (zwr_ratelimit_t *) zmalloc (sizeof (zwr_ratelimit_t));
-        ratelimit->limit = X_RATELIMIT_LIMIT;
-        ratelimit->remaining = ratelimit->limit - 1;
-        ratelimit->interval = X_RATELIMIT_INTERVAL;
-        ratelimit->reset = (zclock_time () + ratelimit->interval) / 1000;
-        ratelimit->ticket = zloop_ticket (self->reactor, zwr_microhttpd_reset_limit, ratelimit);
-        zhashx_insert (self->ratelimit_clients, id, ratelimit);
-    }
+    zwr_ratelimit_t *ratelimit = (zwr_ratelimit_t *) zmalloc (sizeof (zwr_ratelimit_t));
+    ratelimit->limit = X_RATELIMIT_LIMIT;
+    ratelimit->remaining = ratelimit->limit;
+    ratelimit->interval = X_RATELIMIT_INTERVAL;
+    ratelimit->reset = (zclock_time () + ratelimit->interval) / 1000;
+    ratelimit->ticket = zloop_ticket (self->reactor, zwr_microhttpd_reset_limit, ratelimit);
+    zhashx_insert (self->ratelimit_clients, id, ratelimit);
     return ratelimit;
 }
 
@@ -463,17 +458,23 @@ answer_to_connection (void *cls,
         if (rc == 0) {
             //  Receive Response
             zmsg_t *response = zwr_client_recv (client);
-            //  Create response object
-            zwr_response_t *zwr_response = zwr_response_new (xrap_msg_decode (&response));
+            xrap_msg_t *xresponse = xrap_msg_decode (&response);
+            zwr_response_t *zwr_response = zwr_response_new (xresponse);
+            //  Update rate limit
             zwr_request_t *zwr_request = zwr_connection_request (connection);
             char *user_agent =  (char *) zhash_lookup (zwr_request_header (zwr_request), "User-Agent");
-            zwr_ratelimit_t *ratelimit = zwr_microhttpd_update_limit (self, user_agent);
+            zwr_ratelimit_t *ratelimit = (zwr_ratelimit_t *)
+                                            zhashx_lookup (self->ratelimit_clients, user_agent);
+            if (!ratelimit)
+                ratelimit = zwr_microhttpd_ratelimit_new (self, user_agent);
+            if (XRAP_MSG_GET_EMPTY != xrap_msg_id (xresponse))
+                ratelimit->remaining--;
             zwr_response_set_ratelimit (zwr_response,
                                         ratelimit->limit,
                                         ratelimit->remaining,
                                         ratelimit->reset);
             zwr_connection_set_response (connection, zwr_response);
-            //  Cleanup before resonding
+            //  Cleanup before responding
             zuuid_t *sender = zwr_client_sender (client);
             zuuid_destroy (&sender);
             zwr_client_destroy (&client);
