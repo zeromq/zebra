@@ -1,0 +1,272 @@
+#### xrap_traffic - The ZWebRap Protocol
+
+xrap_traffic - The ZWebRap Protocol
+
+Please add @discuss section in ../src/xrap_traffic.c.
+
+This is the class interface:
+
+    //  Create a new empty xrap_traffic
+    ZWEBRAP_EXPORT xrap_traffic_t *
+        xrap_traffic_new (void);
+    
+    //  Destroy a xrap_traffic instance
+    ZWEBRAP_EXPORT void
+        xrap_traffic_destroy (xrap_traffic_t **self_p);
+    
+    //  Receive a xrap_traffic from the socket. Returns 0 if OK, -1 if
+    //  there was an error. Blocks if there is no message waiting.
+    ZWEBRAP_EXPORT int
+        xrap_traffic_recv (xrap_traffic_t *self, zsock_t *input);
+    
+    //  Send the xrap_traffic to the output socket, does not destroy it
+    ZWEBRAP_EXPORT int
+        xrap_traffic_send (xrap_traffic_t *self, zsock_t *output);
+    
+    //  Print contents of message to stdout
+    ZWEBRAP_EXPORT void
+        xrap_traffic_print (xrap_traffic_t *self);
+    
+    //  Get/set the message routing id
+    ZWEBRAP_EXPORT zframe_t *
+        xrap_traffic_routing_id (xrap_traffic_t *self);
+    ZWEBRAP_EXPORT void
+        xrap_traffic_set_routing_id (xrap_traffic_t *self, zframe_t *routing_id);
+    
+    //  Get the xrap_traffic id and printable command
+    ZWEBRAP_EXPORT int
+        xrap_traffic_id (xrap_traffic_t *self);
+    ZWEBRAP_EXPORT void
+        xrap_traffic_set_id (xrap_traffic_t *self, int id);
+    ZWEBRAP_EXPORT const char *
+        xrap_traffic_command (xrap_traffic_t *self);
+    
+    //  Get/set the address field
+    ZWEBRAP_EXPORT const char *
+        xrap_traffic_address (xrap_traffic_t *self);
+    ZWEBRAP_EXPORT void
+        xrap_traffic_set_address (xrap_traffic_t *self, const char *value);
+    
+    //  Get/set the timeout field
+    ZWEBRAP_EXPORT uint32_t
+        xrap_traffic_timeout (xrap_traffic_t *self);
+    ZWEBRAP_EXPORT void
+        xrap_traffic_set_timeout (xrap_traffic_t *self, uint32_t timeout);
+    
+    //  Get a copy of the content field
+    ZWEBRAP_EXPORT zmsg_t *
+        xrap_traffic_content (xrap_traffic_t *self);
+    //  Get the content field and transfer ownership to caller
+    ZWEBRAP_EXPORT zmsg_t *
+        xrap_traffic_get_content (xrap_traffic_t *self);
+    //  Set the content field, transferring ownership from caller
+    ZWEBRAP_EXPORT void
+        xrap_traffic_set_content (xrap_traffic_t *self, zmsg_t **msg_p);
+    
+    //  Get/set the route field
+    ZWEBRAP_EXPORT const char *
+        xrap_traffic_route (xrap_traffic_t *self);
+    ZWEBRAP_EXPORT void
+        xrap_traffic_set_route (xrap_traffic_t *self, const char *value);
+    
+    //  Get/set the method field
+    ZWEBRAP_EXPORT const char *
+        xrap_traffic_method (xrap_traffic_t *self);
+    ZWEBRAP_EXPORT void
+        xrap_traffic_set_method (xrap_traffic_t *self, const char *value);
+    
+    //  Get/set the sender field
+    ZWEBRAP_EXPORT zuuid_t *
+        xrap_traffic_sender (xrap_traffic_t *self);
+    ZWEBRAP_EXPORT void
+        xrap_traffic_set_sender (xrap_traffic_t *self, zuuid_t *uuid);
+    //  Get the sender field and transfer ownership to caller
+    ZWEBRAP_EXPORT zuuid_t *
+        xrap_traffic_get_sender (xrap_traffic_t *self);
+    
+    //  Get/set the status_code field
+    ZWEBRAP_EXPORT uint16_t
+        xrap_traffic_status_code (xrap_traffic_t *self);
+    ZWEBRAP_EXPORT void
+        xrap_traffic_set_status_code (xrap_traffic_t *self, uint16_t status_code);
+    
+    //  Get/set the status_reason field
+    ZWEBRAP_EXPORT const char *
+        xrap_traffic_status_reason (xrap_traffic_t *self);
+    ZWEBRAP_EXPORT void
+        xrap_traffic_set_status_reason (xrap_traffic_t *self, const char *value);
+    
+    //  Self test of this class
+    ZWEBRAP_EXPORT int
+        xrap_traffic_test (bool verbose);
+
+This is the class self test code:
+
+    //  Simple create/destroy test
+    xrap_traffic_t *self = xrap_traffic_new ();
+    assert (self);
+    xrap_traffic_destroy (&self);
+    //  Create pair of sockets we can send through
+    //  We must bind before connect if we wish to remain compatible with ZeroMQ < v4
+    zsock_t *output = zsock_new (ZMQ_DEALER);
+    assert (output);
+    int rc = zsock_bind (output, "inproc://selftest-xrap_traffic");
+    assert (rc == 0);
+    
+    zsock_t *input = zsock_new (ZMQ_ROUTER);
+    assert (input);
+    rc = zsock_connect (input, "inproc://selftest-xrap_traffic");
+    assert (rc == 0);
+    
+    
+    //  Encode/send/decode and verify each message type
+    int instance;
+    self = xrap_traffic_new ();
+    xrap_traffic_set_id (self, XRAP_TRAFFIC_CONNECTION_OPEN);
+    
+    xrap_traffic_set_address (self, "Life is short but Now lasts for ever");
+    //  Send twice
+    xrap_traffic_send (self, output);
+    xrap_traffic_send (self, output);
+    
+    for (instance = 0; instance < 2; instance++) {
+        xrap_traffic_recv (self, input);
+        assert (xrap_traffic_routing_id (self));
+        assert (streq (xrap_traffic_address (self), "Life is short but Now lasts for ever"));
+    }
+    xrap_traffic_set_id (self, XRAP_TRAFFIC_CONNECTION_PING);
+    
+    //  Send twice
+    xrap_traffic_send (self, output);
+    xrap_traffic_send (self, output);
+    
+    for (instance = 0; instance < 2; instance++) {
+        xrap_traffic_recv (self, input);
+        assert (xrap_traffic_routing_id (self));
+    }
+    xrap_traffic_set_id (self, XRAP_TRAFFIC_CONNECTION_PONG);
+    
+    //  Send twice
+    xrap_traffic_send (self, output);
+    xrap_traffic_send (self, output);
+    
+    for (instance = 0; instance < 2; instance++) {
+        xrap_traffic_recv (self, input);
+        assert (xrap_traffic_routing_id (self));
+    }
+    xrap_traffic_set_id (self, XRAP_TRAFFIC_CONNECTION_CLOSE);
+    
+    //  Send twice
+    xrap_traffic_send (self, output);
+    xrap_traffic_send (self, output);
+    
+    for (instance = 0; instance < 2; instance++) {
+        xrap_traffic_recv (self, input);
+        assert (xrap_traffic_routing_id (self));
+    }
+    xrap_traffic_set_id (self, XRAP_TRAFFIC_XRAP_SEND);
+    
+    xrap_traffic_set_timeout (self, 123);
+    zmsg_t *xrap_send_content = zmsg_new ();
+    xrap_traffic_set_content (self, &xrap_send_content);
+    zmsg_addstr (xrap_traffic_content (self), "Captcha Diem");
+    //  Send twice
+    xrap_traffic_send (self, output);
+    xrap_traffic_send (self, output);
+    
+    for (instance = 0; instance < 2; instance++) {
+        xrap_traffic_recv (self, input);
+        assert (xrap_traffic_routing_id (self));
+        assert (xrap_traffic_timeout (self) == 123);
+        assert (zmsg_size (xrap_traffic_content (self)) == 1);
+        char *content = zmsg_popstr (xrap_traffic_content (self));
+        assert (streq (content, "Captcha Diem"));
+        zstr_free (&content);
+        if (instance == 1)
+            zmsg_destroy (&xrap_send_content);
+    }
+    xrap_traffic_set_id (self, XRAP_TRAFFIC_XRAP_OFFER);
+    
+    xrap_traffic_set_route (self, "Life is short but Now lasts for ever");
+    xrap_traffic_set_method (self, "Life is short but Now lasts for ever");
+    //  Send twice
+    xrap_traffic_send (self, output);
+    xrap_traffic_send (self, output);
+    
+    for (instance = 0; instance < 2; instance++) {
+        xrap_traffic_recv (self, input);
+        assert (xrap_traffic_routing_id (self));
+        assert (streq (xrap_traffic_route (self), "Life is short but Now lasts for ever"));
+        assert (streq (xrap_traffic_method (self), "Life is short but Now lasts for ever"));
+    }
+    xrap_traffic_set_id (self, XRAP_TRAFFIC_XRAP_DELIVER);
+    
+    zuuid_t *xrap_deliver_sender = zuuid_new ();
+    xrap_traffic_set_sender (self, xrap_deliver_sender);
+    zmsg_t *xrap_deliver_content = zmsg_new ();
+    xrap_traffic_set_content (self, &xrap_deliver_content);
+    zmsg_addstr (xrap_traffic_content (self), "Captcha Diem");
+    //  Send twice
+    xrap_traffic_send (self, output);
+    xrap_traffic_send (self, output);
+    
+    for (instance = 0; instance < 2; instance++) {
+        xrap_traffic_recv (self, input);
+        assert (xrap_traffic_routing_id (self));
+        assert (zuuid_eq (xrap_deliver_sender, zuuid_data (xrap_traffic_sender (self))));
+        if (instance == 1)
+            zuuid_destroy (&xrap_deliver_sender);
+        assert (zmsg_size (xrap_traffic_content (self)) == 1);
+        char *content = zmsg_popstr (xrap_traffic_content (self));
+        assert (streq (content, "Captcha Diem"));
+        zstr_free (&content);
+        if (instance == 1)
+            zmsg_destroy (&xrap_deliver_content);
+    }
+    xrap_traffic_set_id (self, XRAP_TRAFFIC_OK);
+    
+    xrap_traffic_set_status_code (self, 123);
+    xrap_traffic_set_status_reason (self, "Life is short but Now lasts for ever");
+    //  Send twice
+    xrap_traffic_send (self, output);
+    xrap_traffic_send (self, output);
+    
+    for (instance = 0; instance < 2; instance++) {
+        xrap_traffic_recv (self, input);
+        assert (xrap_traffic_routing_id (self));
+        assert (xrap_traffic_status_code (self) == 123);
+        assert (streq (xrap_traffic_status_reason (self), "Life is short but Now lasts for ever"));
+    }
+    xrap_traffic_set_id (self, XRAP_TRAFFIC_FAIL);
+    
+    xrap_traffic_set_status_code (self, 123);
+    xrap_traffic_set_status_reason (self, "Life is short but Now lasts for ever");
+    //  Send twice
+    xrap_traffic_send (self, output);
+    xrap_traffic_send (self, output);
+    
+    for (instance = 0; instance < 2; instance++) {
+        xrap_traffic_recv (self, input);
+        assert (xrap_traffic_routing_id (self));
+        assert (xrap_traffic_status_code (self) == 123);
+        assert (streq (xrap_traffic_status_reason (self), "Life is short but Now lasts for ever"));
+    }
+    xrap_traffic_set_id (self, XRAP_TRAFFIC_ERROR);
+    
+    xrap_traffic_set_status_code (self, 123);
+    xrap_traffic_set_status_reason (self, "Life is short but Now lasts for ever");
+    //  Send twice
+    xrap_traffic_send (self, output);
+    xrap_traffic_send (self, output);
+    
+    for (instance = 0; instance < 2; instance++) {
+        xrap_traffic_recv (self, input);
+        assert (xrap_traffic_routing_id (self));
+        assert (xrap_traffic_status_code (self) == 123);
+        assert (streq (xrap_traffic_status_reason (self), "Life is short but Now lasts for ever"));
+    }
+    
+    xrap_traffic_destroy (&self);
+    zsock_destroy (&input);
+    zsock_destroy (&output);
+

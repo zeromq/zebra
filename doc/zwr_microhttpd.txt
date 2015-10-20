@@ -1,0 +1,179 @@
+zwr_microhttpd(3)
+=================
+
+NAME
+----
+zwr_microhttpd - HTTP web server backend using libmicrohttpd.
+
+SYNOPSIS
+--------
+----
+//  Create new zwr_microhttpd actor instance.
+//  @TODO: Describe the purpose of this actor!
+//
+//      zactor_t *microhttpd = zactor_new (zwr_microhttpd, NULL);
+//
+//  Destroy zwr_microhttpd instance.
+//
+//      zactor_destroy (&microhttpd);
+//
+//  Enable verbose logging of commands and activity:
+//
+//      zstr_send (microhttpd, "VERBOSE");
+//      zsock_wait (microhttpd);
+//
+//  Start zwr_microhttpd actor.
+//
+//      zstr_sendx (microhttpd, "START", NULL);
+//      zsock_wait (microhttpd);
+//
+//  Stop zwr_microhttpd actor.
+//
+//      zstr_sendx (microhttpd, "STOP", NULL);
+//      zsock_wait (microhttpd);
+//
+//  Attach the endpoint socket to endpoints, see zsock_attach ().
+//
+//      zstr_sendx (microhttpd, "ENDPOINT", endpoints, NULL);
+//      zsock_wait (microhttpd);
+//
+//  Set the port on which the http server shall listen for requests.
+//  The default port is 8888.
+//  Note: The port is passed as string!
+//  Note: If the server is already started, the server will be stopped
+//        and restarted on the new port.
+//
+//      zstr_sendx (microhttpd, "PORT", "8888", NULL);
+//      zsock_wait (microhttpd);
+//
+//  This is the zwr_microhttpd constructor as a zactor_fn;
+ZWEBRAP_EXPORT void
+    zwr_microhttpd_actor (zsock_t *pipe, void *args);
+
+//  Self test of this actor
+ZWEBRAP_EXPORT void
+    zwr_microhttpd_test (bool verbose);
+----
+
+DESCRIPTION
+-----------
+
+zwr_microhttpdd - HTTP web server backend using libmicrohttpd.
+
+Please add @discuss section in ../src/zwr_microhttpd.c.
+
+EXAMPLE
+-------
+.From zwr_microhttpd_test method
+----
+//  Simple create/destroy test
+zactor_t *zwr_microhttpd = zactor_new (zwr_microhttpd_actor, NULL);
+
+zstr_send (zwr_microhttpd, "START");
+rc = zsock_wait (zwr_microhttpd);             //  Wait until actor started
+assert (rc == 0);
+
+zstr_sendx (zwr_microhttpd, "PORT", "8081", NULL);
+rc = zsock_wait (zwr_microhttpd);             //  Wait until port is configured
+assert (rc == 0);
+
+zstr_sendx (zwr_microhttpd, "ENDPOINT", "inproc://http_dispatcher", NULL);
+rc = zsock_wait (zwr_microhttpd);             //  Wait until endpoint configured
+assert (rc == 0);
+
+zactor_t *dispatcher = zactor_new (zwr_server, "dispatcher");
+
+if (verbose)
+    zstr_send (dispatcher, "VERBOSE");
+zstr_sendx (dispatcher, "BIND", "inproc://http_dispatcher", NULL);
+
+//  Create handler
+zwr_client_t *handler = zwr_client_new ();
+assert (handler);
+
+//  Connect handler to server
+rc = zwr_client_connect (handler, "inproc://http_dispatcher",  1000, "handler");
+assert (rc == 0);
+assert (zwr_client_connected (handler) == true);
+
+//  Provide GET Offering
+rc = zwr_client_set_handler (handler, "GET", "/foo/{[^/]}");
+assert (rc == 0);
+
+//  Send GET Request
+zwr_curl_client_t *curl = zwr_curl_client_new ();
+zwr_curl_client_send_get (curl, "http://localhost:8081/foo/bar?page=10");
+
+//  Receive Request
+zmsg_t *request = zwr_client_recv (handler);
+assert (request);
+xrap_msg_t *xrap_msg = xrap_msg_decode (&request);
+assert (xrap_msg_id (xrap_msg) == XRAP_MSG_GET);
+assert (streq ("/foo/bar", xrap_msg_resource (xrap_msg)));
+xrap_msg_destroy (&xrap_msg);
+
+//  Send Response
+xrap_msg = xrap_msg_new (XRAP_MSG_GET_OK);
+xrap_msg_set_status_code (xrap_msg, 200);
+xrap_msg_set_content_type (xrap_msg, "text/hello");
+xrap_msg_set_content_body (xrap_msg, "Hello World!");
+zmsg_t *response = xrap_msg_encode (&xrap_msg);
+zwr_client_deliver (handler, zwr_client_sender (handler), &response);
+zuuid_t *sender = zwr_client_sender (handler);
+zuuid_destroy (&sender);
+
+//  Receive GET Response
+zwr_curl_client_verify_response (curl, 200, "Hello World!");
+zwr_curl_client_destroy (&curl);
+
+//  Send GET Request 2
+curl = zwr_curl_client_new ();
+zwr_curl_client_send_get (curl, "http://localhost:8081/foo/bar/baz");
+
+//  Receive GET Response 2
+zwr_curl_client_verify_response (curl, 404, PAGE_NOT_FOUND);
+zwr_curl_client_destroy (&curl);
+
+//  Provide POST Offering
+rc = zwr_client_set_handler (handler, "POST", "/foo/{[^/]}");
+assert (rc == 0);
+
+curl = zwr_curl_client_new ();
+zwr_curl_client_send_post (curl, "http://localhost:8081/foo/bar", "abc");
+
+//  Receive Request
+request = zwr_client_recv (handler);
+assert (request);
+xrap_msg = xrap_msg_decode (&request);
+assert (xrap_msg_id (xrap_msg) == XRAP_MSG_POST);
+assert (streq ("/foo/bar", xrap_msg_parent (xrap_msg)));
+xrap_msg_destroy (&xrap_msg);
+
+//  Send Response
+xrap_msg = xrap_msg_new (XRAP_MSG_POST_OK);
+xrap_msg_set_status_code (xrap_msg, 201);
+xrap_msg_set_location (xrap_msg, "/foo/bar");
+xrap_msg_set_etag (xrap_msg, "a3fsd3");
+xrap_msg_set_date_modified (xrap_msg, 0);
+xrap_msg_set_content_type (xrap_msg, "text/hello");
+xrap_msg_set_content_body (xrap_msg, "Hello World!");
+response = xrap_msg_encode (&xrap_msg);
+zwr_client_deliver (handler, zwr_client_sender (handler), &response);
+sender = zwr_client_sender (handler);
+zuuid_destroy (&sender);
+
+//  Give response time to arrive
+usleep (250);
+
+zwr_curl_client_verify_response (curl, 201, "Hello World!");
+zwr_curl_client_destroy (&curl);
+
+zwr_client_destroy (&handler);
+zactor_destroy (&dispatcher);
+
+zstr_send (zwr_microhttpd, "STOP");
+rc = zsock_wait (zwr_microhttpd);             //  Wait until actor stopped
+assert (rc == 0);
+
+zactor_destroy (&zwr_microhttpd);
+----

@@ -1,0 +1,653 @@
+xrap_msg(3)
+===========
+
+NAME
+----
+xrap_msg - XRAP serialization over ZMTP
+
+SYNOPSIS
+--------
+----
+//  Create a new xrap_msg
+xrap_msg_t *
+    xrap_msg_new (int id);
+
+//  Destroy the xrap_msg
+void
+    xrap_msg_destroy (xrap_msg_t **self_p);
+
+//  Parse a zmsg_t and decides whether it is xrap_msg. Returns
+//  true if it is, false otherwise. Doesn't destroy or modify the
+//  original message.
+bool
+    is_xrap_msg (zmsg_t *msg_p);
+
+//  Parse a xrap_msg from zmsg_t. Returns a new object, or NULL if
+//  the message could not be parsed, or was NULL. Destroys msg and 
+//  nullifies the msg reference.
+xrap_msg_t *
+    xrap_msg_decode (zmsg_t **msg_p);
+
+//  Encode xrap_msg into zmsg and destroy it. Returns a newly created
+//  object or NULL if error. Use when not in control of sending the message.
+zmsg_t *
+    xrap_msg_encode (xrap_msg_t **self_p);
+
+//  Receive and parse a xrap_msg from the socket. Returns new object, 
+//  or NULL if error. Will block if there's no message waiting.
+xrap_msg_t *
+    xrap_msg_recv (void *input);
+
+//  Receive and parse a xrap_msg from the socket. Returns new object, 
+//  or NULL either if there was no input waiting, or the recv was interrupted.
+xrap_msg_t *
+    xrap_msg_recv_nowait (void *input);
+
+//  Send the xrap_msg to the output, and destroy it
+int
+    xrap_msg_send (xrap_msg_t **self_p, void *output);
+
+//  Send the xrap_msg to the output, and do not destroy it
+int
+    xrap_msg_send_again (xrap_msg_t *self, void *output);
+
+//  Encode the POST 
+zmsg_t *
+    xrap_msg_encode_post (
+        const char *parent,
+        const char *content_type,
+        const char *content_body);
+
+//  Encode the POST_OK 
+zmsg_t *
+    xrap_msg_encode_post_ok (
+        uint16_t status_code,
+        const char *location,
+        const char *etag,
+        uint64_t date_modified,
+        const char *content_type,
+        const char *content_body);
+
+//  Encode the GET 
+zmsg_t *
+    xrap_msg_encode_get (
+        const char *resource,
+        zhash_t *parameters,
+        uint64_t if_modified_since,
+        const char *if_none_match,
+        const char *content_type);
+
+//  Encode the GET_OK 
+zmsg_t *
+    xrap_msg_encode_get_ok (
+        uint16_t status_code,
+        const char *etag,
+        const char *content_type,
+        const char *content_body,
+        zhash_t *metadata);
+
+//  Encode the GET_EMPTY 
+zmsg_t *
+    xrap_msg_encode_get_empty (
+        uint16_t status_code);
+
+//  Encode the PUT 
+zmsg_t *
+    xrap_msg_encode_put (
+        const char *resource,
+        uint64_t if_unmodified_since,
+        const char *if_match,
+        const char *content_type,
+        const char *content_body);
+
+//  Encode the PUT_OK 
+zmsg_t *
+    xrap_msg_encode_put_ok (
+        uint16_t status_code,
+        const char *location,
+        const char *etag,
+        uint64_t date_modified);
+
+//  Encode the DELETE 
+zmsg_t *
+    xrap_msg_encode_delete (
+        const char *resource,
+        uint64_t if_unmodified_since,
+        const char *if_match);
+
+//  Encode the DELETE_OK 
+zmsg_t *
+    xrap_msg_encode_delete_ok (
+        uint16_t status_code);
+
+//  Encode the ERROR 
+zmsg_t *
+    xrap_msg_encode_error (
+        uint16_t status_code,
+        const char *status_text);
+
+
+//  Send the POST to the output in one step
+//  WARNING, this call will fail if output is of type ZMQ_ROUTER.
+int
+    xrap_msg_send_post (void *output,
+        const char *parent,
+        const char *content_type,
+        const char *content_body);
+    
+//  Send the POST_OK to the output in one step
+//  WARNING, this call will fail if output is of type ZMQ_ROUTER.
+int
+    xrap_msg_send_post_ok (void *output,
+        uint16_t status_code,
+        const char *location,
+        const char *etag,
+        uint64_t date_modified,
+        const char *content_type,
+        const char *content_body);
+    
+//  Send the GET to the output in one step
+//  WARNING, this call will fail if output is of type ZMQ_ROUTER.
+int
+    xrap_msg_send_get (void *output,
+        const char *resource,
+        zhash_t *parameters,
+        uint64_t if_modified_since,
+        const char *if_none_match,
+        const char *content_type);
+    
+//  Send the GET_OK to the output in one step
+//  WARNING, this call will fail if output is of type ZMQ_ROUTER.
+int
+    xrap_msg_send_get_ok (void *output,
+        uint16_t status_code,
+        const char *etag,
+        const char *content_type,
+        const char *content_body,
+        zhash_t *metadata);
+    
+//  Send the GET_EMPTY to the output in one step
+//  WARNING, this call will fail if output is of type ZMQ_ROUTER.
+int
+    xrap_msg_send_get_empty (void *output,
+        uint16_t status_code);
+    
+//  Send the PUT to the output in one step
+//  WARNING, this call will fail if output is of type ZMQ_ROUTER.
+int
+    xrap_msg_send_put (void *output,
+        const char *resource,
+        uint64_t if_unmodified_since,
+        const char *if_match,
+        const char *content_type,
+        const char *content_body);
+    
+//  Send the PUT_OK to the output in one step
+//  WARNING, this call will fail if output is of type ZMQ_ROUTER.
+int
+    xrap_msg_send_put_ok (void *output,
+        uint16_t status_code,
+        const char *location,
+        const char *etag,
+        uint64_t date_modified);
+    
+//  Send the DELETE to the output in one step
+//  WARNING, this call will fail if output is of type ZMQ_ROUTER.
+int
+    xrap_msg_send_delete (void *output,
+        const char *resource,
+        uint64_t if_unmodified_since,
+        const char *if_match);
+    
+//  Send the DELETE_OK to the output in one step
+//  WARNING, this call will fail if output is of type ZMQ_ROUTER.
+int
+    xrap_msg_send_delete_ok (void *output,
+        uint16_t status_code);
+    
+//  Send the ERROR to the output in one step
+//  WARNING, this call will fail if output is of type ZMQ_ROUTER.
+int
+    xrap_msg_send_error (void *output,
+        uint16_t status_code,
+        const char *status_text);
+    
+//  Duplicate the xrap_msg message
+xrap_msg_t *
+    xrap_msg_dup (xrap_msg_t *self);
+
+//  Print contents of message to stdout
+void
+    xrap_msg_print (xrap_msg_t *self);
+
+//  Get/set the message routing id
+zframe_t *
+    xrap_msg_routing_id (xrap_msg_t *self);
+void
+    xrap_msg_set_routing_id (xrap_msg_t *self, zframe_t *routing_id);
+
+//  Get the xrap_msg id and printable command
+int
+    xrap_msg_id (xrap_msg_t *self);
+void
+    xrap_msg_set_id (xrap_msg_t *self, int id);
+const char *
+    xrap_msg_command (xrap_msg_t *self);
+
+//  Get/set the parent field
+const char *
+    xrap_msg_parent (xrap_msg_t *self);
+void
+    xrap_msg_set_parent (xrap_msg_t *self, const char *format, ...);
+
+//  Get/set the content_type field
+const char *
+    xrap_msg_content_type (xrap_msg_t *self);
+void
+    xrap_msg_set_content_type (xrap_msg_t *self, const char *format, ...);
+
+//  Get/set the content_body field
+const char *
+    xrap_msg_content_body (xrap_msg_t *self);
+void
+    xrap_msg_set_content_body (xrap_msg_t *self, const char *format, ...);
+
+//  Get/set the status_code field
+uint16_t
+    xrap_msg_status_code (xrap_msg_t *self);
+void
+    xrap_msg_set_status_code (xrap_msg_t *self, uint16_t status_code);
+
+//  Get/set the location field
+const char *
+    xrap_msg_location (xrap_msg_t *self);
+void
+    xrap_msg_set_location (xrap_msg_t *self, const char *format, ...);
+
+//  Get/set the etag field
+const char *
+    xrap_msg_etag (xrap_msg_t *self);
+void
+    xrap_msg_set_etag (xrap_msg_t *self, const char *format, ...);
+
+//  Get/set the date_modified field
+uint64_t
+    xrap_msg_date_modified (xrap_msg_t *self);
+void
+    xrap_msg_set_date_modified (xrap_msg_t *self, uint64_t date_modified);
+
+//  Get/set the resource field
+const char *
+    xrap_msg_resource (xrap_msg_t *self);
+void
+    xrap_msg_set_resource (xrap_msg_t *self, const char *format, ...);
+
+//  Get/set the parameters field
+zhash_t *
+    xrap_msg_parameters (xrap_msg_t *self);
+//  Get the parameters field and transfer ownership to caller
+zhash_t *
+    xrap_msg_get_parameters (xrap_msg_t *self);
+//  Set the parameters field, transferring ownership from caller
+void
+    xrap_msg_set_parameters (xrap_msg_t *self, zhash_t **parameters_p);
+    
+//  Get/set a value in the parameters dictionary
+const char *
+    xrap_msg_parameters_string (xrap_msg_t *self,
+        const char *key, const char *default_value);
+uint64_t
+    xrap_msg_parameters_number (xrap_msg_t *self,
+        const char *key, uint64_t default_value);
+void
+    xrap_msg_parameters_insert (xrap_msg_t *self,
+        const char *key, const char *format, ...);
+size_t
+    xrap_msg_parameters_size (xrap_msg_t *self);
+
+//  Get/set the if_modified_since field
+uint64_t
+    xrap_msg_if_modified_since (xrap_msg_t *self);
+void
+    xrap_msg_set_if_modified_since (xrap_msg_t *self, uint64_t if_modified_since);
+
+//  Get/set the if_none_match field
+const char *
+    xrap_msg_if_none_match (xrap_msg_t *self);
+void
+    xrap_msg_set_if_none_match (xrap_msg_t *self, const char *format, ...);
+
+//  Get/set the metadata field
+zhash_t *
+    xrap_msg_metadata (xrap_msg_t *self);
+//  Get the metadata field and transfer ownership to caller
+zhash_t *
+    xrap_msg_get_metadata (xrap_msg_t *self);
+//  Set the metadata field, transferring ownership from caller
+void
+    xrap_msg_set_metadata (xrap_msg_t *self, zhash_t **metadata_p);
+    
+//  Get/set a value in the metadata dictionary
+const char *
+    xrap_msg_metadata_string (xrap_msg_t *self,
+        const char *key, const char *default_value);
+uint64_t
+    xrap_msg_metadata_number (xrap_msg_t *self,
+        const char *key, uint64_t default_value);
+void
+    xrap_msg_metadata_insert (xrap_msg_t *self,
+        const char *key, const char *format, ...);
+size_t
+    xrap_msg_metadata_size (xrap_msg_t *self);
+
+//  Get/set the if_unmodified_since field
+uint64_t
+    xrap_msg_if_unmodified_since (xrap_msg_t *self);
+void
+    xrap_msg_set_if_unmodified_since (xrap_msg_t *self, uint64_t if_unmodified_since);
+
+//  Get/set the if_match field
+const char *
+    xrap_msg_if_match (xrap_msg_t *self);
+void
+    xrap_msg_set_if_match (xrap_msg_t *self, const char *format, ...);
+
+//  Get/set the status_text field
+const char *
+    xrap_msg_status_text (xrap_msg_t *self);
+void
+    xrap_msg_set_status_text (xrap_msg_t *self, const char *format, ...);
+
+//  Self test of this class
+int
+    xrap_msg_test (bool verbose);
+----
+
+DESCRIPTION
+-----------
+
+xrap_msg - XRAP serialization over ZMTP
+
+Please add @discuss section in ../src/xrap_msg.c.
+
+EXAMPLE
+-------
+.From xrap_msg_test method
+----
+//  Simple create/destroy test
+xrap_msg_t *self = xrap_msg_new (0);
+assert (self);
+xrap_msg_destroy (&self);
+
+//  Create pair of sockets we can send through
+zsock_t *input = zsock_new (ZMQ_ROUTER);
+assert (input);
+zsock_connect (input, "inproc://selftest-xrap_msg");
+
+zsock_t *output = zsock_new (ZMQ_DEALER);
+assert (output);
+zsock_bind (output, "inproc://selftest-xrap_msg");
+
+//  Encode/send/decode and verify each message type
+int instance;
+xrap_msg_t *copy;
+self = xrap_msg_new (XRAP_MSG_POST);
+
+//  Check that _dup works on empty message
+copy = xrap_msg_dup (self);
+assert (copy);
+xrap_msg_destroy (&copy);
+
+xrap_msg_set_parent (self, "Life is short but Now lasts for ever");
+xrap_msg_set_content_type (self, "Life is short but Now lasts for ever");
+xrap_msg_set_content_body (self, "Life is short but Now lasts for ever");
+//  Send twice from same object
+xrap_msg_send_again (self, output);
+xrap_msg_send (&self, output);
+
+for (instance = 0; instance < 2; instance++) {
+    self = xrap_msg_recv (input);
+    assert (self);
+    assert (xrap_msg_routing_id (self));
+    
+    assert (streq (xrap_msg_parent (self), "Life is short but Now lasts for ever"));
+    assert (streq (xrap_msg_content_type (self), "Life is short but Now lasts for ever"));
+    assert (streq (xrap_msg_content_body (self), "Life is short but Now lasts for ever"));
+    xrap_msg_destroy (&self);
+}
+self = xrap_msg_new (XRAP_MSG_POST_OK);
+
+//  Check that _dup works on empty message
+copy = xrap_msg_dup (self);
+assert (copy);
+xrap_msg_destroy (&copy);
+
+xrap_msg_set_status_code (self, 123);
+xrap_msg_set_location (self, "Life is short but Now lasts for ever");
+xrap_msg_set_etag (self, "Life is short but Now lasts for ever");
+xrap_msg_set_date_modified (self, 123);
+xrap_msg_set_content_type (self, "Life is short but Now lasts for ever");
+xrap_msg_set_content_body (self, "Life is short but Now lasts for ever");
+//  Send twice from same object
+xrap_msg_send_again (self, output);
+xrap_msg_send (&self, output);
+
+for (instance = 0; instance < 2; instance++) {
+    self = xrap_msg_recv (input);
+    assert (self);
+    assert (xrap_msg_routing_id (self));
+    
+    assert (xrap_msg_status_code (self) == 123);
+    assert (streq (xrap_msg_location (self), "Life is short but Now lasts for ever"));
+    assert (streq (xrap_msg_etag (self), "Life is short but Now lasts for ever"));
+    assert (xrap_msg_date_modified (self) == 123);
+    assert (streq (xrap_msg_content_type (self), "Life is short but Now lasts for ever"));
+    assert (streq (xrap_msg_content_body (self), "Life is short but Now lasts for ever"));
+    xrap_msg_destroy (&self);
+}
+self = xrap_msg_new (XRAP_MSG_GET);
+
+//  Check that _dup works on empty message
+copy = xrap_msg_dup (self);
+assert (copy);
+xrap_msg_destroy (&copy);
+
+xrap_msg_set_resource (self, "Life is short but Now lasts for ever");
+xrap_msg_parameters_insert (self, "Name", "Brutus");
+xrap_msg_parameters_insert (self, "Age", "%d", 43);
+xrap_msg_set_if_modified_since (self, 123);
+xrap_msg_set_if_none_match (self, "Life is short but Now lasts for ever");
+xrap_msg_set_content_type (self, "Life is short but Now lasts for ever");
+//  Send twice from same object
+xrap_msg_send_again (self, output);
+xrap_msg_send (&self, output);
+
+for (instance = 0; instance < 2; instance++) {
+    self = xrap_msg_recv (input);
+    assert (self);
+    assert (xrap_msg_routing_id (self));
+    
+    assert (streq (xrap_msg_resource (self), "Life is short but Now lasts for ever"));
+    assert (xrap_msg_parameters_size (self) == 2);
+    assert (streq (xrap_msg_parameters_string (self, "Name", "?"), "Brutus"));
+    assert (xrap_msg_parameters_number (self, "Age", 0) == 43);
+    assert (xrap_msg_if_modified_since (self) == 123);
+    assert (streq (xrap_msg_if_none_match (self), "Life is short but Now lasts for ever"));
+    assert (streq (xrap_msg_content_type (self), "Life is short but Now lasts for ever"));
+    xrap_msg_destroy (&self);
+}
+self = xrap_msg_new (XRAP_MSG_GET_OK);
+
+//  Check that _dup works on empty message
+copy = xrap_msg_dup (self);
+assert (copy);
+xrap_msg_destroy (&copy);
+
+xrap_msg_set_status_code (self, 123);
+xrap_msg_set_etag (self, "Life is short but Now lasts for ever");
+xrap_msg_set_content_type (self, "Life is short but Now lasts for ever");
+xrap_msg_set_content_body (self, "Life is short but Now lasts for ever");
+xrap_msg_metadata_insert (self, "Name", "Brutus");
+xrap_msg_metadata_insert (self, "Age", "%d", 43);
+//  Send twice from same object
+xrap_msg_send_again (self, output);
+xrap_msg_send (&self, output);
+
+for (instance = 0; instance < 2; instance++) {
+    self = xrap_msg_recv (input);
+    assert (self);
+    assert (xrap_msg_routing_id (self));
+    
+    assert (xrap_msg_status_code (self) == 123);
+    assert (streq (xrap_msg_etag (self), "Life is short but Now lasts for ever"));
+    assert (streq (xrap_msg_content_type (self), "Life is short but Now lasts for ever"));
+    assert (streq (xrap_msg_content_body (self), "Life is short but Now lasts for ever"));
+    assert (xrap_msg_metadata_size (self) == 2);
+    assert (streq (xrap_msg_metadata_string (self, "Name", "?"), "Brutus"));
+    assert (xrap_msg_metadata_number (self, "Age", 0) == 43);
+    xrap_msg_destroy (&self);
+}
+self = xrap_msg_new (XRAP_MSG_GET_EMPTY);
+
+//  Check that _dup works on empty message
+copy = xrap_msg_dup (self);
+assert (copy);
+xrap_msg_destroy (&copy);
+
+xrap_msg_set_status_code (self, 123);
+//  Send twice from same object
+xrap_msg_send_again (self, output);
+xrap_msg_send (&self, output);
+
+for (instance = 0; instance < 2; instance++) {
+    self = xrap_msg_recv (input);
+    assert (self);
+    assert (xrap_msg_routing_id (self));
+    
+    assert (xrap_msg_status_code (self) == 123);
+    xrap_msg_destroy (&self);
+}
+self = xrap_msg_new (XRAP_MSG_PUT);
+
+//  Check that _dup works on empty message
+copy = xrap_msg_dup (self);
+assert (copy);
+xrap_msg_destroy (&copy);
+
+xrap_msg_set_resource (self, "Life is short but Now lasts for ever");
+xrap_msg_set_if_unmodified_since (self, 123);
+xrap_msg_set_if_match (self, "Life is short but Now lasts for ever");
+xrap_msg_set_content_type (self, "Life is short but Now lasts for ever");
+xrap_msg_set_content_body (self, "Life is short but Now lasts for ever");
+//  Send twice from same object
+xrap_msg_send_again (self, output);
+xrap_msg_send (&self, output);
+
+for (instance = 0; instance < 2; instance++) {
+    self = xrap_msg_recv (input);
+    assert (self);
+    assert (xrap_msg_routing_id (self));
+    
+    assert (streq (xrap_msg_resource (self), "Life is short but Now lasts for ever"));
+    assert (xrap_msg_if_unmodified_since (self) == 123);
+    assert (streq (xrap_msg_if_match (self), "Life is short but Now lasts for ever"));
+    assert (streq (xrap_msg_content_type (self), "Life is short but Now lasts for ever"));
+    assert (streq (xrap_msg_content_body (self), "Life is short but Now lasts for ever"));
+    xrap_msg_destroy (&self);
+}
+self = xrap_msg_new (XRAP_MSG_PUT_OK);
+
+//  Check that _dup works on empty message
+copy = xrap_msg_dup (self);
+assert (copy);
+xrap_msg_destroy (&copy);
+
+xrap_msg_set_status_code (self, 123);
+xrap_msg_set_location (self, "Life is short but Now lasts for ever");
+xrap_msg_set_etag (self, "Life is short but Now lasts for ever");
+xrap_msg_set_date_modified (self, 123);
+//  Send twice from same object
+xrap_msg_send_again (self, output);
+xrap_msg_send (&self, output);
+
+for (instance = 0; instance < 2; instance++) {
+    self = xrap_msg_recv (input);
+    assert (self);
+    assert (xrap_msg_routing_id (self));
+    
+    assert (xrap_msg_status_code (self) == 123);
+    assert (streq (xrap_msg_location (self), "Life is short but Now lasts for ever"));
+    assert (streq (xrap_msg_etag (self), "Life is short but Now lasts for ever"));
+    assert (xrap_msg_date_modified (self) == 123);
+    xrap_msg_destroy (&self);
+}
+self = xrap_msg_new (XRAP_MSG_DELETE);
+
+//  Check that _dup works on empty message
+copy = xrap_msg_dup (self);
+assert (copy);
+xrap_msg_destroy (&copy);
+
+xrap_msg_set_resource (self, "Life is short but Now lasts for ever");
+xrap_msg_set_if_unmodified_since (self, 123);
+xrap_msg_set_if_match (self, "Life is short but Now lasts for ever");
+//  Send twice from same object
+xrap_msg_send_again (self, output);
+xrap_msg_send (&self, output);
+
+for (instance = 0; instance < 2; instance++) {
+    self = xrap_msg_recv (input);
+    assert (self);
+    assert (xrap_msg_routing_id (self));
+    
+    assert (streq (xrap_msg_resource (self), "Life is short but Now lasts for ever"));
+    assert (xrap_msg_if_unmodified_since (self) == 123);
+    assert (streq (xrap_msg_if_match (self), "Life is short but Now lasts for ever"));
+    xrap_msg_destroy (&self);
+}
+self = xrap_msg_new (XRAP_MSG_DELETE_OK);
+
+//  Check that _dup works on empty message
+copy = xrap_msg_dup (self);
+assert (copy);
+xrap_msg_destroy (&copy);
+
+xrap_msg_set_status_code (self, 123);
+//  Send twice from same object
+xrap_msg_send_again (self, output);
+xrap_msg_send (&self, output);
+
+for (instance = 0; instance < 2; instance++) {
+    self = xrap_msg_recv (input);
+    assert (self);
+    assert (xrap_msg_routing_id (self));
+    
+    assert (xrap_msg_status_code (self) == 123);
+    xrap_msg_destroy (&self);
+}
+self = xrap_msg_new (XRAP_MSG_ERROR);
+
+//  Check that _dup works on empty message
+copy = xrap_msg_dup (self);
+assert (copy);
+xrap_msg_destroy (&copy);
+
+xrap_msg_set_status_code (self, 123);
+xrap_msg_set_status_text (self, "Life is short but Now lasts for ever");
+//  Send twice from same object
+xrap_msg_send_again (self, output);
+xrap_msg_send (&self, output);
+
+for (instance = 0; instance < 2; instance++) {
+    self = xrap_msg_recv (input);
+    assert (self);
+    assert (xrap_msg_routing_id (self));
+    
+    assert (xrap_msg_status_code (self) == 123);
+    assert (streq (xrap_msg_status_text (self), "Life is short but Now lasts for ever"));
+    xrap_msg_destroy (&self);
+}
+
+zsock_destroy (&input);
+zsock_destroy (&output);
+----
