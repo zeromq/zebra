@@ -75,6 +75,8 @@ struct _zwr_microhttpd_t {
     int port;
     //  Rate Limiting
     zhashx_t *ratelimit_clients; //  Holds ratelimit for all clients
+    size_t ratelimit_limit;      //  Default value for ratelimit
+    size_t ratelimit_interval;   //  Default value for ratelimit interval
 };
 
 
@@ -119,9 +121,11 @@ zwr_microhttpd_new (zsock_t *pipe, void *args)
     gettimeofday(self->start_time, 0);
     self->daemon = NULL;
     self->port = 8888;      //  Set 8888 to be the default port
+    self->ratelimit_limit = X_RATELIMIT_LIMIT;
+    self->ratelimit_interval = X_RATELIMIT_INTERVAL;
 
     self->reactor = zloop_new ();
-    zloop_set_ticket_delay (self->reactor, X_RATELIMIT_INTERVAL);
+    zloop_set_ticket_delay (self->reactor, self->ratelimit_interval);
     zloop_timer (self->reactor, 1000, 0, s_timer_dummy, NULL);
     self->ratelimit_clients = zhashx_new ();
     zhashx_set_destructor (self->ratelimit_clients, s_destroy_ratelimit);
@@ -167,6 +171,7 @@ zwr_microhttpd_destroy (zwr_microhttpd_t **self_p)
 static int
 zwr_microhttpd_reset_limit (zloop_t *loop, int timer_id, void *arg)
 {
+    printf ("reset\n");
     assert (loop);
     zwr_ratelimit_t *ratelimit = (zwr_ratelimit_t *) arg;
     assert (ratelimit);
@@ -182,9 +187,9 @@ zwr_microhttpd_ratelimit_new (zwr_microhttpd_t *self, char *id)
 {
     assert (self);
     zwr_ratelimit_t *ratelimit = (zwr_ratelimit_t *) zmalloc (sizeof (zwr_ratelimit_t));
-    ratelimit->limit = X_RATELIMIT_LIMIT;
+    ratelimit->limit = self->ratelimit_limit;
     ratelimit->remaining = ratelimit->limit;
-    ratelimit->interval = X_RATELIMIT_INTERVAL;
+    ratelimit->interval = self->ratelimit_interval;
     ratelimit->reset = (zclock_time () + ratelimit->interval) / 1000;
     ratelimit->ticket = zloop_ticket (self->reactor, zwr_microhttpd_reset_limit, ratelimit);
     zhashx_insert (self->ratelimit_clients, id, ratelimit);
@@ -570,6 +575,21 @@ s_configure_port (zwr_microhttpd_t *self, zmsg_t *request)
 }
 
 
+static int
+s_configure_ratelimit (zwr_microhttpd_t *self, zmsg_t *request)
+{
+    char *limit_str = zmsg_popstr (request);
+    char *interval_str = zmsg_popstr (request);
+    assert (limit_str);
+    sscanf (limit_str, "%zu", &self->ratelimit_limit);
+    assert (interval_str);
+    sscanf (interval_str, "%zu", &self->ratelimit_interval);
+    zloop_set_ticket_delay (self->reactor, self->ratelimit_interval);
+    zstr_free (&limit_str);
+    zstr_free (&interval_str);
+    return 0;
+}
+
 //  Here we handle incomming message from the node
 
 static int
@@ -594,6 +614,9 @@ zwr_microhttpd_recv_api (zloop_t *loop, zsock_t *pipe, void *arg)
     else
     if (streq (command, "PORT"))
         zsock_signal (self->pipe, s_configure_port (self, request));
+    else
+    if (streq (command, "RATELIMIT"))
+        zsock_signal (self->pipe, s_configure_ratelimit (self, request));
     else
     if (streq (command, "VERBOSE")) {
         self->verbose = true;
@@ -659,6 +682,10 @@ zwr_microhttpd_test (bool verbose)
     assert (rc == 0);
 
     zstr_sendx (zwr_microhttpd, "PORT", "8081", NULL);
+    rc = zsock_wait (zwr_microhttpd);             //  Wait until port is configured
+    assert (rc == 0);
+
+    zstr_sendx (zwr_microhttpd, "RATELIMIT", "3", "10000", NULL);
     rc = zsock_wait (zwr_microhttpd);             //  Wait until port is configured
     assert (rc == 0);
 

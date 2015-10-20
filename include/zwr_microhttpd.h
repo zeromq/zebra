@@ -27,8 +27,8 @@ typedef struct _zwr_microhttpd_t zwr_microhttpd_t;
 #endif
 
 //  @interface
-//  Create new zwr_microhttpd actor instance.
-//  @TODO: Describe the purpose of this actor!
+//  Create new zwr_microhttpd actor instance. It will start a HTTP webserver
+//  and convert incomming request from HTTP to XRAP.
 //
 //      zactor_t *microhttpd = zactor_new (zwr_microhttpd, NULL);
 //
@@ -64,6 +64,14 @@ typedef struct _zwr_microhttpd_t zwr_microhttpd_t;
 //
 //      zstr_sendx (microhttpd, "PORT", "8888", NULL);
 //      zsock_wait (microhttpd);
+//
+//  Set the ratelimit for HTTP request per user agent. The default limit is 10
+//  and the default reset interval is 60000ms.
+//  Note: Both limit and reset interval are passed as string!
+//  Note: If the server is already started, the behavior is undefined!
+//
+//       zstr_sendx (microhttpd, "RATELIMIT", "100", "3600000", NULL);
+//       zsock_wait (microhttpd);
 //
 //  This is the zwr_microhttpd constructor as a zactor_fn;
 ZWEBRAP_EXPORT void
