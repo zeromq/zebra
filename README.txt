@@ -1,21 +1,73 @@
 .set GIT=https://github.com/zeromq/zwebrap
 .sub 0MQ=ØMQ
 
-# zwebrap - REST to XRAP gateway.
+# zwebrap - REST/HTTP to XRAP gateway.
 
 ## Contents
 
-.toc 2
+.toc 3
 
 ## Overview
 
-zwebrap is a REST to XRAP gateway.
+zwebrap is a REST/HTTP to XRAP gateway.
 
-## Scope and Goals
+### Scope and Goals
 
-## Requirements
+zwebrap is designed to take HTTP request for the common HTTP methods GET, POST, PUT and DELETE. It will convert these HTTP request into the XRAP format and pass it on to the request handlers which compose a response in the XRAP format which will be converted back into HTTP.
 
-## Installation
+[diagram]
+                   HTTP
+                    ^
+                    | GET, POST,
+                    | PUT, DELETE
+                    v
+  Converts   +----------------+
+  HTTP to    | zwr_microhttpd |
+  XRAP.      |  (webserver)   |
+             +----------------+
+                    ^
+                    |
+                    v
+             +--------------+  Dispatches xrap msg
+             |  zwr_server  |  to thehandlers, based
+             | (dispatcher) |  on their offerings
+             +--------------+
+                 ^      ^
+                 |      |
+           +-----+      +-----+
+           |                  |
+           v                  v
+  +----------------+  +----------------+
+  | XRAP Handler 1 |  | XRAP Handler 2 |
+  |  (zwr_client)  |  |  (zwr_client)  |
+  +----------------+  +----------------+
+
+          Handler registers URL
+          and method at dispatcher.
+[/diagram]
+
+### Requirements
+
+* libmicrohttpd (>= 0.9.40)
+* libzmq (>= 4.1)
+* czmq (>= 3.0.3)
+
+### Installation
+
+```sh
+autogen.sh
+configure
+make && make check
+make install
+```
+
+### Usage
+
+This is the API provided by zwebrap v0.x, in alphabetical order.
+
+.pull doc/zwr_microhttpd.doc
+.pull doc/zwr_server.doc
+.pull doc/zwr_client.doc
 
 ## Ownership and License
 
