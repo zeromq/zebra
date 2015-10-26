@@ -69,9 +69,10 @@ struct _zwr_microhttpd_t {
     bool terminated;            //  Did caller ask us to quit?
     bool verbose;               //  Verbose logging enabled?
     //  Declare properties
+    zconfig_t *config;          //  Configuration tree
     struct timeval *start_time;
     struct MHD_Daemon *daemon;
-    char *endpoints;             //  Address of dispatching endpoint
+    char *endpoints;            //  Address of dispatching endpoint
     int port;
     //  Rate Limiting
     zhashx_t *ratelimit_clients; //  Holds ratelimit for all clients
@@ -590,6 +591,40 @@ s_configure_ratelimit (zwr_microhttpd_t *self, zmsg_t *request)
     return 0;
 }
 
+static int
+s_server_config_service (zwr_microhttpd_t *self)
+{
+    //  Apply echo commands and class methods
+    zconfig_t *section = zconfig_locate (self->config, "zwr_microhttpd");
+    if (section)
+        section = zconfig_child (section);
+
+    while (section) {
+        if (streq (zconfig_name (section), "echo"))
+            zsys_notice ("%s", zconfig_value (section));
+        else
+        if (streq (zconfig_name (section), "endpoint"))
+            self->endpoints = strdup (zconfig_value (section));
+        else
+        if (streq (zconfig_name (section), "port"))
+            self->port = atoi (zconfig_value (section));
+        else
+        //  If we didn't already set verbose, check if the config tree wants it
+        if (streq (zconfig_name (section), "verbose") && atoi (zconfig_value (section)))
+            self->verbose = true;
+        else
+        if (streq (zconfig_name (section), "ratelimit")) {
+            self->ratelimit_limit = atoi (
+                zconfig_get (section, "limit", "100"));
+            self->ratelimit_interval = atoi (
+                zconfig_get (section, "interval", "3600000"));
+            zloop_set_ticket_delay (self->reactor, self->ratelimit_interval);
+        }
+        section = zconfig_next (section);
+    }
+    return 0;
+}
+
 //  Here we handle incomming message from the node
 
 static int
@@ -621,6 +656,20 @@ zwr_microhttpd_recv_api (zloop_t *loop, zsock_t *pipe, void *arg)
     if (streq (command, "VERBOSE")) {
         self->verbose = true;
         zsock_signal (self->pipe, 0);
+    }
+    else
+    if (streq (command, "LOAD")) {
+        char *filename = zmsg_popstr (request);
+        zconfig_destroy (&self->config);
+        self->config = zconfig_load (filename);
+        if (self->config) {
+            zsock_signal (self->pipe, s_server_config_service (self));
+        }
+        else {
+            zsys_warning ("cannot load config file '%s'", filename);
+            self->config = zconfig_new ("root", NULL);
+        }
+        free (filename);
     }
     else
     if (streq (command, "$TERM")) {
