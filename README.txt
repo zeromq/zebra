@@ -29,7 +29,7 @@ zwebrap is designed to take HTTP request for the common HTTP methods GET, POST, 
                     |
                     v
              +--------------+  Dispatches xrap msg
-             |  zwr_server  |  to thehandlers, based
+             |  zwr_server  |  to the handlers, based
              | (dispatcher) |  on their offerings
              +--------------+
                  ^      ^
@@ -38,12 +38,9 @@ zwebrap is designed to take HTTP request for the common HTTP methods GET, POST, 
            |                  |
            v                  v
   +----------------+  +----------------+
-  | XRAP Handler 1 |  | XRAP Handler 2 |
-  |  (zwr_client)  |  |  (zwr_client)  |
-  +----------------+  +----------------+
-
-          Handler registers URL
-          and method at dispatcher.
+  | XRAP Handler 1 |  | XRAP Handler 2 |  Offer at least one
+  |  (zwr_client)  |  |  (zwr_client)  |  service for at least
+  +----------------+  +----------------+  one HTTP method.
 [/diagram]
 
 ### Requirements

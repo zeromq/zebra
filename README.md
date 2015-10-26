@@ -10,20 +10,20 @@
 
 **<a href="#toc3-16">Scope and Goals</a>**
 
-**<a href="#toc3-52">Requirements</a>**
+**<a href="#toc3-49">Requirements</a>**
 
-**<a href="#toc3-59">Installation</a>**
+**<a href="#toc3-56">Installation</a>**
 
-**<a href="#toc3-69">Usage</a>**
-&emsp;<a href="#toc4-74">zwr_microhttpd - HTTP web server backend using libmicrohttpd.</a>
-&emsp;<a href="#toc4-242">zwr_server - no title found</a>
-&emsp;<a href="#toc4-415">zwr_client - ZWebRap Client</a>
+**<a href="#toc3-66">Usage</a>**
+&emsp;<a href="#toc4-71">zwr_microhttpd - HTTP web server backend using libmicrohttpd.</a>
+&emsp;<a href="#toc4-239">zwr_server - no title found</a>
+&emsp;<a href="#toc4-412">zwr_client - ZWebRap Client</a>
 
-**<a href="#toc2-592">Ownership and License</a>**
+**<a href="#toc2-589">Ownership and License</a>**
 
-**<a href="#toc3-601">Hints to Contributors</a>**
+**<a href="#toc3-598">Hints to Contributors</a>**
 
-**<a href="#toc3-608">This Document</a>**
+**<a href="#toc3-605">This Document</a>**
 
 <A name="toc2-11" title="Overview" />
 ## Overview
@@ -39,14 +39,14 @@ zwebrap is designed to take HTTP request for the common HTTP methods GET, POST, 
 <img src="https://github.com/zeromq/zwebrap/raw/master/images/README_1.png" alt="1">
 </center>
 
-<A name="toc3-52" title="Requirements" />
+<A name="toc3-49" title="Requirements" />
 ### Requirements
 
 * libmicrohttpd (>= 0.9.40)
 * libzmq (>= 4.1)
 * czmq (>= 3.0.3)
 
-<A name="toc3-59" title="Installation" />
+<A name="toc3-56" title="Installation" />
 ### Installation
 
 ```sh
@@ -56,12 +56,12 @@ make && make check
 make install
 ```
 
-<A name="toc3-69" title="Usage" />
+<A name="toc3-66" title="Usage" />
 ### Usage
 
 This is the API provided by zwebrap v0.x, in alphabetical order.
 
-<A name="toc4-74" title="zwr_microhttpd - HTTP web server backend using libmicrohttpd." />
+<A name="toc4-71" title="zwr_microhttpd - HTTP web server backend using libmicrohttpd." />
 #### zwr_microhttpd - HTTP web server backend using libmicrohttpd.
 
 zwr_microhttpdd - HTTP web server backend using libmicrohttpd.
@@ -229,7 +229,7 @@ This is the class self test code:
     
     zactor_destroy (&zwr_microhttpd);
 
-<A name="toc4-242" title="zwr_server - no title found" />
+<A name="toc4-239" title="zwr_server - no title found" />
 #### zwr_server - no title found
 
 zwr_server -
@@ -402,7 +402,7 @@ This is the class self test code:
     zsock_destroy (&worker);
     zactor_destroy (&server);
 
-<A name="toc4-415" title="zwr_client - ZWebRap Client" />
+<A name="toc4-412" title="zwr_client - ZWebRap Client" />
 #### zwr_client - ZWebRap Client
 
 Description of class for man page.
@@ -579,7 +579,7 @@ This is the class self test code:
     zactor_destroy (&server);
 
 
-<A name="toc2-592" title="Ownership and License" />
+<A name="toc2-589" title="Ownership and License" />
 ## Ownership and License
 
 The contributors are listed in AUTHORS. This project uses the MPL v2 license, see LICENSE.
@@ -588,14 +588,14 @@ zwebrap uses the [C4.1 (Collective Code Construction Contract)](http://rfc.zerom
 
 To report an issue, use the [zwebrap issue tracker](https://github.com/zeromq/zproject/issues) at github.com.
 
-<A name="toc3-601" title="Hints to Contributors" />
+<A name="toc3-598" title="Hints to Contributors" />
 ### Hints to Contributors
 
 Do read your code after you write it and ask, "Can I make this simpler?" We do use a nice minimalist and yet readable style. Learn it, adopt it, use it.
 
 Before opening a pull request read our [contribution guidelines](https://github.com/zeromq/zwebrap/blob/master/CONTRIBUTING.md). Thanks!
 
-<A name="toc3-608" title="This Document" />
+<A name="toc3-605" title="This Document" />
 ### This Document
 
 This document is originally at README.txt and is built using [gitdown](http://github.com/imatix/gitdown).
