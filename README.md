@@ -12,18 +12,23 @@
 
 **<a href="#toc3-49">Requirements</a>**
 
-**<a href="#toc3-56">Installation</a>**
+**<a href="#toc3-57">Installation</a>**
 
-**<a href="#toc3-66">Usage</a>**
-&emsp;<a href="#toc4-71">zwr_microhttpd - HTTP web server backend using libmicrohttpd.</a>
-&emsp;<a href="#toc4-266">zwr_server - no title found</a>
-&emsp;<a href="#toc4-454">zwr_client - ZWebRap Client</a>
+**<a href="#toc3-67">User information</a>**
+&emsp;<a href="#toc4-70">User Agent Required</a>
+&emsp;<a href="#toc4-75">Rate Limiting</a>
+&emsp;<a href="#toc4-92">Conditional requests</a>
 
-**<a href="#toc2-631">Ownership and License</a>**
+**<a href="#toc3-97">Usage</a>**
+&emsp;<a href="#toc4-102">zwr_microhttpd - HTTP web server backend using libmicrohttpd.</a>
+&emsp;<a href="#toc4-297">zwr_server - no title found</a>
+&emsp;<a href="#toc4-485">zwr_client - ZWebRap Client</a>
 
-**<a href="#toc3-640">Hints to Contributors</a>**
+**<a href="#toc2-662">Ownership and License</a>**
 
-**<a href="#toc3-647">This Document</a>**
+**<a href="#toc3-671">Hints to Contributors</a>**
+
+**<a href="#toc3-678">This Document</a>**
 
 <A name="toc2-11" title="Overview" />
 ## Overview
@@ -33,7 +38,7 @@ zwebrap is a REST/HTTP to XRAP gateway.
 <A name="toc3-16" title="Scope and Goals" />
 ### Scope and Goals
 
-zwebrap is designed to take HTTP request for the common HTTP methods GET, POST, PUT and DELETE. It will convert these HTTP request into the XRAP format and pass it on to the request handlers which compose a response in the XRAP format which will be converted back into HTTP.
+zwebrap is designed to take HTTP request for the common HTTP methods GET, POST, PUT and DELETE and convert them into the XRAP format. The converted messages will be passed to the request handlers which compose a response in the XRAP format which will be converted back into HTTP. To allow handler to come and go a they please, they need to register at a dispatcher which will forward XRAP messages both ways.
 
 <center>
 <img src="https://github.com/zeromq/zwebrap/raw/master/images/README_1.png" alt="1">
@@ -45,8 +50,9 @@ zwebrap is designed to take HTTP request for the common HTTP methods GET, POST, 
 * libmicrohttpd (>= 0.9.40)
 * libzmq (>= 4.1)
 * czmq (>= 3.0.3)
+* libcurl [optional, to run HTTP tests]
 
-<A name="toc3-56" title="Installation" />
+<A name="toc3-57" title="Installation" />
 ### Installation
 
 ```sh
@@ -56,12 +62,42 @@ make && make check
 make install
 ```
 
-<A name="toc3-66" title="Usage" />
+<A name="toc3-67" title="User information" />
+### User information
+
+<A name="toc4-70" title="User Agent Required" />
+#### User Agent Required
+
+All HTTP requests MUST include a valid User-Agent header. Requests with no User-Agent header will be rejected. A good User-Agent header value is the name of your application.
+
+<A name="toc4-75" title="Rate Limiting" />
+#### Rate Limiting
+
+To allow to compensate hardware limitations or to mitigate DOS attacks zwebrap has a built in rate limiting which allows to limit the number of request within an time interval.
+
+You can check the returned HTTP headers of any HTTP request to see your current rate limit status:
+
+```
+HTTP/1.1 200 OK
+Status: 200 OK
+X-RateLimit-Limit: 10
+X-RateLimit-Remaining: 5
+X-RateLimit-Reset: 22
+```
+
+Once you go over the rate limit you will receive an 403 Forbidden error.
+
+<A name="toc4-92" title="Conditional requests" />
+#### Conditional requests
+
+XRAP allows responses to return an ETag header as well as a Last-Modified header. You can use the values of these headers to make subsequent requests to those resources using the If-None-Match and If-Modified-Since headers, respectively. If the resource has not changed, the handler might return a 304 Not Modified. Also note: making a conditional request and receiving a 304 response does not count against the Rate Limit which zwebrap takes automatically care of.
+
+<A name="toc3-97" title="Usage" />
 ### Usage
 
 This is the API provided by zwebrap v0.x, in alphabetical order.
 
-<A name="toc4-71" title="zwr_microhttpd - HTTP web server backend using libmicrohttpd." />
+<A name="toc4-102" title="zwr_microhttpd - HTTP web server backend using libmicrohttpd." />
 #### zwr_microhttpd - HTTP web server backend using libmicrohttpd.
 
 zwr_microhttpdd - HTTP web server backend using libmicrohttpd.
@@ -256,7 +292,7 @@ This is the class self test code:
     
     zactor_destroy (&zwr_microhttpd);
 
-<A name="toc4-266" title="zwr_server - no title found" />
+<A name="toc4-297" title="zwr_server - no title found" />
 #### zwr_server - no title found
 
 zwr_server -
@@ -444,7 +480,7 @@ This is the class self test code:
     zsock_destroy (&worker);
     zactor_destroy (&server);
 
-<A name="toc4-454" title="zwr_client - ZWebRap Client" />
+<A name="toc4-485" title="zwr_client - ZWebRap Client" />
 #### zwr_client - ZWebRap Client
 
 Description of class for man page.
@@ -621,7 +657,7 @@ This is the class self test code:
     zactor_destroy (&server);
 
 
-<A name="toc2-631" title="Ownership and License" />
+<A name="toc2-662" title="Ownership and License" />
 ## Ownership and License
 
 The contributors are listed in AUTHORS. This project uses the MPL v2 license, see LICENSE.
@@ -630,14 +666,14 @@ zwebrap uses the [C4.1 (Collective Code Construction Contract)](http://rfc.zerom
 
 To report an issue, use the [zwebrap issue tracker](https://github.com/zeromq/zproject/issues) at github.com.
 
-<A name="toc3-640" title="Hints to Contributors" />
+<A name="toc3-671" title="Hints to Contributors" />
 ### Hints to Contributors
 
 Do read your code after you write it and ask, "Can I make this simpler?" We do use a nice minimalist and yet readable style. Learn it, adopt it, use it.
 
 Before opening a pull request read our [contribution guidelines](https://github.com/zeromq/zwebrap/blob/master/CONTRIBUTING.md). Thanks!
 
-<A name="toc3-647" title="This Document" />
+<A name="toc3-678" title="This Document" />
 ### This Document
 
 This document is originally at README.txt and is built using [gitdown](http://github.com/imatix/gitdown).

@@ -13,7 +13,7 @@ zwebrap is a REST/HTTP to XRAP gateway.
 
 ### Scope and Goals
 
-zwebrap is designed to take HTTP request for the common HTTP methods GET, POST, PUT and DELETE. It will convert these HTTP request into the XRAP format and pass it on to the request handlers which compose a response in the XRAP format which will be converted back into HTTP.
+zwebrap is designed to take HTTP request for the common HTTP methods GET, POST, PUT and DELETE and convert them into the XRAP format. The converted messages will be passed to the request handlers which compose a response in the XRAP format which will be converted back into HTTP. To allow handler to come and go a they please, they need to register at a dispatcher which will forward XRAP messages both ways.
 
 [diagram]
                    HTTP
@@ -58,6 +58,32 @@ configure
 make && make check
 make install
 ```
+
+### User information
+
+#### User Agent Required
+
+All HTTP requests MUST include a valid User-Agent header. Requests with no User-Agent header will be rejected. A good User-Agent header value is the name of your application.
+
+#### Rate Limiting
+
+To allow to compensate hardware limitations or to mitigate DOS attacks zwebrap has a built in rate limiting which allows to limit the number of request within an time interval.
+
+You can check the returned HTTP headers of any HTTP request to see your current rate limit status:
+
+```
+HTTP/1.1 200 OK
+Status: 200 OK
+X-RateLimit-Limit: 10
+X-RateLimit-Remaining: 5
+X-RateLimit-Reset: 22
+```
+
+Once you go over the rate limit you will receive an 403 Forbidden error.
+
+#### Conditional requests
+
+XRAP allows responses to return an ETag header as well as a Last-Modified header. You can use the values of these headers to make subsequent requests to those resources using the If-None-Match and If-Modified-Since headers, respectively. If the resource has not changed, the handler might return a 304 Not Modified. Also note: making a conditional request and receiving a 304 response does not count against the Rate Limit which zwebrap takes automatically care of.
 
 ### Usage
 
