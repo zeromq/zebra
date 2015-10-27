@@ -48,6 +48,7 @@ zwebrap is designed to take HTTP request for the common HTTP methods GET, POST, 
 * libmicrohttpd (>= 0.9.40)
 * libzmq (>= 4.1)
 * czmq (>= 3.0.3)
+* libcurl [optional, to run HTTP tests]
 
 ### Installation
 
