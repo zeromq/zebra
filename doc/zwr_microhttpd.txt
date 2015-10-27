@@ -8,8 +8,8 @@ zwr_microhttpd - HTTP web server backend using libmicrohttpd.
 SYNOPSIS
 --------
 ----
-//  Create new zwr_microhttpd actor instance.
-//  @TODO: Describe the purpose of this actor!
+//  Create new zwr_microhttpd actor instance. It will start a HTTP webserver
+//  and convert incomming request from HTTP to XRAP.
 //
 //      zactor_t *microhttpd = zactor_new (zwr_microhttpd, NULL);
 //
@@ -46,6 +46,29 @@ SYNOPSIS
 //      zstr_sendx (microhttpd, "PORT", "8888", NULL);
 //      zsock_wait (microhttpd);
 //
+//  Set the ratelimit for HTTP request per user agent. The default limit is 10
+//  and the default reset interval is 60000ms.
+//  Note: Both limit and reset interval are passed as string!
+//  Note: If the server is already started, the behavior is undefined!
+//
+//       zstr_sendx (microhttpd, "RATELIMIT", "100", "3600000", NULL);
+//       zsock_wait (microhttpd);
+//
+//  All settings can be configured by using a configuration file in the czmq
+//  cfg format.
+//
+//  ------------------------ zwr_microhttpd.cfg -------------------------------
+//  | 1 | zwr_microhttpd
+//  | 2 |     endpoint = tcp://192.168.178.1:7777  # Dispatcher endpoint
+//  | 3 |     port = 8888                          # Webserver port
+//  | 4 |     verbose = 0
+//  | 5 |     ratelimit
+//  | 6 |        limit = 999
+//  | 7 |        interval = 3600000
+//  ---------------------------------------------------------------------------
+//
+//       zstr_sendx (microhttpd, "LOAD", filename, NULL);
+//
 //  This is the zwr_microhttpd constructor as a zactor_fn;
 ZWEBRAP_EXPORT void
     zwr_microhttpd_actor (zsock_t *pipe, void *args);
@@ -74,6 +97,10 @@ rc = zsock_wait (zwr_microhttpd);             //  Wait until actor started
 assert (rc == 0);
 
 zstr_sendx (zwr_microhttpd, "PORT", "8081", NULL);
+rc = zsock_wait (zwr_microhttpd);             //  Wait until port is configured
+assert (rc == 0);
+
+zstr_sendx (zwr_microhttpd, "RATELIMIT", "3", "10000", NULL);
 rc = zsock_wait (zwr_microhttpd);             //  Wait until port is configured
 assert (rc == 0);
 

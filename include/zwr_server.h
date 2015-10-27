@@ -10,13 +10,13 @@
      * The XML model used for this code generation: zwr_server.xml, or
      * The code generation script that built this file: zproto_server_c
     ************************************************************************
-    Copyright (c) the Contributors as noted in the AUTHORS file.       
-    This file is part of CZMQ, the high-level C binding for 0MQ:       
-    http://czmq.zeromq.org.                                            
-                                                                       
+    Copyright (c) the Contributors as noted in the AUTHORS file.
+    This file is part of CZMQ, the high-level C binding for 0MQ:
+    http://czmq.zeromq.org.
+
     This Source Code Form is subject to the terms of the Mozilla Public
     License, v. 2.0. If a copy of the MPL was not distributed with this
-    file, You can obtain one at http://mozilla.org/MPL/2.0/.           
+    file, You can obtain one at http://mozilla.org/MPL/2.0/.
     =========================================================================
 */
 
@@ -59,6 +59,21 @@ extern "C" {
 //
 //  Specify configuration file to load, overwriting any previous loaded
 //  configuration file or options:
+//
+//  -------------------------- zwr_server.cfg ---------------------------------
+//  | 1  | #   Apply to the whole broker
+//  | 2  | server
+//  | 3  |     timeout = 10000     #   Client connection timeout, msec
+//  | 4  |     background = 0      #   Run as background process
+//  | 5  |     workdir = .         #   Working directory for daemon
+//  | 6  |      verbose = 0         #   Do verbose logging of activity?
+//  | 7  |
+//  | 8  | #   Apply to the ZWebRap service
+//  | 9  | #   Note security settings must come before binds
+//  | 10 | zwr_server
+//  | 11 |     bind
+//  | 12 |         endpoint = tcp://127.0.0.1:9999
+//  ---------------------------------------------------------------------------
 //
 //      zstr_sendx (zwr_server, "LOAD", filename, NULL);
 //

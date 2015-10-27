@@ -16,14 +16,14 @@
 
 **<a href="#toc3-66">Usage</a>**
 &emsp;<a href="#toc4-71">zwr_microhttpd - HTTP web server backend using libmicrohttpd.</a>
-&emsp;<a href="#toc4-239">zwr_server - no title found</a>
-&emsp;<a href="#toc4-412">zwr_client - ZWebRap Client</a>
+&emsp;<a href="#toc4-266">zwr_server - no title found</a>
+&emsp;<a href="#toc4-454">zwr_client - ZWebRap Client</a>
 
-**<a href="#toc2-589">Ownership and License</a>**
+**<a href="#toc2-631">Ownership and License</a>**
 
-**<a href="#toc3-598">Hints to Contributors</a>**
+**<a href="#toc3-640">Hints to Contributors</a>**
 
-**<a href="#toc3-605">This Document</a>**
+**<a href="#toc3-647">This Document</a>**
 
 <A name="toc2-11" title="Overview" />
 ## Overview
@@ -70,8 +70,8 @@ Please add @discuss section in ../src/zwr_microhttpd.c.
 
 This is the class interface:
 
-    //  Create new zwr_microhttpd actor instance.
-    //  @TODO: Describe the purpose of this actor!
+    //  Create new zwr_microhttpd actor instance. It will start a HTTP webserver
+    //  and convert incomming request from HTTP to XRAP.
     //
     //      zactor_t *microhttpd = zactor_new (zwr_microhttpd, NULL);
     //
@@ -108,6 +108,29 @@ This is the class interface:
     //      zstr_sendx (microhttpd, "PORT", "8888", NULL);
     //      zsock_wait (microhttpd);
     //
+    //  Set the ratelimit for HTTP request per user agent. The default limit is 10
+    //  and the default reset interval is 60000ms.
+    //  Note: Both limit and reset interval are passed as string!
+    //  Note: If the server is already started, the behavior is undefined!
+    //
+    //       zstr_sendx (microhttpd, "RATELIMIT", "100", "3600000", NULL);
+    //       zsock_wait (microhttpd);
+    //
+    //  All settings can be configured by using a configuration file in the czmq
+    //  cfg format.
+    //
+    //  ------------------------ zwr_microhttpd.cfg -------------------------------
+    //  | 1 | zwr_microhttpd
+    //  | 2 |     endpoint = tcp://192.168.178.1:7777  # Dispatcher endpoint
+    //  | 3 |     port = 8888                          # Webserver port
+    //  | 4 |     verbose = 0
+    //  | 5 |     ratelimit
+    //  | 6 |        limit = 999
+    //  | 7 |        interval = 3600000
+    //  ---------------------------------------------------------------------------
+    //
+    //       zstr_sendx (microhttpd, "LOAD", filename, NULL);
+    //
     //  This is the zwr_microhttpd constructor as a zactor_fn;
     ZWEBRAP_EXPORT void
         zwr_microhttpd_actor (zsock_t *pipe, void *args);
@@ -126,6 +149,10 @@ This is the class self test code:
     assert (rc == 0);
     
     zstr_sendx (zwr_microhttpd, "PORT", "8081", NULL);
+    rc = zsock_wait (zwr_microhttpd);             //  Wait until port is configured
+    assert (rc == 0);
+    
+    zstr_sendx (zwr_microhttpd, "RATELIMIT", "3", "10000", NULL);
     rc = zsock_wait (zwr_microhttpd);             //  Wait until port is configured
     assert (rc == 0);
     
@@ -229,7 +256,7 @@ This is the class self test code:
     
     zactor_destroy (&zwr_microhttpd);
 
-<A name="toc4-239" title="zwr_server - no title found" />
+<A name="toc4-266" title="zwr_server - no title found" />
 #### zwr_server - no title found
 
 zwr_server -
@@ -267,6 +294,21 @@ This is the class interface:
     //
     //  Specify configuration file to load, overwriting any previous loaded
     //  configuration file or options:
+    //
+    //  -------------------------- zwr_server.cfg ---------------------------------
+    //  | 1  | #   Apply to the whole broker
+    //  | 2  | server
+    //  | 3  |     timeout = 10000     #   Client connection timeout, msec
+    //  | 4  |     background = 0      #   Run as background process
+    //  | 5  |     workdir = .         #   Working directory for daemon
+    //  | 6  |      verbose = 0         #   Do verbose logging of activity?
+    //  | 7  |
+    //  | 8  | #   Apply to the ZWebRap service
+    //  | 9  | #   Note security settings must come before binds
+    //  | 10 | zwr_server
+    //  | 11 |     bind
+    //  | 12 |         endpoint = tcp://127.0.0.1:9999
+    //  ---------------------------------------------------------------------------
     //
     //      zstr_sendx (zwr_server, "LOAD", filename, NULL);
     //
@@ -402,7 +444,7 @@ This is the class self test code:
     zsock_destroy (&worker);
     zactor_destroy (&server);
 
-<A name="toc4-412" title="zwr_client - ZWebRap Client" />
+<A name="toc4-454" title="zwr_client - ZWebRap Client" />
 #### zwr_client - ZWebRap Client
 
 Description of class for man page.
@@ -579,7 +621,7 @@ This is the class self test code:
     zactor_destroy (&server);
 
 
-<A name="toc2-589" title="Ownership and License" />
+<A name="toc2-631" title="Ownership and License" />
 ## Ownership and License
 
 The contributors are listed in AUTHORS. This project uses the MPL v2 license, see LICENSE.
@@ -588,14 +630,14 @@ zwebrap uses the [C4.1 (Collective Code Construction Contract)](http://rfc.zerom
 
 To report an issue, use the [zwebrap issue tracker](https://github.com/zeromq/zproject/issues) at github.com.
 
-<A name="toc3-598" title="Hints to Contributors" />
+<A name="toc3-640" title="Hints to Contributors" />
 ### Hints to Contributors
 
 Do read your code after you write it and ask, "Can I make this simpler?" We do use a nice minimalist and yet readable style. Learn it, adopt it, use it.
 
 Before opening a pull request read our [contribution guidelines](https://github.com/zeromq/zwebrap/blob/master/CONTRIBUTING.md). Thanks!
 
-<A name="toc3-605" title="This Document" />
+<A name="toc3-647" title="This Document" />
 ### This Document
 
 This document is originally at README.txt and is built using [gitdown](http://github.com/imatix/gitdown).

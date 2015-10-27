@@ -36,6 +36,21 @@ This is the class interface:
     //  Specify configuration file to load, overwriting any previous loaded
     //  configuration file or options:
     //
+    //  -------------------------- zwr_server.cfg ---------------------------------
+    //  | 1  | #   Apply to the whole broker
+    //  | 2  | server
+    //  | 3  |     timeout = 10000     #   Client connection timeout, msec
+    //  | 4  |     background = 0      #   Run as background process
+    //  | 5  |     workdir = .         #   Working directory for daemon
+    //  | 6  |      verbose = 0         #   Do verbose logging of activity?
+    //  | 7  |
+    //  | 8  | #   Apply to the ZWebRap service
+    //  | 9  | #   Note security settings must come before binds
+    //  | 10 | zwr_server
+    //  | 11 |     bind
+    //  | 12 |         endpoint = tcp://127.0.0.1:9999
+    //  ---------------------------------------------------------------------------
+    //
     //      zstr_sendx (zwr_server, "LOAD", filename, NULL);
     //
     //  Set configuration path value:

@@ -1,13 +1,13 @@
 /*  =========================================================================
     zwr_microhttpd - HTTP web server backend using libmicrohttpd.
 
-    Copyright (c) the Contributors as noted in the AUTHORS file.       
-    This file is part of CZMQ, the high-level C binding for 0MQ:       
-    http://czmq.zeromq.org.                                            
-                                                                       
+    Copyright (c) the Contributors as noted in the AUTHORS file.
+    This file is part of CZMQ, the high-level C binding for 0MQ:
+    http://czmq.zeromq.org.
+
     This Source Code Form is subject to the terms of the Mozilla Public
     License, v. 2.0. If a copy of the MPL was not distributed with this
-    file, You can obtain one at http://mozilla.org/MPL/2.0/.           
+    file, You can obtain one at http://mozilla.org/MPL/2.0/.
     =========================================================================
 */
 
@@ -72,6 +72,21 @@ typedef struct _zwr_microhttpd_t zwr_microhttpd_t;
 //
 //       zstr_sendx (microhttpd, "RATELIMIT", "100", "3600000", NULL);
 //       zsock_wait (microhttpd);
+//
+//  All settings can be configured by using a configuration file in the czmq
+//  cfg format.
+//
+//  ------------------------ zwr_microhttpd.cfg -------------------------------
+//  | 1 | zwr_microhttpd
+//  | 2 |     endpoint = tcp://192.168.178.1:7777  # Dispatcher endpoint
+//  | 3 |     port = 8888                          # Webserver port
+//  | 4 |     verbose = 0
+//  | 5 |     ratelimit
+//  | 6 |        limit = 999
+//  | 7 |        interval = 3600000
+//  ---------------------------------------------------------------------------
+//
+//       zstr_sendx (microhttpd, "LOAD", filename, NULL);
 //
 //  This is the zwr_microhttpd constructor as a zactor_fn;
 ZWEBRAP_EXPORT void
