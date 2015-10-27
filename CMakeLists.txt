@@ -110,6 +110,7 @@ find_package(Libcurl)
 IF (LIBCURL_FOUND)
 include_directories(${LIBCURL_INCLUDE_DIRS})
 list(APPEND MORE_LIBRARIES ${LIBCURL_LIBRARIES})
+add_definitions(-DHAVE_LIBCURL)
 ENDIF (LIBCURL_FOUND)
 
 ########################################################################
@@ -182,8 +183,28 @@ install(
 ########################################################################
 add_executable(zwebrap_selftest "${SOURCE_DIR}/src/zwebrap_selftest.c")
 target_link_libraries(zwebrap_selftest zwebrap ${ZEROMQ_LIBRARIES})
-add_test(zwebrap_selftest zwebrap_selftest)
 
+set(CLASSTEST_TIMEOUT 5 CACHE STRING "Timeout of the selftest of a class")
+set(TOTAL_TIMEOUT 20 CACHE STRING "Timout of the total testsuite")
+
+set(TEST_CLASSES
+  zwr_request_test
+  zwr_response_test
+  zwr_connection_test
+  zwr_microhttpd_test
+  xrap msg_test
+  xrap_traffic_test
+  zwr_server_test
+  zwr_client_test
+)
+
+foreach(TEST_CLASS ${TEST_CLASSES})
+  add_test(NAME ${TEST_CLASS} COMMAND zwebrap_selftest -e -v --test ${TEST_CLASS})
+  set_tests_properties(${TEST_CLASS} PROPERTIES TIMEOUT ${CLASSTEST_TIMEOUT})
+endforeach(TEST_CLASS)
+
+add_test(zwebrap_selftest zwebrap_selftest)
+set_tests_properties(zwebrap_selftest PROPERTIES TIMEOUT ${TOTAL_TIMEOUT})
 ########################################################################
 # summary
 ########################################################################
