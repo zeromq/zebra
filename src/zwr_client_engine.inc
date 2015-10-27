@@ -11,8 +11,7 @@
      * The code generation script that built this file: zproto_client_c
     ************************************************************************
     Copyright (c) the Contributors as noted in the AUTHORS file.       
-    This file is part of CZMQ, the high-level C binding for 0MQ:       
-    http://czmq.zeromq.org.                                            
+    This file is part of ZWEBRAP.                                      
                                                                        
     This Source Code Form is subject to the terms of the Mozilla Public
     License, v. 2.0. If a copy of the MPL was not distributed with this

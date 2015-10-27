@@ -42,6 +42,7 @@ EXTRA_DIST = \
     LICENSE \
     README.txt \
     README.md \
+    CONTRIBUTING.md \
     version.sh
 
 include $(srcdir)/src/Makemodule.am

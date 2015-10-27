@@ -61,22 +61,6 @@
     <class name = "zwr_microhttpd">HTTP web server backend using libmicrohttpd.</class>
 
     <!--
-        Actors, are build using the simple actor framework from czmq. If the
-        actors class header or source file doesn't exist this will generate a
-        skeleton for them. The generated test method of the actor will teach
-        you how to use them. Also have a look at the czmq docs to learn more
-        about actors.
-    <actor name = "someactor" private = "1">Private actor description</actor>
-    -->
-
-    <!--
-        Main programs built by the project
-                 use private = "1" for internal tools
-    <main name = "progname">Exported public tool</main>
-    <main name = "progname" service = "1">Installed as system service</main>
-    -->
-
-    <!--
         Models that we build using GSL.
         This will generate a 'make code' target to build the models.
     -->
@@ -86,8 +70,8 @@
     <model name = "zwr_client" />
     <class name = "xrap_msg">XRAP data protocol</class>
     <class name = "xrap_traffic">XRAP exchange protocol</class>
-    <class name = "zwr_server" />
-    <class name = "zwr_client" />
+    <class name = "zwr_server" >XRAP message dispatcher</class>
+    <class name = "zwr_client" >Client to interact with zwr_server</class>
     <!--
         If a model should be generated using a specific gsl script,
         this can be set through the script attribute:
@@ -104,6 +88,7 @@
     <extra name = "some_resource" />
     -->
     <extra name = "zwr_server_engine.inc" />
+    <extra name = "zwr_client_engine.inc" />
 
     <!--
         Stuff that needs to be installed:

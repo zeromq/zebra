@@ -99,7 +99,7 @@ The contributors are listed in AUTHORS. This project uses the MPL v2 license, se
 
 zwebrap uses the [C4.1 (Collective Code Construction Contract)](http://rfc.zeromq.org/spec:22) process for contributions.
 
-To report an issue, use the [zwebrap issue tracker](https://github.com/zeromq/zproject/issues) at github.com.
+To report an issue, use the [zwebrap issue tracker](https://github.com/zeromq/zwebrap/issues) at github.com.
 
 ### Hints to Contributors
 
