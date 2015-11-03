@@ -1,6 +1,6 @@
 /*  =========================================================================
     xrap_msg - XRAP serialization over ZMTP
-    
+
     Codec header for xrap_msg.
 
     ** WARNING *************************************************************
@@ -123,7 +123,7 @@ bool
     is_xrap_msg (zmsg_t *msg_p);
 
 //  Parse a xrap_msg from zmsg_t. Returns a new object, or NULL if
-//  the message could not be parsed, or was NULL. Destroys msg and 
+//  the message could not be parsed, or was NULL. Destroys msg and
 //  nullifies the msg reference.
 xrap_msg_t *
     xrap_msg_decode (zmsg_t **msg_p);
@@ -133,12 +133,12 @@ xrap_msg_t *
 zmsg_t *
     xrap_msg_encode (xrap_msg_t **self_p);
 
-//  Receive and parse a xrap_msg from the socket. Returns new object, 
+//  Receive and parse a xrap_msg from the socket. Returns new object,
 //  or NULL if error. Will block if there's no message waiting.
 xrap_msg_t *
     xrap_msg_recv (void *input);
 
-//  Receive and parse a xrap_msg from the socket. Returns new object, 
+//  Receive and parse a xrap_msg from the socket. Returns new object,
 //  or NULL either if there was no input waiting, or the recv was interrupted.
 xrap_msg_t *
     xrap_msg_recv_nowait (void *input);
@@ -151,14 +151,14 @@ int
 int
     xrap_msg_send_again (xrap_msg_t *self, void *output);
 
-//  Encode the POST 
+//  Encode the POST
 zmsg_t *
     xrap_msg_encode_post (
         const char *parent,
         const char *content_type,
         const char *content_body);
 
-//  Encode the POST_OK 
+//  Encode the POST_OK
 zmsg_t *
     xrap_msg_encode_post_ok (
         uint16_t status_code,
@@ -168,7 +168,7 @@ zmsg_t *
         const char *content_type,
         const char *content_body);
 
-//  Encode the GET 
+//  Encode the GET
 zmsg_t *
     xrap_msg_encode_get (
         const char *resource,
@@ -177,7 +177,7 @@ zmsg_t *
         const char *if_none_match,
         const char *content_type);
 
-//  Encode the GET_OK 
+//  Encode the GET_OK
 zmsg_t *
     xrap_msg_encode_get_ok (
         uint16_t status_code,
@@ -186,12 +186,12 @@ zmsg_t *
         const char *content_body,
         zhash_t *metadata);
 
-//  Encode the GET_EMPTY 
+//  Encode the GET_EMPTY
 zmsg_t *
     xrap_msg_encode_get_empty (
         uint16_t status_code);
 
-//  Encode the PUT 
+//  Encode the PUT
 zmsg_t *
     xrap_msg_encode_put (
         const char *resource,
@@ -200,7 +200,7 @@ zmsg_t *
         const char *content_type,
         const char *content_body);
 
-//  Encode the PUT_OK 
+//  Encode the PUT_OK
 zmsg_t *
     xrap_msg_encode_put_ok (
         uint16_t status_code,
@@ -208,19 +208,19 @@ zmsg_t *
         const char *etag,
         uint64_t date_modified);
 
-//  Encode the DELETE 
+//  Encode the DELETE
 zmsg_t *
     xrap_msg_encode_delete (
         const char *resource,
         uint64_t if_unmodified_since,
         const char *if_match);
 
-//  Encode the DELETE_OK 
+//  Encode the DELETE_OK
 zmsg_t *
     xrap_msg_encode_delete_ok (
         uint16_t status_code);
 
-//  Encode the ERROR 
+//  Encode the ERROR
 zmsg_t *
     xrap_msg_encode_error (
         uint16_t status_code,
@@ -234,7 +234,7 @@ int
         const char *parent,
         const char *content_type,
         const char *content_body);
-    
+
 //  Send the POST_OK to the output in one step
 //  WARNING, this call will fail if output is of type ZMQ_ROUTER.
 int
@@ -245,7 +245,7 @@ int
         uint64_t date_modified,
         const char *content_type,
         const char *content_body);
-    
+
 //  Send the GET to the output in one step
 //  WARNING, this call will fail if output is of type ZMQ_ROUTER.
 int
@@ -255,7 +255,7 @@ int
         uint64_t if_modified_since,
         const char *if_none_match,
         const char *content_type);
-    
+
 //  Send the GET_OK to the output in one step
 //  WARNING, this call will fail if output is of type ZMQ_ROUTER.
 int
@@ -265,13 +265,13 @@ int
         const char *content_type,
         const char *content_body,
         zhash_t *metadata);
-    
+
 //  Send the GET_EMPTY to the output in one step
 //  WARNING, this call will fail if output is of type ZMQ_ROUTER.
 int
     xrap_msg_send_get_empty (void *output,
         uint16_t status_code);
-    
+
 //  Send the PUT to the output in one step
 //  WARNING, this call will fail if output is of type ZMQ_ROUTER.
 int
@@ -281,7 +281,7 @@ int
         const char *if_match,
         const char *content_type,
         const char *content_body);
-    
+
 //  Send the PUT_OK to the output in one step
 //  WARNING, this call will fail if output is of type ZMQ_ROUTER.
 int
@@ -290,7 +290,7 @@ int
         const char *location,
         const char *etag,
         uint64_t date_modified);
-    
+
 //  Send the DELETE to the output in one step
 //  WARNING, this call will fail if output is of type ZMQ_ROUTER.
 int
@@ -298,20 +298,20 @@ int
         const char *resource,
         uint64_t if_unmodified_since,
         const char *if_match);
-    
+
 //  Send the DELETE_OK to the output in one step
 //  WARNING, this call will fail if output is of type ZMQ_ROUTER.
 int
     xrap_msg_send_delete_ok (void *output,
         uint16_t status_code);
-    
+
 //  Send the ERROR to the output in one step
 //  WARNING, this call will fail if output is of type ZMQ_ROUTER.
 int
     xrap_msg_send_error (void *output,
         uint16_t status_code,
         const char *status_text);
-    
+
 //  Duplicate the xrap_msg message
 xrap_msg_t *
     xrap_msg_dup (xrap_msg_t *self);
@@ -391,7 +391,7 @@ zhash_t *
 //  Set the parameters field, transferring ownership from caller
 void
     xrap_msg_set_parameters (xrap_msg_t *self, zhash_t **parameters_p);
-    
+
 //  Get/set a value in the parameters dictionary
 const char *
     xrap_msg_parameters_string (xrap_msg_t *self,
@@ -426,7 +426,7 @@ zhash_t *
 //  Set the metadata field, transferring ownership from caller
 void
     xrap_msg_set_metadata (xrap_msg_t *self, zhash_t **metadata_p);
-    
+
 //  Get/set a value in the metadata dictionary
 const char *
     xrap_msg_metadata_string (xrap_msg_t *self,
@@ -459,7 +459,7 @@ void
     xrap_msg_set_status_text (xrap_msg_t *self, const char *format, ...);
 
 //  Self test of this class
-int
+void
     xrap_msg_test (bool verbose);
 //  @end
 

@@ -822,7 +822,7 @@ xrap_traffic_set_status_reason (xrap_traffic_t *self, const char *value)
 //  --------------------------------------------------------------------------
 //  Selftest
 
-int
+void
 xrap_traffic_test (bool verbose)
 {
     printf (" * xrap_traffic:");
@@ -1001,5 +1001,4 @@ xrap_traffic_test (bool verbose)
     //  @end
 
     printf ("OK\n");
-    return 0;
 }

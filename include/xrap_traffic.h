@@ -210,7 +210,7 @@ ZWEBRAP_EXPORT void
     xrap_traffic_set_status_reason (xrap_traffic_t *self, const char *value);
 
 //  Self test of this class
-ZWEBRAP_EXPORT int
+ZWEBRAP_EXPORT void
     xrap_traffic_test (bool verbose);
 //  @end
 
