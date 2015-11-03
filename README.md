@@ -20,15 +20,15 @@
 &emsp;<a href="#toc4-92">Conditional requests</a>
 
 **<a href="#toc3-97">Usage</a>**
-&emsp;<a href="#toc4-102">zwr_microhttpd - Simple libmicrohttpd web server</a>
-&emsp;<a href="#toc4-297">zwr_server - Request/response dispatcher.</a>
-&emsp;<a href="#toc4-470">zwr_client - Dispatcher client</a>
+&emsp;<a href="#toc4-102">zwr_microhttpd - Simple HTTP web server</a>
+&emsp;<a href="#toc4-299">zwr_server - Request/response dispatcher.</a>
+&emsp;<a href="#toc4-474">zwr_client - Dispatcher client</a>
 
-**<a href="#toc2-647">Ownership and License</a>**
+**<a href="#toc2-653">Ownership and License</a>**
 
-**<a href="#toc3-656">Hints to Contributors</a>**
+**<a href="#toc3-662">Hints to Contributors</a>**
 
-**<a href="#toc3-663">This Document</a>**
+**<a href="#toc3-669">This Document</a>**
 
 <A name="toc2-11" title="Overview" />
 ## Overview
@@ -97,10 +97,12 @@ XRAP allows responses to return an ETag header as well as a Last-Modified header
 
 This is the API provided by zwebrap v0.x, in alphabetical order.
 
-<A name="toc4-102" title="zwr_microhttpd - Simple libmicrohttpd web server" />
-#### zwr_microhttpd - Simple libmicrohttpd web server
+<A name="toc4-102" title="zwr_microhttpd - Simple HTTP web server" />
+#### zwr_microhttpd - Simple HTTP web server
 
-zwr_microhttpdd - HTTP web server backend using libmicrohttpd.
+Simple HTTP webserver implementation using the libmicrohttpd library.
+Incomming HTTP request are converted to XRAP and send to the dispatcher.
+Responses from the dispatcher are converted back into HTTP.
 
 Please add @discuss section in ../src/zwr_microhttpd.c.
 
@@ -292,10 +294,12 @@ This is the class self test code:
     
     zactor_destroy (&zwr_microhttpd);
 
-<A name="toc4-297" title="zwr_server - Request/response dispatcher." />
+<A name="toc4-299" title="zwr_server - Request/response dispatcher." />
 #### zwr_server - Request/response dispatcher.
 
-zwr_server -
+The zwr_server implements the zproto server. It acts as dispatcher for XRAP
+requests from clients to handlers and it redirects responses from handlers to
+clients.
 
 Please add @discuss section in ../src/zwr_server.c.
 
@@ -465,12 +469,14 @@ This is the class self test code:
     zsock_destroy (&worker);
     zactor_destroy (&server);
 
-<A name="toc4-470" title="zwr_client - Dispatcher client" />
+<A name="toc4-474" title="zwr_client - Dispatcher client" />
 #### zwr_client - Dispatcher client
 
-Description of class for man page.
+Client implementation to communicate with the dispatcher. This
+implementation is used by both clients (i.e. zwr_microhttpd) and the
+handlers.
 
-Detailed discussion of the class, if any.
+Please add @discuss section in ../src/zwr_client.c.
 
 This is the class interface:
 
@@ -642,7 +648,7 @@ This is the class self test code:
     zactor_destroy (&server);
 
 
-<A name="toc2-647" title="Ownership and License" />
+<A name="toc2-653" title="Ownership and License" />
 ## Ownership and License
 
 The contributors are listed in AUTHORS. This project uses the MPL v2 license, see LICENSE.
@@ -651,14 +657,14 @@ zwebrap uses the [C4.1 (Collective Code Construction Contract)](http://rfc.zerom
 
 To report an issue, use the [zwebrap issue tracker](https://github.com/zeromq/zwebrap/issues) at github.com.
 
-<A name="toc3-656" title="Hints to Contributors" />
+<A name="toc3-662" title="Hints to Contributors" />
 ### Hints to Contributors
 
 Do read your code after you write it and ask, "Can I make this simpler?" We do use a nice minimalist and yet readable style. Learn it, adopt it, use it.
 
 Before opening a pull request read our [contribution guidelines](https://github.com/zeromq/zwebrap/blob/master/CONTRIBUTING.md). Thanks!
 
-<A name="toc3-663" title="This Document" />
+<A name="toc3-669" title="This Document" />
 ### This Document
 
 This document is originally at README.txt and is built using [gitdown](http://github.com/imatix/gitdown).

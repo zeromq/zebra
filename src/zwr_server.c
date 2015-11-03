@@ -12,7 +12,9 @@
 
 /*
 @header
-    zwr_server -
+    The zwr_server implements the zproto server. It acts as dispatcher for XRAP
+    requests from clients to handlers and it redirects responses from handlers to
+    clients.
 @discuss
 @end
 */

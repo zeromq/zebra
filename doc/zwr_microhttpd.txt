@@ -3,7 +3,7 @@ zwr_microhttpd(3)
 
 NAME
 ----
-zwr_microhttpd - Simple libmicrohttpd web server
+zwr_microhttpd - Simple HTTP web server
 
 SYNOPSIS
 --------
@@ -81,7 +81,9 @@ ZWEBRAP_EXPORT void
 DESCRIPTION
 -----------
 
-zwr_microhttpdd - HTTP web server backend using libmicrohttpd.
+Simple HTTP webserver implementation using the libmicrohttpd library.
+Incomming HTTP request are converted to XRAP and send to the dispatcher.
+Responses from the dispatcher are converted back into HTTP.
 
 Please add @discuss section in ../src/zwr_microhttpd.c.
 

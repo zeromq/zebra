@@ -97,9 +97,11 @@ ZWEBRAP_EXPORT extern volatile int
 DESCRIPTION
 -----------
 
-Description of class for man page.
+Client implementation to communicate with the dispatcher. This
+implementation is used by both clients (i.e. zwr_microhttpd) and the
+handlers.
 
-Detailed discussion of the class, if any.
+Please add @discuss section in ../src/zwr_client.c.
 
 EXAMPLE
 -------

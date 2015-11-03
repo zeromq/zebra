@@ -12,9 +12,10 @@
 
 /*
 @header
-    Description of class for man page.
+    Client implementation to communicate with the dispatcher. This
+    implementation is used by both clients (i.e. zwr_microhttpd) and the
+    handlers.
 @discuss
-    Detailed discussion of the class, if any.
 @end
 */
 

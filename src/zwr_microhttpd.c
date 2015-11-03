@@ -1,5 +1,5 @@
 /*  =========================================================================
-    zwr_microhttpdd - Simple libmicrohttpd web server
+    zwr_microhttpdd - Simple HTTP web server
 
     Copyright (c) the Contributors as noted in the AUTHORS file.
     This file is part of ZWEBRAP.
@@ -12,7 +12,9 @@
 
 /*
 @header
-    zwr_microhttpdd - HTTP web server backend using libmicrohttpd.
+    Simple HTTP webserver implementation using the libmicrohttpd library.
+    Incomming HTTP request are converted to XRAP and send to the dispatcher.
+    Responses from the dispatcher are converted back into HTTP.
 @discuss
 @end
 */
