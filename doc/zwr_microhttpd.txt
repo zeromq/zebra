@@ -3,7 +3,7 @@ zwr_microhttpd(3)
 
 NAME
 ----
-zwr_microhttpd - HTTP web server backend using libmicrohttpd.
+zwr_microhttpd - Simple libmicrohttpd web server
 
 SYNOPSIS
 --------

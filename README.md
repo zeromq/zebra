@@ -20,15 +20,15 @@
 &emsp;<a href="#toc4-92">Conditional requests</a>
 
 **<a href="#toc3-97">Usage</a>**
-&emsp;<a href="#toc4-102">zwr_microhttpd - HTTP web server backend using libmicrohttpd.</a>
-&emsp;<a href="#toc4-297">zwr_server - no title found</a>
-&emsp;<a href="#toc4-485">zwr_client - ZWebRap Client</a>
+&emsp;<a href="#toc4-102">zwr_microhttpd - Simple libmicrohttpd web server</a>
+&emsp;<a href="#toc4-297">zwr_server - Request/response dispatcher.</a>
+&emsp;<a href="#toc4-470">zwr_client - Dispatcher client</a>
 
-**<a href="#toc2-662">Ownership and License</a>**
+**<a href="#toc2-647">Ownership and License</a>**
 
-**<a href="#toc3-671">Hints to Contributors</a>**
+**<a href="#toc3-656">Hints to Contributors</a>**
 
-**<a href="#toc3-678">This Document</a>**
+**<a href="#toc3-663">This Document</a>**
 
 <A name="toc2-11" title="Overview" />
 ## Overview
@@ -97,8 +97,8 @@ XRAP allows responses to return an ETag header as well as a Last-Modified header
 
 This is the API provided by zwebrap v0.x, in alphabetical order.
 
-<A name="toc4-102" title="zwr_microhttpd - HTTP web server backend using libmicrohttpd." />
-#### zwr_microhttpd - HTTP web server backend using libmicrohttpd.
+<A name="toc4-102" title="zwr_microhttpd - Simple libmicrohttpd web server" />
+#### zwr_microhttpd - Simple libmicrohttpd web server
 
 zwr_microhttpdd - HTTP web server backend using libmicrohttpd.
 
@@ -292,8 +292,8 @@ This is the class self test code:
     
     zactor_destroy (&zwr_microhttpd);
 
-<A name="toc4-297" title="zwr_server - no title found" />
-#### zwr_server - no title found
+<A name="toc4-297" title="zwr_server - Request/response dispatcher." />
+#### zwr_server - Request/response dispatcher.
 
 zwr_server -
 
@@ -330,21 +330,6 @@ This is the class interface:
     //
     //  Specify configuration file to load, overwriting any previous loaded
     //  configuration file or options:
-    //
-    //  -------------------------- zwr_server.cfg ---------------------------------
-    //  | 1  | #   Apply to the whole broker
-    //  | 2  | server
-    //  | 3  |     timeout = 10000     #   Client connection timeout, msec
-    //  | 4  |     background = 0      #   Run as background process
-    //  | 5  |     workdir = .         #   Working directory for daemon
-    //  | 6  |      verbose = 0         #   Do verbose logging of activity?
-    //  | 7  |
-    //  | 8  | #   Apply to the ZWebRap service
-    //  | 9  | #   Note security settings must come before binds
-    //  | 10 | zwr_server
-    //  | 11 |     bind
-    //  | 12 |         endpoint = tcp://127.0.0.1:9999
-    //  ---------------------------------------------------------------------------
     //
     //      zstr_sendx (zwr_server, "LOAD", filename, NULL);
     //
@@ -480,8 +465,8 @@ This is the class self test code:
     zsock_destroy (&worker);
     zactor_destroy (&server);
 
-<A name="toc4-485" title="zwr_client - ZWebRap Client" />
-#### zwr_client - ZWebRap Client
+<A name="toc4-470" title="zwr_client - Dispatcher client" />
+#### zwr_client - Dispatcher client
 
 Description of class for man page.
 
@@ -657,23 +642,23 @@ This is the class self test code:
     zactor_destroy (&server);
 
 
-<A name="toc2-662" title="Ownership and License" />
+<A name="toc2-647" title="Ownership and License" />
 ## Ownership and License
 
 The contributors are listed in AUTHORS. This project uses the MPL v2 license, see LICENSE.
 
 zwebrap uses the [C4.1 (Collective Code Construction Contract)](http://rfc.zeromq.org/spec:22) process for contributions.
 
-To report an issue, use the [zwebrap issue tracker](https://github.com/zeromq/zproject/issues) at github.com.
+To report an issue, use the [zwebrap issue tracker](https://github.com/zeromq/zwebrap/issues) at github.com.
 
-<A name="toc3-671" title="Hints to Contributors" />
+<A name="toc3-656" title="Hints to Contributors" />
 ### Hints to Contributors
 
 Do read your code after you write it and ask, "Can I make this simpler?" We do use a nice minimalist and yet readable style. Learn it, adopt it, use it.
 
 Before opening a pull request read our [contribution guidelines](https://github.com/zeromq/zwebrap/blob/master/CONTRIBUTING.md). Thanks!
 
-<A name="toc3-678" title="This Document" />
+<A name="toc3-663" title="This Document" />
 ### This Document
 
 This document is originally at README.txt and is built using [gitdown](http://github.com/imatix/gitdown).

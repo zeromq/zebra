@@ -1,5 +1,5 @@
 /*  =========================================================================
-    zwr_server -
+    zwr_server - Request/response dispatcher.
 
     Copyright (c) the Contributors as noted in the AUTHORS file.
     This file is part of ZWEBRAP.

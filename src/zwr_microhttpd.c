@@ -1,5 +1,5 @@
 /*  =========================================================================
-    zwr_microhttpdd - HTTP web server backend using libmicrohttpd.
+    zwr_microhttpdd - Simple libmicrohttpd web server
 
     Copyright (c) the Contributors as noted in the AUTHORS file.
     This file is part of ZWEBRAP.

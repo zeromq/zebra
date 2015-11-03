@@ -1,5 +1,5 @@
 /*  =========================================================================
-    zwr_client - ZWebRap Client
+    zwr_client - Dispatcher client
 
     Copyright (c) the Contributors as noted in the AUTHORS file.
     This file is part of ZWEBRAP.

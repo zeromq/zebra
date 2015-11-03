@@ -3,7 +3,7 @@ zwr_client(3)
 
 NAME
 ----
-zwr_client - ZWebRap Client
+zwr_client - Dispatcher client
 
 SYNOPSIS
 --------

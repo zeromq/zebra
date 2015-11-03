@@ -1,4 +1,4 @@
-#### zwr_microhttpd - HTTP web server backend using libmicrohttpd.
+#### zwr_microhttpd - Simple libmicrohttpd web server
 
 zwr_microhttpdd - HTTP web server backend using libmicrohttpd.
 

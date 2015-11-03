@@ -3,7 +3,7 @@ zwr_server(3)
 
 NAME
 ----
-zwr_server - no title found
+zwr_server - Request/response dispatcher.
 
 SYNOPSIS
 --------

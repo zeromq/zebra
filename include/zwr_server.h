@@ -1,5 +1,5 @@
 /*  =========================================================================
-    zwr_server - ZWebRap Server
+    zwr_server - Request/response dispatcher.
 
     ** WARNING *************************************************************
     THIS SOURCE FILE IS 100% GENERATED. If you edit this file, you will lose
