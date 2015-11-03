@@ -34,6 +34,7 @@ src_libzwebrap_la_SOURCES = \
     src/zwr_server.c \
     src/zwr_client.c \
     src/zwr_server_engine.inc \
+    src/zwr_client_engine.inc \
     src/platform.h
 
 src_libzwebrap_la_CPPFLAGS = ${AM_CPPFLAGS}

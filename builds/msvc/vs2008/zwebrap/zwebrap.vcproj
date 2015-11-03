@@ -468,6 +468,7 @@
       <File RelativePath="..\..\..\..\include\zwebrap_library.h" />
       <File RelativePath="..\..\..\..\include\zwebrap.h" />
       <File RelativePath="..\..\..\..\src\zwr_server_engine.inc" />
+      <File RelativePath="..\..\..\..\src\zwr_client_engine.inc" />
     </Filter>
   </Files>
   <Globals />

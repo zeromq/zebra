@@ -35,6 +35,7 @@ TESTS =
 
 EXTRA_DIST = \
     src/zwr_server_engine.inc \
+    src/zwr_client_engine.inc \
     src/zwr_request.h \
     src/zwr_response.h \
     src/zwr_connection.h \

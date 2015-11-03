@@ -80,6 +80,7 @@
     <ClInclude Include="..\..\..\..\include\zwebrap_library.h" />
     <ClInclude Include="..\..\..\..\include\zwebrap.h" />
     <ClInclude Include="..\..\..\..\src\zwr_server_engine.inc" />
+    <ClInclude Include="..\..\..\..\src\zwr_client_engine.inc" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\src\zwr_request.c">

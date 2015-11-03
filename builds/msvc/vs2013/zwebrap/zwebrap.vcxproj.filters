@@ -42,6 +42,9 @@
     <ClInclude Include="..\..\..\..\src\zwr_server_engine.inc">
       <Filter>src</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\src\zwr_client_engine.inc">
+      <Filter>src</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\builds\msvc\platform.h">

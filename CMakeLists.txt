@@ -83,6 +83,8 @@ find_package(ZeroMQ REQUIRED)
 IF (ZEROMQ_FOUND)
 include_directories(${ZEROMQ_INCLUDE_DIRS})
 list(APPEND MORE_LIBRARIES ${ZEROMQ_LIBRARIES})
+ELSE (ZEROMQ_FOUND)
+message( FATAL_ERROR "ZeroMQ not found." )
 ENDIF (ZEROMQ_FOUND)
 
 ########################################################################
@@ -92,6 +94,8 @@ find_package(CZMQ REQUIRED)
 IF (CZMQ_FOUND)
 include_directories(${CZMQ_INCLUDE_DIRS})
 list(APPEND MORE_LIBRARIES ${CZMQ_LIBRARIES})
+ELSE (CZMQ_FOUND)
+message( FATAL_ERROR "CZMQ not found." )
 ENDIF (CZMQ_FOUND)
 
 ########################################################################
@@ -101,6 +105,8 @@ find_package(Libmicrohttpd REQUIRED)
 IF (LIBMICROHTTPD_FOUND)
 include_directories(${LIBMICROHTTPD_INCLUDE_DIRS})
 list(APPEND MORE_LIBRARIES ${LIBMICROHTTPD_LIBRARIES})
+ELSE (LIBMICROHTTPD_FOUND)
+message( FATAL_ERROR "Libmicrohttpd not found." )
 ENDIF (LIBMICROHTTPD_FOUND)
 
 ########################################################################
@@ -128,6 +134,7 @@ set (zwebrap_headers
     include/zwr_server.h
     include/zwr_client.h
     src/zwr_server_engine.inc
+    src/zwr_client_engine.inc
 )
 source_group ("Header Files" FILES ${zwebrap_headers})
 install(FILES ${zwebrap_headers} DESTINATION include)

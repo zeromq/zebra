@@ -13,8 +13,8 @@ if (NOT MSVC)
     # some libraries install the headers is a subdirectory of the include dir
     # returned by pkg-config, so use a wildcard match to improve chances of finding
     # headers and SOs.
-    set(LIBCURL_INCLUDE_HINTS ${PC_LIBCURL_INCLUDE_DIRS} ${PC_LIBCURL_INCLUDE_DIRS}/*)
-    set(LIBCURL_LIBRARY_HINTS ${PC_LIBCURL_LIBRARY_DIRS} ${PC_LIBCURL_LIBRARY_DIRS}/*)
+    set(PC_LIBCURL_INCLUDE_HINTS ${PC_LIBCURL_INCLUDE_DIRS} ${PC_LIBCURL_INCLUDE_DIRS}/*)
+    set(PC_LIBCURL_LIBRARY_HINTS ${PC_LIBCURL_LIBRARY_DIRS} ${PC_LIBCURL_LIBRARY_DIRS}/*)
   endif(PC_LIBCURL_FOUND)
 endif (NOT MSVC)
 
@@ -33,7 +33,6 @@ find_library(
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(
   LIBCURL
-  FOUND_VAR LIBCURL_FOUND
   REQUIRED_VARS LIBCURL_LIBRARIES LIBCURL_INCLUDE_DIRS
 )
 mark_as_advanced(LIBCURL_FOUND LIBCURL_LIBRARIES LIBCURL_INCLUDE_DIRS)
