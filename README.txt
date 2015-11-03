@@ -13,7 +13,7 @@ zwebrap is a REST/HTTP to XRAP gateway.
 
 ### Scope and Goals
 
-zwebrap is designed to take HTTP request for the common HTTP methods GET, POST, PUT and DELETE and convert them into the XRAP format. The converted messages will be passed to the request handlers which compose a response in the XRAP format which will be converted back into HTTP. To allow handler to come and go a they please, they need to register at a dispatcher which will forward XRAP messages both ways.
+zwebrap is designed to take HTTP request for the common HTTP methods GET, POST, PUT and DELETE and convert them into the [XRAP](http://rfc.zeromq.org/spec:40) format. The converted messages will be passed to the request handlers which compose a response in the XRAP format which will be converted back into HTTP. To allow handler to come and go a they please, they need to register at a dispatcher which will forward XRAP messages both ways.
 
 [diagram]
                    HTTP
