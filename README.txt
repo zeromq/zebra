@@ -9,11 +9,9 @@
 
 ## Overview
 
-zwebrap is a REST/HTTP to XRAP gateway.
-
 ### Scope and Goals
 
-zwebrap is designed to take HTTP request for the common HTTP methods GET, POST, PUT and DELETE and convert them into the [XRAP](http://rfc.zeromq.org/spec:40) format. The converted messages will be passed to the request handlers which compose a response in the XRAP format which will be converted back into HTTP. To allow handler to come and go a they please, they need to register at a dispatcher which will forward XRAP messages both ways.
+zwebrap is designed to take HTTP requests for the common HTTP methods GET, POST, PUT and DELETE and convert them into the [XRAP](http://rfc.zeromq.org/spec:40) format. The converted messages will be passed to the request handlers which compose a response in the XRAP format which will be converted back into HTTP. To allow handler to come and go a they please, they need to register at a dispatcher which will forward XRAP messages both ways.
 
 [diagram]
                    HTTP
@@ -43,21 +41,60 @@ zwebrap is designed to take HTTP request for the common HTTP methods GET, POST, 
   +----------------+  +----------------+  one HTTP method.
 [/diagram]
 
+## Ownership and License
+
+The contributors are listed in AUTHORS. This project uses the MPL v2 license, see LICENSE.
+
+zwebrap uses the [C4.1 (Collective Code Construction Contract)](http://rfc.zeromq.org/spec:22) process for contributions.
+
+zwebrap uses the [CLASS (C Language Style for Scalabilty)](http://rfc.zeromq.org/spec:21) guide for code style.
+
+To report an issue, use the [zwebrap issue tracker](https://github.com/zeromq/zwebrap/issues) at github.com.
+
+## Using zwebrap
+
 ### Requirements
 
-* libmicrohttpd (>= 0.9.40)
+* libmicrohttpd (>= 0.9.38)
 * libzmq (>= 4.1)
 * czmq (>= 3.0.3)
 * libcurl [optional, to run HTTP tests]
 
-### Installation
+### Building and Installing
 
-```sh
-autogen.sh
-configure
-make && make check
-make install
-```
+Here's how to build zwebrap, including libmicrohttpd, libzmq and czmq:
+
+    wget http://ftpmirror.gnu.org/libmicrohttpd/libmicrohttpd-0.9.38.tar.gz
+    tar -xvf libmicrohttpd-0.9.38.tar.gz
+    cd libmicrohttpd-0.9.38
+    ./configure && make check
+    sudo make install
+    sudo ldconfig
+    cd ..
+
+    git clone git://github.com/zeromq/libzmq.git
+    cd libzmq
+    ./autogen.sh
+    ./configure && make check
+    sudo make install
+    sudo ldconfig
+    cd ..
+
+    git clone git://github.com/zeromq/czmq.git
+    cd czmq
+    ./autogen.sh
+    ./configure && make check
+    sudo make install
+    sudo ldconfig
+    cd ..
+
+    git clone git://github.com/zeromq/zwebrap.git
+    cd zwebrap
+    ./autogen.sh
+    ./configure && make check
+    sudo make install
+    sudo ldconfig
+    cd ..
 
 ### User information
 
@@ -93,15 +130,9 @@ This is the API provided by zwebrap v0.x, in alphabetical order.
 .pull doc/zwr_server.doc
 .pull doc/zwr_client.doc
 
-## Ownership and License
-
-The contributors are listed in AUTHORS. This project uses the MPL v2 license, see LICENSE.
-
-zwebrap uses the [C4.1 (Collective Code Construction Contract)](http://rfc.zeromq.org/spec:22) process for contributions.
-
-To report an issue, use the [zwebrap issue tracker](https://github.com/zeromq/zwebrap/issues) at github.com.
-
 ### Hints to Contributors
+
+Read the CLASS style guide please, and write your code to make it indistinguishable from the rest of the code in the library. That is the only real criteria for good style: it's invisible.
 
 Do read your code after you write it and ask, "Can I make this simpler?" We do use a nice minimalist and yet readable style. Learn it, adopt it, use it.
 
