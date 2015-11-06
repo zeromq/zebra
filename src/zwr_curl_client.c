@@ -205,7 +205,7 @@ zwr_curl_client_verify_response (zwr_curl_client_t *self, int status, char *cont
         if (msg->msg == CURLMSG_DONE) {
             CURL *curl = msg->easy_handle;
 
-            int actual_status;
+            long actual_status;
             curl_easy_getinfo (curl, CURLINFO_RESPONSE_CODE, &actual_status);
             assert (actual_status == status);
             assert (streq (self->data, content));
