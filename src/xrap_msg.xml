@@ -21,6 +21,7 @@ Create a new, dynamically named resource in some parent.
     <field name = "date modified" type = "number" size = "8">Date and time modified</field>
     <field name = "content type" type = "string">Content type</field>
     <field name = "content body" type = "longstr">Resource contents</field>
+    <field name = "metadata" type = "hash">Collection total size/version/hypermedia</field>
 Success response for POST.
 </message>
 
@@ -36,9 +37,10 @@ Retrieve a known resource.
 <message name = "GET OK" id = "4">
     <field name = "status code" type = "number" size = "2">Response status code 2xx</field>
     <field name = "etag" type = "string">Opaque hash tag</field>
+    <field name = "date modified" type = "number" size = "8">Date and time modified</field>
     <field name = "content type" type = "string">Actual content type</field>
     <field name = "content body" type = "longstr">Resource specification</field>
-    <field name = "metadata" type = "hash">Custom data: collection size/version/links</field>
+    <field name = "metadata" type = "hash">Collection total size/version/hypermedia</field>
 Success response for GET.
 </message>
 
@@ -61,6 +63,7 @@ Update a known resource.
     <field name = "location" type = "string">Schema/type/name</field>
     <field name = "etag" type = "string">Opaque hash tag</field>
     <field name = "date modified" type = "number" size = "8">Date and time modified</field>
+    <field name = "metadata" type = "hash">Collection total size/version/hypermedia</field>
 Success response for PUT.
 </message>
 
@@ -73,6 +76,7 @@ Remove a known resource.
 
 <message name = "DELETE OK" id = "9">
     <field name = "status code" type = "number" size = "2">Response status code 2xx</field>
+    <field name = "metadata" type = "hash">Collection total size/version/hypermedia</field>
 Success response for DELETE.
 </message>
 
