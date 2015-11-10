@@ -13,6 +13,7 @@ if [ $BUILD_TYPE == "default" ]; then
     CONFIG_OPTS+=("LDFLAGS=-L${BUILD_PREFIX}/lib")
     CONFIG_OPTS+=("PKG_CONFIG_PATH=${BUILD_PREFIX}/lib/pkgconfig")
     CONFIG_OPTS+=("--prefix=${BUILD_PREFIX}")
+    CONFIG_OPTS+=("--without-libsodium")
 
     # Clone and build dependencies
     git clone https://github.com/zeromq/libzmq zmq
