@@ -2,6 +2,8 @@
 <A name="toc1-3" title="zwebrap - REST/HTTP to XRAP gateway." />
 # zwebrap - REST/HTTP to XRAP gateway.
 
+[![Build Status](https://travis-ci.org/zeromq/zwebrap.svg)](https://travis-ci.org/zeromq/zwebrap)
+
 <A name="toc2-6" title="Contents" />
 ## Contents
 
