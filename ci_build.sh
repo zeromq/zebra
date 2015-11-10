@@ -27,7 +27,7 @@ if [ $BUILD_TYPE == "default" ]; then
     ( cd czmq && ./autogen.sh && ./configure "${CONFIG_OPTS[@]}" && make check && make install ) || exit 1
 
     # Build and check this project
-    ( ./autogen.sh && ./configure "${CONFIG_OPTS[@]}" && make && make check && make memcheck && make install ) || exit 1
+    ( ./autogen.sh && ./configure "${CONFIG_OPTS[@]}" && make && make check-verbose VERBOSE=1 && make install ) || exit 1
 else
     cd ./builds/${BUILD_TYPE} && ./ci_build.sh
 fi
