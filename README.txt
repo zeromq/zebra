@@ -3,6 +3,8 @@
 
 # zwebrap - REST/HTTP to XRAP gateway.
 
+[![Build Status](https://travis-ci.org/zeromq/zwebrap.svg)](https://travis-ci.org/zeromq/zwebrap)
+
 ## Contents
 
 .toc 3
