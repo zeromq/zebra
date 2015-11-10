@@ -33,7 +33,7 @@ size_t static
 write_callback_func(void *buffer, size_t size, size_t nmemb, void *userp)
 {
     char **response = (char **) userp;
-    *response = strndup (buffer, (size_t) (size * nmemb));
+    *response = strndup ((char *) buffer, (size_t) (size * nmemb));
     return nmemb;
 }
 
