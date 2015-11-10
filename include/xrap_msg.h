@@ -38,6 +38,7 @@
         date_modified       number 8    Date and time modified
         content_type        string      Content type
         content_body        longstr     Resource contents
+        metadata            hash        Collection total size/version/hypermedia
 
     GET - Retrieve a known resource.
         resource            string      Schema/type/name
@@ -49,9 +50,10 @@
     GET_OK - Success response for GET.
         status_code         number 2    Response status code 2xx
         etag                string      Opaque hash tag
+        date_modified       number 8    Date and time modified
         content_type        string      Actual content type
         content_body        longstr     Resource specification
-        metadata            hash        Custom data: collection size/version/links
+        metadata            hash        Collection total size/version/hypermedia
 
     GET_EMPTY - Conditional GET returned 304 Not Modified.
         status_code         number 2    Response status code 3xx
@@ -68,6 +70,7 @@
         location            string      Schema/type/name
         etag                string      Opaque hash tag
         date_modified       number 8    Date and time modified
+        metadata            hash        Collection total size/version/hypermedia
 
     DELETE - Remove a known resource.
         resource            string      schema/type/name
@@ -76,6 +79,7 @@
 
     DELETE_OK - Success response for DELETE.
         status_code         number 2    Response status code 2xx
+        metadata            hash        Collection total size/version/hypermedia
 
     ERROR - Error response for any request.
         status_code         number 2    Response status code, 4xx or 5xx
@@ -166,7 +170,8 @@ zmsg_t *
         const char *etag,
         uint64_t date_modified,
         const char *content_type,
-        const char *content_body);
+        const char *content_body,
+        zhash_t *metadata);
 
 //  Encode the GET
 zmsg_t *
@@ -182,6 +187,7 @@ zmsg_t *
     xrap_msg_encode_get_ok (
         uint16_t status_code,
         const char *etag,
+        uint64_t date_modified,
         const char *content_type,
         const char *content_body,
         zhash_t *metadata);
@@ -206,7 +212,8 @@ zmsg_t *
         uint16_t status_code,
         const char *location,
         const char *etag,
-        uint64_t date_modified);
+        uint64_t date_modified,
+        zhash_t *metadata);
 
 //  Encode the DELETE
 zmsg_t *
@@ -218,7 +225,8 @@ zmsg_t *
 //  Encode the DELETE_OK
 zmsg_t *
     xrap_msg_encode_delete_ok (
-        uint16_t status_code);
+        uint16_t status_code,
+        zhash_t *metadata);
 
 //  Encode the ERROR
 zmsg_t *
@@ -244,7 +252,8 @@ int
         const char *etag,
         uint64_t date_modified,
         const char *content_type,
-        const char *content_body);
+        const char *content_body,
+        zhash_t *metadata);
 
 //  Send the GET to the output in one step
 //  WARNING, this call will fail if output is of type ZMQ_ROUTER.
@@ -262,6 +271,7 @@ int
     xrap_msg_send_get_ok (void *output,
         uint16_t status_code,
         const char *etag,
+        uint64_t date_modified,
         const char *content_type,
         const char *content_body,
         zhash_t *metadata);
@@ -289,7 +299,8 @@ int
         uint16_t status_code,
         const char *location,
         const char *etag,
-        uint64_t date_modified);
+        uint64_t date_modified,
+        zhash_t *metadata);
 
 //  Send the DELETE to the output in one step
 //  WARNING, this call will fail if output is of type ZMQ_ROUTER.
@@ -303,7 +314,8 @@ int
 //  WARNING, this call will fail if output is of type ZMQ_ROUTER.
 int
     xrap_msg_send_delete_ok (void *output,
-        uint16_t status_code);
+        uint16_t status_code,
+        zhash_t *metadata);
 
 //  Send the ERROR to the output in one step
 //  WARNING, this call will fail if output is of type ZMQ_ROUTER.
@@ -376,6 +388,29 @@ uint64_t
 void
     xrap_msg_set_date_modified (xrap_msg_t *self, uint64_t date_modified);
 
+//  Get/set the metadata field
+zhash_t *
+    xrap_msg_metadata (xrap_msg_t *self);
+//  Get the metadata field and transfer ownership to caller
+zhash_t *
+    xrap_msg_get_metadata (xrap_msg_t *self);
+//  Set the metadata field, transferring ownership from caller
+void
+    xrap_msg_set_metadata (xrap_msg_t *self, zhash_t **metadata_p);
+
+//  Get/set a value in the metadata dictionary
+const char *
+    xrap_msg_metadata_string (xrap_msg_t *self,
+        const char *key, const char *default_value);
+uint64_t
+    xrap_msg_metadata_number (xrap_msg_t *self,
+        const char *key, uint64_t default_value);
+void
+    xrap_msg_metadata_insert (xrap_msg_t *self,
+        const char *key, const char *format, ...);
+size_t
+    xrap_msg_metadata_size (xrap_msg_t *self);
+
 //  Get/set the resource field
 const char *
     xrap_msg_resource (xrap_msg_t *self);
@@ -416,29 +451,6 @@ const char *
     xrap_msg_if_none_match (xrap_msg_t *self);
 void
     xrap_msg_set_if_none_match (xrap_msg_t *self, const char *format, ...);
-
-//  Get/set the metadata field
-zhash_t *
-    xrap_msg_metadata (xrap_msg_t *self);
-//  Get the metadata field and transfer ownership to caller
-zhash_t *
-    xrap_msg_get_metadata (xrap_msg_t *self);
-//  Set the metadata field, transferring ownership from caller
-void
-    xrap_msg_set_metadata (xrap_msg_t *self, zhash_t **metadata_p);
-
-//  Get/set a value in the metadata dictionary
-const char *
-    xrap_msg_metadata_string (xrap_msg_t *self,
-        const char *key, const char *default_value);
-uint64_t
-    xrap_msg_metadata_number (xrap_msg_t *self,
-        const char *key, uint64_t default_value);
-void
-    xrap_msg_metadata_insert (xrap_msg_t *self,
-        const char *key, const char *format, ...);
-size_t
-    xrap_msg_metadata_size (xrap_msg_t *self);
 
 //  Get/set the if_unmodified_since field
 uint64_t

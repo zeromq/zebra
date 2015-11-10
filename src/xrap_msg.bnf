@@ -12,13 +12,14 @@ The following ABNF grammar defines the XRAP serialization over ZMTP:
 
     ;  Success response for POST.                                            
 
-    POST-OK         = signature %d2 status_code location etag date_modified content_type content_body
+    POST-OK         = signature %d2 status_code location etag date_modified content_type content_body metadata
     status_code     = number-2              ; Response status code 2xx
     location        = string                ; Schema/type/name
     etag            = string                ; Opaque hash tag
     date_modified   = number-8              ; Date and time modified
     content_type    = string                ; Content type
     content_body    = longstr               ; Resource contents
+    metadata        = hash                  ; Collection total size/version/hypermedia
 
     ;  Retrieve a known resource.                                            
 
@@ -31,12 +32,13 @@ The following ABNF grammar defines the XRAP serialization over ZMTP:
 
     ;  Success response for GET.                                             
 
-    GET-OK          = signature %d4 status_code etag content_type content_body metadata
+    GET-OK          = signature %d4 status_code etag date_modified content_type content_body metadata
     status_code     = number-2              ; Response status code 2xx
     etag            = string                ; Opaque hash tag
+    date_modified   = number-8              ; Date and time modified
     content_type    = string                ; Actual content type
     content_body    = longstr               ; Resource specification
-    metadata        = hash                  ; Custom data: collection size/version/links
+    metadata        = hash                  ; Collection total size/version/hypermedia
 
     ;  Conditional GET returned 304 Not Modified.                            
 
@@ -54,11 +56,12 @@ The following ABNF grammar defines the XRAP serialization over ZMTP:
 
     ;  Success response for PUT.                                             
 
-    PUT-OK          = signature %d7 status_code location etag date_modified
+    PUT-OK          = signature %d7 status_code location etag date_modified metadata
     status_code     = number-2              ; Response status code 2xx
     location        = string                ; Schema/type/name
     etag            = string                ; Opaque hash tag
     date_modified   = number-8              ; Date and time modified
+    metadata        = hash                  ; Collection total size/version/hypermedia
 
     ;  Remove a known resource.                                              
 
@@ -69,8 +72,9 @@ The following ABNF grammar defines the XRAP serialization over ZMTP:
 
     ;  Success response for DELETE.                                          
 
-    DELETE-OK       = signature %d9 status_code
+    DELETE-OK       = signature %d9 status_code metadata
     status_code     = number-2              ; Response status code 2xx
+    metadata        = hash                  ; Collection total size/version/hypermedia
 
     ;  Error response for any request.                                       
 

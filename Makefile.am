@@ -15,17 +15,10 @@ AM_CPPFLAGS = \
     ${libcurl_CFLAGS} \
     -I$(srcdir)/include
 
-project_libs = \
-    ${libzmq_LIBS} \
-    ${czmq_LIBS} \
-    ${libmicrohttpd_LIBS} \
-    ${libcurl_LIBS}
+project_libs = ${libzmq_LIBS} ${czmq_LIBS} ${libmicrohttpd_LIBS} ${libcurl_LIBS}
 
-SUBDIRS =
-DIST_SUBDIRS =
-SUBDIRS += doc
-DIST_SUBDIRS += doc
-
+SUBDIRS = doc
+DIST_SUBDIRS = doc
 lib_LTLIBRARIES =
 bin_PROGRAMS =
 noinst_PROGRAMS =
