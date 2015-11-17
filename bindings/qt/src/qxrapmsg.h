@@ -103,6 +103,15 @@ public:
     //  
     void setResource (const QString &param);
 
+    //  //  Get/set the parameters field
+    QZhash * parameters ();
+
+    //  //  Get the parameters field and transfer ownership to caller
+    QZhash * getParameters ();
+
+    //  
+    void setParameters (QZhash *parametersP);
+
     //  Get/set the parameters field
     const QString parametersString (const QString &key, const QString &defaultValue);
 
@@ -121,7 +130,16 @@ public:
     //  
     void setIfNoneMatch (const QString &param);
 
-    //  Get/set the parameters field
+    //  //  Get/set the metadata field
+    QZhash * metadata ();
+
+    //  //  Get the metadata field and transfer ownership to caller
+    QZhash * getMetadata ();
+
+    //  
+    void setMetadata (QZhash *metadataP);
+
+    //  Get/set a value in the metadata dictionary
     const QString metadataString (const QString &key, const QString &defaultValue);
 
     //  

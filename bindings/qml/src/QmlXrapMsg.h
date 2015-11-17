@@ -88,6 +88,15 @@ public slots:
     //  
     void setResource (const QString &format);
 
+    //  //  Get/set the parameters field
+    zhash_t *parameters ();
+
+    //  //  Get the parameters field and transfer ownership to caller
+    zhash_t *getParameters ();
+
+    //  
+    void setParameters (zhash_t **parametersP);
+
     //  Get/set the parameters field
     const QString parametersString (const QString &key, const QString &defaultValue);
 
@@ -106,7 +115,16 @@ public slots:
     //  
     void setIfNoneMatch (const QString &format);
 
-    //  Get/set the parameters field
+    //  //  Get/set the metadata field
+    zhash_t *metadata ();
+
+    //  //  Get the metadata field and transfer ownership to caller
+    zhash_t *getMetadata ();
+
+    //  
+    void setMetadata (zhash_t **metadataP);
+
+    //  Get/set a value in the metadata dictionary
     const QString metadataString (const QString &key, const QString &defaultValue);
 
     //  

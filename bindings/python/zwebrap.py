@@ -37,6 +37,10 @@ class number_t(Structure):
     pass # Empty - only for type checking
 number_p = POINTER(number_t)
 
+class zhash_t(Structure):
+    pass # Empty - only for type checking
+zhash_p = POINTER(zhash_t)
+
 class zwr_client_t(Structure):
     pass # Empty - only for type checking
 zwr_client_p = POINTER(zwr_client_t)
@@ -109,6 +113,12 @@ lib.xrap_msg_resource.restype = c_char_p
 lib.xrap_msg_resource.argtypes = [xrap_msg_p]
 lib.xrap_msg_set_resource.restype = None
 lib.xrap_msg_set_resource.argtypes = [xrap_msg_p, c_char_p]
+lib.xrap_msg_parameters.restype = zhash_p
+lib.xrap_msg_parameters.argtypes = [xrap_msg_p]
+lib.xrap_msg_get_parameters.restype = zhash_p
+lib.xrap_msg_get_parameters.argtypes = [xrap_msg_p]
+lib.xrap_msg_set_parameters.restype = None
+lib.xrap_msg_set_parameters.argtypes = [xrap_msg_p, POINTER(zhash_p)]
 lib.xrap_msg_parameters_string.restype = c_char_p
 lib.xrap_msg_parameters_string.argtypes = [xrap_msg_p, c_char_p, c_char_p]
 lib.xrap_msg_parameters_insert.restype = None
@@ -121,6 +131,12 @@ lib.xrap_msg_if_none_match.restype = c_char_p
 lib.xrap_msg_if_none_match.argtypes = [xrap_msg_p]
 lib.xrap_msg_set_if_none_match.restype = None
 lib.xrap_msg_set_if_none_match.argtypes = [xrap_msg_p, c_char_p]
+lib.xrap_msg_metadata.restype = zhash_p
+lib.xrap_msg_metadata.argtypes = [xrap_msg_p]
+lib.xrap_msg_get_metadata.restype = zhash_p
+lib.xrap_msg_get_metadata.argtypes = [xrap_msg_p]
+lib.xrap_msg_set_metadata.restype = None
+lib.xrap_msg_set_metadata.argtypes = [xrap_msg_p, POINTER(zhash_p)]
 lib.xrap_msg_metadata_string.restype = c_char_p
 lib.xrap_msg_metadata_string.argtypes = [xrap_msg_p, c_char_p, c_char_p]
 lib.xrap_msg_metadata_insert.restype = None
@@ -344,6 +360,18 @@ or NULL either if there was no input waiting, or the recv was interrupted."""
         """"""
         return lib.xrap_msg_set_resource(self._as_parameter_, format, *args)
 
+    def parameters(self):
+        """//  Get/set the parameters field"""
+        return lib.xrap_msg_parameters(self._as_parameter_)
+
+    def get_parameters(self):
+        """//  Get the parameters field and transfer ownership to caller"""
+        return lib.xrap_msg_get_parameters(self._as_parameter_)
+
+    def set_parameters(self, parameters_p):
+        """"""
+        return lib.xrap_msg_set_parameters(self._as_parameter_, byref(zhash_p.from_param(parameters_p)))
+
     def parameters_string(self, key, default_value):
         """Get/set the parameters field"""
         return lib.xrap_msg_parameters_string(self._as_parameter_, key, default_value)
@@ -368,8 +396,20 @@ or NULL either if there was no input waiting, or the recv was interrupted."""
         """"""
         return lib.xrap_msg_set_if_none_match(self._as_parameter_, format, *args)
 
+    def metadata(self):
+        """//  Get/set the metadata field"""
+        return lib.xrap_msg_metadata(self._as_parameter_)
+
+    def get_metadata(self):
+        """//  Get the metadata field and transfer ownership to caller"""
+        return lib.xrap_msg_get_metadata(self._as_parameter_)
+
+    def set_metadata(self, metadata_p):
+        """"""
+        return lib.xrap_msg_set_metadata(self._as_parameter_, byref(zhash_p.from_param(metadata_p)))
+
     def metadata_string(self, key, default_value):
-        """Get/set the parameters field"""
+        """Get/set a value in the metadata dictionary"""
         return lib.xrap_msg_metadata_string(self._as_parameter_, key, default_value)
 
     def metadata_insert(self, key, format, *args):

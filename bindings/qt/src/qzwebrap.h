@@ -31,19 +31,23 @@
 class QXrapMsg;
 class QZwrClient;
 class QZmsg;
+class QZhash;
 class QZactor;
 class QZsock;
 class QZuuid;
 class QZframe;
+class QZlist;
 
 //  Public API classes
 #include "qxrapmsg.h"
 #include "qzwrclient.h"
 #include "qzmsg.h"
+#include "qzhash.h"
 #include "qzactor.h"
 #include "qzsock.h"
 #include "qzuuid.h"
 #include "qzframe.h"
+#include "qzlist.h"
 
 #endif //  Q_ZWEBRAP_H
 /*

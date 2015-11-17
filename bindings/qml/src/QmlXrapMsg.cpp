@@ -129,6 +129,24 @@ void QmlXrapMsg::setResource (const QString &format) {
 };
 
 ///
+//  //  Get/set the parameters field
+zhash_t *QmlXrapMsg::parameters () {
+    return xrap_msg_parameters (self);
+};
+
+///
+//  //  Get the parameters field and transfer ownership to caller
+zhash_t *QmlXrapMsg::getParameters () {
+    return xrap_msg_get_parameters (self);
+};
+
+///
+//  
+void QmlXrapMsg::setParameters (zhash_t **parametersP) {
+    xrap_msg_set_parameters (self, parametersP);
+};
+
+///
 //  Get/set the parameters field
 const QString QmlXrapMsg::parametersString (const QString &key, const QString &defaultValue) {
     return QString (xrap_msg_parameters_string (self, key.toUtf8().data(), defaultValue.toUtf8().data()));
@@ -165,7 +183,25 @@ void QmlXrapMsg::setIfNoneMatch (const QString &format) {
 };
 
 ///
-//  Get/set the parameters field
+//  //  Get/set the metadata field
+zhash_t *QmlXrapMsg::metadata () {
+    return xrap_msg_metadata (self);
+};
+
+///
+//  //  Get the metadata field and transfer ownership to caller
+zhash_t *QmlXrapMsg::getMetadata () {
+    return xrap_msg_get_metadata (self);
+};
+
+///
+//  
+void QmlXrapMsg::setMetadata (zhash_t **metadataP) {
+    xrap_msg_set_metadata (self, metadataP);
+};
+
+///
+//  Get/set a value in the metadata dictionary
 const QString QmlXrapMsg::metadataString (const QString &key, const QString &defaultValue) {
     return QString (xrap_msg_metadata_string (self, key.toUtf8().data(), defaultValue.toUtf8().data()));
 };

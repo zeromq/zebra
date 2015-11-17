@@ -5,7 +5,7 @@
 
 module Zwebrap
   module FFI
-    
+
     #     XRAP serialization over ZMTP                                        
     #                                                                         
     # /*  These are the xrap_msg messages:                                    
@@ -64,7 +64,7 @@ module Zwebrap
     # */                                                                      
     class XrapMsg
       class DestroyedError < RuntimeError; end
-      
+
       # Boilerplate for self pointer, initializer, and finalizer
       class << self
         alias :__new :new
@@ -86,7 +86,7 @@ module Zwebrap
         end
       end
       def null?
-        !@ptr or ptr.null?
+        !@ptr or @ptr.null?
       end
       # Return internal pointer
       def __ptr
@@ -105,15 +105,15 @@ module Zwebrap
         @ptr = nil
         ptr_ptr
       end
-      
+
       # Create a new xrap_msg
       def self.new id
         id = Integer(id)
         ptr = ::Zwebrap::FFI.xrap_msg_new id
-        
+
         __new ptr
       end
-      
+
       # Destroy the xrap_msg
       def destroy
         return unless @ptr
@@ -121,14 +121,14 @@ module Zwebrap
         result = ::Zwebrap::FFI.xrap_msg_destroy self_p
         result
       end
-      
+
       # Print properties of the xrap msg object.
       def print
         raise DestroyedError unless @ptr
         result = ::Zwebrap::FFI.xrap_msg_print @ptr
         result
       end
-      
+
       # Parse a xrap_msg from zmsg_t. Returns a new object, or NULL if
       # the message could not be parsed, or was NULL. Destroys msg and
       # nullifies the msg reference.                                  
@@ -137,7 +137,7 @@ module Zwebrap
         result = XrapMsg.__new result, false
         result
       end
-      
+
       # Encode xrap_msg into zmsg and destroy it. Returns a newly created       
       # object or NULL if error. Use when not in control of sending the message.
       def self.encode xrap_msg_p
@@ -145,7 +145,7 @@ module Zwebrap
         result = ::Zwebrap::FFI.xrap_msg_encode xrap_msg_p
         result
       end
-      
+
       # Receive and parse a xrap_msg from the socket. Returns new object,
       # or NULL if error. Will block if there's no message waiting.      
       def self.recv input
@@ -153,7 +153,7 @@ module Zwebrap
         result = XrapMsg.__new result, false
         result
       end
-      
+
       # Receive and parse a xrap_msg from the socket. Returns new object,         
       # or NULL either if there was no input waiting, or the recv was interrupted.
       def self.recv_nowait input
@@ -161,28 +161,28 @@ module Zwebrap
         result = XrapMsg.__new result, false
         result
       end
-      
+
       # Send the xrap_msg to the output, and destroy it
       def self.send self_p, output
         self_p = self_p.__ptr_give_ref
         result = ::Zwebrap::FFI.xrap_msg_send self_p, output
         result
       end
-      
+
       # Send the xrap_msg to the output, and destroy it
       def send_again output
         raise DestroyedError unless @ptr
         result = ::Zwebrap::FFI.xrap_msg_send_again @ptr, output
         result
       end
-      
+
       # Get the xrap_msg id and printable command
       def id
         raise DestroyedError unless @ptr
         result = ::Zwebrap::FFI.xrap_msg_id @ptr
         result
       end
-      
+
       # 
       def set_id id
         raise DestroyedError unless @ptr
@@ -190,14 +190,14 @@ module Zwebrap
         result = ::Zwebrap::FFI.xrap_msg_set_id @ptr, id
         result
       end
-      
+
       # Get/set the parent field
       def parent
         raise DestroyedError unless @ptr
         result = ::Zwebrap::FFI.xrap_msg_parent @ptr
         result
       end
-      
+
       # 
       def set_parent format, result
         raise DestroyedError unless @ptr
@@ -205,14 +205,14 @@ module Zwebrap
         result = ::Zwebrap::FFI.xrap_msg_set_parent @ptr, format, result
         result
       end
-      
+
       # Get/set the content_type field
       def content_type
         raise DestroyedError unless @ptr
         result = ::Zwebrap::FFI.xrap_msg_content_type @ptr
         result
       end
-      
+
       # 
       def set_content_type format, result
         raise DestroyedError unless @ptr
@@ -220,14 +220,14 @@ module Zwebrap
         result = ::Zwebrap::FFI.xrap_msg_set_content_type @ptr, format, result
         result
       end
-      
+
       # Get/set the parent field
       def content_body
         raise DestroyedError unless @ptr
         result = ::Zwebrap::FFI.xrap_msg_content_body @ptr
         result
       end
-      
+
       # 
       def set_content_body format, result
         raise DestroyedError unless @ptr
@@ -235,28 +235,28 @@ module Zwebrap
         result = ::Zwebrap::FFI.xrap_msg_set_content_body @ptr, format, result
         result
       end
-      
+
       # Get/set the status_code field
       def status_code
         raise DestroyedError unless @ptr
         result = ::Zwebrap::FFI.xrap_msg_status_code @ptr
         result
       end
-      
+
       # 
       def set_status_code status_code
         raise DestroyedError unless @ptr
         result = ::Zwebrap::FFI.xrap_msg_set_status_code @ptr, status_code
         result
       end
-      
+
       # Get/set the location field
       def location
         raise DestroyedError unless @ptr
         result = ::Zwebrap::FFI.xrap_msg_location @ptr
         result
       end
-      
+
       # 
       def set_location format, result
         raise DestroyedError unless @ptr
@@ -264,14 +264,14 @@ module Zwebrap
         result = ::Zwebrap::FFI.xrap_msg_set_location @ptr, format, result
         result
       end
-      
+
       # Get/set the etag field
       def etag
         raise DestroyedError unless @ptr
         result = ::Zwebrap::FFI.xrap_msg_etag @ptr
         result
       end
-      
+
       # 
       def set_etag format, result
         raise DestroyedError unless @ptr
@@ -279,28 +279,28 @@ module Zwebrap
         result = ::Zwebrap::FFI.xrap_msg_set_etag @ptr, format, result
         result
       end
-      
+
       # Get/set the date_modified field
       def date_modified
         raise DestroyedError unless @ptr
         result = ::Zwebrap::FFI.xrap_msg_date_modified @ptr
         result
       end
-      
+
       # 
       def set_date_modified date_modified
         raise DestroyedError unless @ptr
         result = ::Zwebrap::FFI.xrap_msg_set_date_modified @ptr, date_modified
         result
       end
-      
+
       # Get/set the resource field
       def resource
         raise DestroyedError unless @ptr
         result = ::Zwebrap::FFI.xrap_msg_resource @ptr
         result
       end
-      
+
       # 
       def set_resource format, result
         raise DestroyedError unless @ptr
@@ -308,7 +308,28 @@ module Zwebrap
         result = ::Zwebrap::FFI.xrap_msg_set_resource @ptr, format, result
         result
       end
-      
+
+      # //  Get/set the parameters field
+      def parameters
+        raise DestroyedError unless @ptr
+        result = ::Zwebrap::FFI.xrap_msg_parameters @ptr
+        result
+      end
+
+      # //  Get the parameters field and transfer ownership to caller
+      def get_parameters
+        raise DestroyedError unless @ptr
+        result = ::Zwebrap::FFI.xrap_msg_get_parameters @ptr
+        result
+      end
+
+      # 
+      def set_parameters parameters_p
+        raise DestroyedError unless @ptr
+        result = ::Zwebrap::FFI.xrap_msg_set_parameters @ptr, parameters_p
+        result
+      end
+
       # Get/set the parameters field
       def parameters_string key, default_value
         raise DestroyedError unless @ptr
@@ -317,7 +338,7 @@ module Zwebrap
         result = ::Zwebrap::FFI.xrap_msg_parameters_string @ptr, key, default_value
         result
       end
-      
+
       # 
       def parameters_insert key, format, result
         raise DestroyedError unless @ptr
@@ -326,28 +347,28 @@ module Zwebrap
         result = ::Zwebrap::FFI.xrap_msg_parameters_insert @ptr, key, format, result
         result
       end
-      
+
       # Get/set the if_modified_since field
       def if_modified_since
         raise DestroyedError unless @ptr
         result = ::Zwebrap::FFI.xrap_msg_if_modified_since @ptr
         result
       end
-      
+
       # 
       def set_if_modified_since if_modified_since
         raise DestroyedError unless @ptr
         result = ::Zwebrap::FFI.xrap_msg_set_if_modified_since @ptr, if_modified_since
         result
       end
-      
+
       # Get/set the if_none_match field
       def if_none_match
         raise DestroyedError unless @ptr
         result = ::Zwebrap::FFI.xrap_msg_if_none_match @ptr
         result
       end
-      
+
       # 
       def set_if_none_match format, result
         raise DestroyedError unless @ptr
@@ -355,8 +376,29 @@ module Zwebrap
         result = ::Zwebrap::FFI.xrap_msg_set_if_none_match @ptr, format, result
         result
       end
-      
-      # Get/set the parameters field
+
+      # //  Get/set the metadata field
+      def metadata
+        raise DestroyedError unless @ptr
+        result = ::Zwebrap::FFI.xrap_msg_metadata @ptr
+        result
+      end
+
+      # //  Get the metadata field and transfer ownership to caller
+      def get_metadata
+        raise DestroyedError unless @ptr
+        result = ::Zwebrap::FFI.xrap_msg_get_metadata @ptr
+        result
+      end
+
+      # 
+      def set_metadata metadata_p
+        raise DestroyedError unless @ptr
+        result = ::Zwebrap::FFI.xrap_msg_set_metadata @ptr, metadata_p
+        result
+      end
+
+      # Get/set a value in the metadata dictionary
       def metadata_string key, default_value
         raise DestroyedError unless @ptr
         key = String(key)
@@ -364,7 +406,7 @@ module Zwebrap
         result = ::Zwebrap::FFI.xrap_msg_metadata_string @ptr, key, default_value
         result
       end
-      
+
       # 
       def metadata_insert key, format, result
         raise DestroyedError unless @ptr
@@ -373,28 +415,28 @@ module Zwebrap
         result = ::Zwebrap::FFI.xrap_msg_metadata_insert @ptr, key, format, result
         result
       end
-      
+
       # Get/set the if_unmodified_since field
       def if_unmodified_since
         raise DestroyedError unless @ptr
         result = ::Zwebrap::FFI.xrap_msg_if_unmodified_since @ptr
         result
       end
-      
+
       # 
       def set_if_unmodified_since if_unmodified_since
         raise DestroyedError unless @ptr
         result = ::Zwebrap::FFI.xrap_msg_set_if_unmodified_since @ptr, if_unmodified_since
         result
       end
-      
+
       # Get/set the if_match field
       def if_match
         raise DestroyedError unless @ptr
         result = ::Zwebrap::FFI.xrap_msg_if_match @ptr
         result
       end
-      
+
       # 
       def set_if_match format, result
         raise DestroyedError unless @ptr
@@ -402,14 +444,14 @@ module Zwebrap
         result = ::Zwebrap::FFI.xrap_msg_set_if_match @ptr, format, result
         result
       end
-      
+
       # Get/set the status_text field
       def status_text
         raise DestroyedError unless @ptr
         result = ::Zwebrap::FFI.xrap_msg_status_text @ptr
         result
       end
-      
+
       # 
       def set_status_text format, result
         raise DestroyedError unless @ptr
@@ -417,7 +459,7 @@ module Zwebrap
         result = ::Zwebrap::FFI.xrap_msg_set_status_text @ptr, format, result
         result
       end
-      
+
       # Self test of this class.
       def self.test verbose
         verbose = !(0==verbose||!verbose) # boolean
@@ -425,7 +467,7 @@ module Zwebrap
         result
       end
     end
-    
+
   end
 end
 

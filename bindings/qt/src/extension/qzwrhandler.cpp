@@ -4,7 +4,7 @@ QZwrHandler::QZwrHandler(QString endpoint, QObject *parent) : QThread(parent)
 {
    this->_terminated = false;
    this->_endpoint = endpoint;
-   this->_defaultVersion = "v1";
+   this->_defaultVersion = "v2";
 }
 
 void QZwrHandler::initHandler() {
@@ -101,16 +101,16 @@ void QZwrHandler::run()
          continue;   //  Timeout triggered or interupted
       }
       QZmsg *request = handler->recv();
-      xrap_msg_t *xrequest = xrap_msg_decode (&request->self);
+      QXrapMsg *xrequest = QXrapMsg::decode(request);
 
       //  Check if accept is supported
-      QString accept (xrap_msg_content_type (xrequest));
+      QString accept = xrequest->contentType();
       if (!resolveAccept(accept)) {
-         xrap_msg_t *xresponse = xrap_msg_new (XRAP_MSG_ERROR);
-         xrap_msg_set_status_code (xresponse, 406);
-         xrap_msg_set_status_text (xresponse, "Accept type not supported!");
-         zmsg_t *zresponse = xrap_msg_encode (&xresponse);
-         QZmsg *response = new QZmsg (zresponse);
+         QXrapMsg *xresponse = new QXrapMsg(XRAP_MSG_ERROR);
+         xresponse->setStatusCode(406);
+         xresponse->setStatusText("Accept type not supported!");
+
+         QZmsg * response = QXrapMsg::encode(xresponse);
          handler->deliver(handler->sender(), response);
          continue;
       }

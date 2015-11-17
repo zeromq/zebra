@@ -11,11 +11,11 @@ require_relative 'ffi/version'
 module Zwebrap
   module FFI
     extend ::FFI::Library
-    
+
     def self.available?
       @available
     end
-    
+
     begin
       lib_name = 'libzwebrap'
       lib_paths = ['/usr/local/lib', '/opt/local/lib', '/usr/lib64']
@@ -28,12 +28,12 @@ module Zwebrap
       warn ""
       @available = false
     end
-    
+
     if available?
       opts = {
         blocking: true  # only necessary on MRI to deal with the GIL.
       }
-      
+
       attach_function :xrap_msg_new, [:int], :pointer, **opts
       attach_function :xrap_msg_destroy, [:pointer], :void, **opts
       attach_function :xrap_msg_print, [:pointer], :void, **opts
@@ -61,12 +61,18 @@ module Zwebrap
       attach_function :xrap_msg_set_date_modified, [:pointer, :pointer], :void, **opts
       attach_function :xrap_msg_resource, [:pointer], :string, **opts
       attach_function :xrap_msg_set_resource, [:pointer, :string, :varargs], :void, **opts
+      attach_function :xrap_msg_parameters, [:pointer], :pointer, **opts
+      attach_function :xrap_msg_get_parameters, [:pointer], :pointer, **opts
+      attach_function :xrap_msg_set_parameters, [:pointer, :pointer], :void, **opts
       attach_function :xrap_msg_parameters_string, [:pointer, :string, :string], :string, **opts
       attach_function :xrap_msg_parameters_insert, [:pointer, :string, :string, :varargs], :void, **opts
       attach_function :xrap_msg_if_modified_since, [:pointer], :pointer, **opts
       attach_function :xrap_msg_set_if_modified_since, [:pointer, :pointer], :void, **opts
       attach_function :xrap_msg_if_none_match, [:pointer], :string, **opts
       attach_function :xrap_msg_set_if_none_match, [:pointer, :string, :varargs], :void, **opts
+      attach_function :xrap_msg_metadata, [:pointer], :pointer, **opts
+      attach_function :xrap_msg_get_metadata, [:pointer], :pointer, **opts
+      attach_function :xrap_msg_set_metadata, [:pointer, :pointer], :void, **opts
       attach_function :xrap_msg_metadata_string, [:pointer, :string, :string], :string, **opts
       attach_function :xrap_msg_metadata_insert, [:pointer, :string, :string, :varargs], :void, **opts
       attach_function :xrap_msg_if_unmodified_since, [:pointer], :pointer, **opts
@@ -76,9 +82,9 @@ module Zwebrap
       attach_function :xrap_msg_status_text, [:pointer], :string, **opts
       attach_function :xrap_msg_set_status_text, [:pointer, :string, :varargs], :void, **opts
       attach_function :xrap_msg_test, [:bool], :void, **opts
-      
+
       require_relative 'ffi/xrap_msg'
-      
+
       attach_function :zwr_client_new, [], :pointer, **opts
       attach_function :zwr_client_destroy, [:pointer], :void, **opts
       attach_function :zwr_client_actor, [:pointer], :pointer, **opts
@@ -95,7 +101,7 @@ module Zwebrap
       attach_function :zwr_client_sender, [:pointer], :pointer, **opts
       attach_function :zwr_client_content, [:pointer], :pointer, **opts
       attach_function :zwr_client_test, [:bool], :void, **opts
-      
+
       require_relative 'ffi/zwr_client'
     end
   end

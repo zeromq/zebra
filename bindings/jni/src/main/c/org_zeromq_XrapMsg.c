@@ -138,7 +138,19 @@ JNIEXPORT void JNICALL Java_org_zeromq_XrapMsg_ifNoneMatch (JNIEnv *env, jobject
 JNIEXPORT void JNICALL Java_org_zeromq_XrapMsg_setIfNoneMatch (JNIEnv *env, jobject thisObj) {
 }
 
-//  Get/set the parameters field
+//  //  Get/set the metadata field
+JNIEXPORT void JNICALL Java_org_zeromq_XrapMsg_metadata (JNIEnv *env, jobject thisObj) {
+}
+
+//  //  Get the metadata field and transfer ownership to caller
+JNIEXPORT void JNICALL Java_org_zeromq_XrapMsg_getMetadata (JNIEnv *env, jobject thisObj) {
+}
+
+//  
+JNIEXPORT void JNICALL Java_org_zeromq_XrapMsg_setMetadata (JNIEnv *env, jobject thisObj) {
+}
+
+//  Get/set a value in the metadata dictionary
 JNIEXPORT void JNICALL Java_org_zeromq_XrapMsg_metadataString (JNIEnv *env, jobject thisObj) {
 }
 

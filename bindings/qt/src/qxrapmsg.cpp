@@ -235,6 +235,30 @@ void QXrapMsg::setResource (const QString &param)
 }
 
 ///
+//  //  Get/set the parameters field
+QZhash * QXrapMsg::parameters ()
+{
+    QZhash *rv = new QZhash (xrap_msg_parameters (self));
+    return rv;
+}
+
+///
+//  //  Get the parameters field and transfer ownership to caller
+QZhash * QXrapMsg::getParameters ()
+{
+    QZhash *rv = new QZhash (xrap_msg_get_parameters (self));
+    return rv;
+}
+
+///
+//  
+void QXrapMsg::setParameters (QZhash *parametersP)
+{
+    xrap_msg_set_parameters (self, &parametersP->self);
+    
+}
+
+///
 //  Get/set the parameters field
 const QString QXrapMsg::parametersString (const QString &key, const QString &defaultValue)
 {
@@ -283,7 +307,31 @@ void QXrapMsg::setIfNoneMatch (const QString &param)
 }
 
 ///
-//  Get/set the parameters field
+//  //  Get/set the metadata field
+QZhash * QXrapMsg::metadata ()
+{
+    QZhash *rv = new QZhash (xrap_msg_metadata (self));
+    return rv;
+}
+
+///
+//  //  Get the metadata field and transfer ownership to caller
+QZhash * QXrapMsg::getMetadata ()
+{
+    QZhash *rv = new QZhash (xrap_msg_get_metadata (self));
+    return rv;
+}
+
+///
+//  
+void QXrapMsg::setMetadata (QZhash *metadataP)
+{
+    xrap_msg_set_metadata (self, &metadataP->self);
+    
+}
+
+///
+//  Get/set a value in the metadata dictionary
 const QString QXrapMsg::metadataString (const QString &key, const QString &defaultValue)
 {
     const QString rv = QString (xrap_msg_metadata_string (self, key.toUtf8().data(), defaultValue.toUtf8().data()));

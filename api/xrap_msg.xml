@@ -201,6 +201,20 @@
         <argument name = "format" type = "format" />
     </method>
 
+    <method name = "parameters">
+        //  Get/set the parameters field
+        <return type = "zhash" />
+    </method>
+
+    <method name = "get parameters">
+        //  Get the parameters field and transfer ownership to caller
+        <return type = "zhash" />
+    </method>
+
+    <method name = "set parameters">
+        <argument name = "parameters_p" type = "zhash" by_reference = "1" />
+    </method>
+
     <method name = "parameters string">
         Get/set the parameters field
         <argument name = "key" type = "string" constant = "1" />
@@ -231,8 +245,22 @@
         <argument name = "format" type = "format" />
     </method>
 
+    <method name = "metadata">
+        //  Get/set the metadata field
+        <return type = "zhash" />
+    </method>
+
+    <method name = "get metadata">
+        //  Get the metadata field and transfer ownership to caller
+        <return type = "zhash" />
+    </method>
+
+    <method name = "set metadata">
+        <argument name = "metadata_p" type = "zhash" by_reference = "1" />
+    </method>
+
     <method name = "metadata string">
-        Get/set the parameters field
+        Get/set a value in the metadata dictionary
         <argument name = "key" type = "string" constant = "1" />
         <argument name = "default_value" type = "string" constant = "1" />
         <return type = "string" constant = "1" />
