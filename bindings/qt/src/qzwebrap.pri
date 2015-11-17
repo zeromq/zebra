@@ -14,19 +14,23 @@ qzwebrap-uselib:!qzwebrap-buildlib {
                      $$PWD/qxrapmsg.h \
                      $$PWD/qzwrclient.h \
                      $$PWD/qzmsg.h \
+                     $$PWD/qzhash.h \
                      $$PWD/qzactor.h \
                      $$PWD/qzsock.h \
                      $$PWD/qzuuid.h \
-                     $$PWD/qzframe.h
+                     $$PWD/qzframe.h \
+                     $$PWD/qzlist.h
 
     SOURCES       += \
                      $$PWD/qxrapmsg.cpp \
                      $$PWD/qzwrclient.cpp \
                      $$PWD/qzmsg.cpp \
+                     $$PWD/qzhash.cpp \
                      $$PWD/qzactor.cpp \
                      $$PWD/qzsock.cpp \
                      $$PWD/qzuuid.cpp \
-                     $$PWD/qzframe.cpp
+                     $$PWD/qzframe.cpp \
+                     $$PWD/qzlist.cpp
 }
 
 win32 {
