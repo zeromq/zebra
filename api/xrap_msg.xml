@@ -56,8 +56,6 @@
         status_text         string      Response status text
 */
 
-    <include filename = "../license.xml" />
-
     <constant name = "post"        value = "1" />
     <constant name = "post ok"     value = "2" />
     <constant name = "get"         value = "3" />

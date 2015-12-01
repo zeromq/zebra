@@ -125,6 +125,7 @@ ENDIF (LIBCURL_FOUND)
 set (zwebrap_headers
     include/zwebrap_library.h
     include/zwebrap.h
+    include/zeb_handler.h
     src/zwr_request.h
     src/zwr_response.h
     src/zwr_connection.h
@@ -144,6 +145,7 @@ install(FILES ${zwebrap_headers} DESTINATION include)
 ########################################################################
 include_directories("${BINARY_DIR}" "${SOURCE_DIR}/include")
 set (zwebrap_sources
+    src/zeb_handler.c
     src/zwr_request.c
     src/zwr_response.c
     src/zwr_connection.c
@@ -195,6 +197,7 @@ set(CLASSTEST_TIMEOUT 5 CACHE STRING "Timeout of the selftest of a class")
 set(TOTAL_TIMEOUT 20 CACHE STRING "Timout of the total testsuite")
 
 set(TEST_CLASSES
+  zeb_handler_test
   zwr_request_test
   zwr_response_test
   zwr_connection_test

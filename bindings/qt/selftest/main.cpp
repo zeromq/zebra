@@ -17,6 +17,7 @@ int main(int argc, char **argv)
 
     qDebug() << "Running qzwebrap selftests...\n";
 
+    QZebHandler::test (verbose);
     QXrapMsg::test (verbose);
     QZwrClient::test (verbose);
     QZmsg::test (verbose);

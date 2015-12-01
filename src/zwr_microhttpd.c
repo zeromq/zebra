@@ -84,18 +84,6 @@ struct _zwr_microhttpd_t {
 
 //  Local helper functions
 
-char *
-s_concat (char *s1, char *s2)
-{
-    size_t len1 = strlen (s1);
-    size_t len2 = strlen (s2);
-    char *result = (char *) malloc (len1 + len2 + 1);    //+1 for the zero-terminator
-    assert (result);
-    memcpy (result, s1, len1);
-    memcpy (result + len1, s2, len2 + 1);       //+1 to copy the null-terminator
-    return result;
-}
-
 static void
 s_destroy_ratelimit (void **self_p);
 

@@ -23,9 +23,6 @@ public:
     //  Destroy the xrap_msg
     ~QXrapMsg ();
 
-    //  Print properties of the xrap msg object.
-    void print ();
-
     //  Parse a xrap_msg from zmsg_t. Returns a new object, or NULL if
     //  the message could not be parsed, or was NULL. Destroys msg and
     //  nullifies the msg reference.                                  

@@ -1,5 +1,5 @@
 /*  =========================================================================
-    zwr_client - ZWebRap Client
+    zwr_client - zeb_server client implementation for both clients and handlers
 
     ** WARNING *************************************************************
     THIS SOURCE FILE IS 100% GENERATED. If you edit this file, you will lose

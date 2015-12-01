@@ -15,8 +15,8 @@
     =========================================================================
 */
 
-#ifndef zwebrap_library_H_INCLUDED
-#define zwebrap_library_H_INCLUDED
+#ifndef ZWEBRAP_LIBRARY_H_INCLUDED
+#define ZWEBRAP_LIBRARY_H_INCLUDED
 
 //  Set up environment for the application
 
@@ -48,6 +48,8 @@
 #endif
 
 //  Opaque class structures to allow forward references
+typedef struct _zeb_handler_t zeb_handler_t;
+#define ZEB_HANDLER_T_DEFINED
 typedef struct _zwr_microhttpd_t zwr_microhttpd_t;
 #define ZWR_MICROHTTPD_T_DEFINED
 typedef struct _xrap_msg_t xrap_msg_t;
@@ -61,6 +63,7 @@ typedef struct _zwr_client_t zwr_client_t;
 
 
 //  Public API classes
+#include "zeb_handler.h"
 #include "zwr_microhttpd.h"
 #include "xrap_msg.h"
 #include "xrap_traffic.h"

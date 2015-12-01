@@ -9,6 +9,12 @@
 
 
 ///
+//  
+void QmlZwrClient::print () {
+    zwr_client_print (self);
+};
+
+///
 //  Return actor, when caller wants to work with multiple actors and/or
 //  input sockets asynchronously.                                      
 zactor_t *QmlZwrClient::actor () {

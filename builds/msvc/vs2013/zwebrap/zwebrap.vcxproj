@@ -83,6 +83,9 @@
     <ClInclude Include="..\..\..\..\src\zwr_client_engine.inc" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\..\src\zeb_handler.c">
+      <CompileAs>CompileAsCpp</CompileAs>
+    </ClCompile>
     <ClCompile Include="..\..\..\..\src\zwr_request.c">
       <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>

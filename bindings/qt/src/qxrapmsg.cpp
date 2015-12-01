@@ -30,14 +30,6 @@ QXrapMsg::~QXrapMsg ()
 }
 
 ///
-//  Print properties of the xrap msg object.
-void QXrapMsg::print ()
-{
-    xrap_msg_print (self);
-    
-}
-
-///
 //  Parse a xrap_msg from zmsg_t. Returns a new object, or NULL if
 //  the message could not be parsed, or was NULL. Destroys msg and
 //  nullifies the msg reference.                                  

@@ -11,7 +11,7 @@ AC_PREREQ(2.61)
 # the version.sh script. Hence, it should be updated there.
 # The version in git should reflect the *next* version planned.
 #
-AC_INIT([zwebrap],[m4_esyscmd([./version.sh zwebrap])],[zeromq-dev@lists.zeromq.org])
+AC_INIT([zwebrap],[m4_esyscmd([./version.sh zwebrap.h])],[zeromq-dev@lists.zeromq.org])
 
 AC_CONFIG_AUX_DIR(config)
 AC_CONFIG_MACRO_DIR(config)
@@ -129,7 +129,7 @@ PKG_CHECK_MODULES([libmicrohttpd], [libmicrohttpd >= 0.0.0],
             fi
         fi
 
-        AC_CHECK_LIB([libmicrohttpd], [mhd_start_daemon],
+        AC_CHECK_LIB([libmicrohttpd], [MHD_start_daemon],
             [
                 CFLAGS="${libmicrohttpd_synthetic_cflags} ${CFLAGS}"
                 LDFLAGS="${libmicrohttpd_synthetic_libs} ${LDFLAGS}"

@@ -74,7 +74,7 @@ module Zwebrap
         if @ptr.null?
           @ptr = nil # Remove null pointers so we don't have to test for them.
         elsif finalize
-          @finalizer = self.class.send :create_finalizer_for, @ptr
+          @finalizer = self.class.create_finalizer_for @ptr
           ObjectSpace.define_finalizer self, @finalizer
         end
       end
@@ -107,367 +107,397 @@ module Zwebrap
       end
 
       # Create a new xrap_msg
-      def self.new id
+      def self.new(id)
         id = Integer(id)
-        ptr = ::Zwebrap::FFI.xrap_msg_new id
-
+        ptr = ::Zwebrap::FFI.xrap_msg_new(id)
         __new ptr
       end
 
       # Destroy the xrap_msg
-      def destroy
+      def destroy()
         return unless @ptr
         self_p = __ptr_give_ref
-        result = ::Zwebrap::FFI.xrap_msg_destroy self_p
-        result
-      end
-
-      # Print properties of the xrap msg object.
-      def print
-        raise DestroyedError unless @ptr
-        result = ::Zwebrap::FFI.xrap_msg_print @ptr
+        result = ::Zwebrap::FFI.xrap_msg_destroy(self_p)
         result
       end
 
       # Parse a xrap_msg from zmsg_t. Returns a new object, or NULL if
       # the message could not be parsed, or was NULL. Destroys msg and
       # nullifies the msg reference.                                  
-      def self.decode msg_p
-        result = ::Zwebrap::FFI.xrap_msg_decode msg_p
+      def self.decode(msg_p)
+        result = ::Zwebrap::FFI.xrap_msg_decode(msg_p)
         result = XrapMsg.__new result, false
         result
       end
 
       # Encode xrap_msg into zmsg and destroy it. Returns a newly created       
       # object or NULL if error. Use when not in control of sending the message.
-      def self.encode xrap_msg_p
+      def self.encode(xrap_msg_p)
         xrap_msg_p = xrap_msg_p.__ptr_give_ref
-        result = ::Zwebrap::FFI.xrap_msg_encode xrap_msg_p
+        result = ::Zwebrap::FFI.xrap_msg_encode(xrap_msg_p)
         result
       end
 
       # Receive and parse a xrap_msg from the socket. Returns new object,
       # or NULL if error. Will block if there's no message waiting.      
-      def self.recv input
-        result = ::Zwebrap::FFI.xrap_msg_recv input
+      def self.recv(input)
+        result = ::Zwebrap::FFI.xrap_msg_recv(input)
         result = XrapMsg.__new result, false
         result
       end
 
       # Receive and parse a xrap_msg from the socket. Returns new object,         
       # or NULL either if there was no input waiting, or the recv was interrupted.
-      def self.recv_nowait input
-        result = ::Zwebrap::FFI.xrap_msg_recv_nowait input
+      def self.recv_nowait(input)
+        result = ::Zwebrap::FFI.xrap_msg_recv_nowait(input)
         result = XrapMsg.__new result, false
         result
       end
 
       # Send the xrap_msg to the output, and destroy it
-      def self.send self_p, output
+      def self.send(self_p, output)
         self_p = self_p.__ptr_give_ref
-        result = ::Zwebrap::FFI.xrap_msg_send self_p, output
+        result = ::Zwebrap::FFI.xrap_msg_send(self_p, output)
         result
       end
 
       # Send the xrap_msg to the output, and destroy it
-      def send_again output
+      def send_again(output)
         raise DestroyedError unless @ptr
-        result = ::Zwebrap::FFI.xrap_msg_send_again @ptr, output
+        self_p = @ptr
+        result = ::Zwebrap::FFI.xrap_msg_send_again(self_p, output)
         result
       end
 
       # Get the xrap_msg id and printable command
-      def id
+      def id()
         raise DestroyedError unless @ptr
-        result = ::Zwebrap::FFI.xrap_msg_id @ptr
+        self_p = @ptr
+        result = ::Zwebrap::FFI.xrap_msg_id(self_p)
         result
       end
 
       # 
-      def set_id id
+      def set_id(id)
         raise DestroyedError unless @ptr
+        self_p = @ptr
         id = Integer(id)
-        result = ::Zwebrap::FFI.xrap_msg_set_id @ptr, id
+        result = ::Zwebrap::FFI.xrap_msg_set_id(self_p, id)
         result
       end
 
       # Get/set the parent field
-      def parent
+      def parent()
         raise DestroyedError unless @ptr
-        result = ::Zwebrap::FFI.xrap_msg_parent @ptr
+        self_p = @ptr
+        result = ::Zwebrap::FFI.xrap_msg_parent(self_p)
         result
       end
 
       # 
-      def set_parent format, result
+      def set_parent(format, *args)
         raise DestroyedError unless @ptr
+        self_p = @ptr
         format = String(format)
-        result = ::Zwebrap::FFI.xrap_msg_set_parent @ptr, format, result
+        result = ::Zwebrap::FFI.xrap_msg_set_parent(self_p, format, *args)
         result
       end
 
       # Get/set the content_type field
-      def content_type
+      def content_type()
         raise DestroyedError unless @ptr
-        result = ::Zwebrap::FFI.xrap_msg_content_type @ptr
+        self_p = @ptr
+        result = ::Zwebrap::FFI.xrap_msg_content_type(self_p)
         result
       end
 
       # 
-      def set_content_type format, result
+      def set_content_type(format, *args)
         raise DestroyedError unless @ptr
+        self_p = @ptr
         format = String(format)
-        result = ::Zwebrap::FFI.xrap_msg_set_content_type @ptr, format, result
+        result = ::Zwebrap::FFI.xrap_msg_set_content_type(self_p, format, *args)
         result
       end
 
       # Get/set the parent field
-      def content_body
+      def content_body()
         raise DestroyedError unless @ptr
-        result = ::Zwebrap::FFI.xrap_msg_content_body @ptr
+        self_p = @ptr
+        result = ::Zwebrap::FFI.xrap_msg_content_body(self_p)
         result
       end
 
       # 
-      def set_content_body format, result
+      def set_content_body(format, *args)
         raise DestroyedError unless @ptr
+        self_p = @ptr
         format = String(format)
-        result = ::Zwebrap::FFI.xrap_msg_set_content_body @ptr, format, result
+        result = ::Zwebrap::FFI.xrap_msg_set_content_body(self_p, format, *args)
         result
       end
 
       # Get/set the status_code field
-      def status_code
+      def status_code()
         raise DestroyedError unless @ptr
-        result = ::Zwebrap::FFI.xrap_msg_status_code @ptr
+        self_p = @ptr
+        result = ::Zwebrap::FFI.xrap_msg_status_code(self_p)
         result
       end
 
       # 
-      def set_status_code status_code
+      def set_status_code(status_code)
         raise DestroyedError unless @ptr
-        result = ::Zwebrap::FFI.xrap_msg_set_status_code @ptr, status_code
+        self_p = @ptr
+        result = ::Zwebrap::FFI.xrap_msg_set_status_code(self_p, status_code)
         result
       end
 
       # Get/set the location field
-      def location
+      def location()
         raise DestroyedError unless @ptr
-        result = ::Zwebrap::FFI.xrap_msg_location @ptr
+        self_p = @ptr
+        result = ::Zwebrap::FFI.xrap_msg_location(self_p)
         result
       end
 
       # 
-      def set_location format, result
+      def set_location(format, *args)
         raise DestroyedError unless @ptr
+        self_p = @ptr
         format = String(format)
-        result = ::Zwebrap::FFI.xrap_msg_set_location @ptr, format, result
+        result = ::Zwebrap::FFI.xrap_msg_set_location(self_p, format, *args)
         result
       end
 
       # Get/set the etag field
-      def etag
+      def etag()
         raise DestroyedError unless @ptr
-        result = ::Zwebrap::FFI.xrap_msg_etag @ptr
+        self_p = @ptr
+        result = ::Zwebrap::FFI.xrap_msg_etag(self_p)
         result
       end
 
       # 
-      def set_etag format, result
+      def set_etag(format, *args)
         raise DestroyedError unless @ptr
+        self_p = @ptr
         format = String(format)
-        result = ::Zwebrap::FFI.xrap_msg_set_etag @ptr, format, result
+        result = ::Zwebrap::FFI.xrap_msg_set_etag(self_p, format, *args)
         result
       end
 
       # Get/set the date_modified field
-      def date_modified
+      def date_modified()
         raise DestroyedError unless @ptr
-        result = ::Zwebrap::FFI.xrap_msg_date_modified @ptr
+        self_p = @ptr
+        result = ::Zwebrap::FFI.xrap_msg_date_modified(self_p)
         result
       end
 
       # 
-      def set_date_modified date_modified
+      def set_date_modified(date_modified)
         raise DestroyedError unless @ptr
-        result = ::Zwebrap::FFI.xrap_msg_set_date_modified @ptr, date_modified
+        self_p = @ptr
+        result = ::Zwebrap::FFI.xrap_msg_set_date_modified(self_p, date_modified)
         result
       end
 
       # Get/set the resource field
-      def resource
+      def resource()
         raise DestroyedError unless @ptr
-        result = ::Zwebrap::FFI.xrap_msg_resource @ptr
+        self_p = @ptr
+        result = ::Zwebrap::FFI.xrap_msg_resource(self_p)
         result
       end
 
       # 
-      def set_resource format, result
+      def set_resource(format, *args)
         raise DestroyedError unless @ptr
+        self_p = @ptr
         format = String(format)
-        result = ::Zwebrap::FFI.xrap_msg_set_resource @ptr, format, result
+        result = ::Zwebrap::FFI.xrap_msg_set_resource(self_p, format, *args)
         result
       end
 
       # //  Get/set the parameters field
-      def parameters
+      def parameters()
         raise DestroyedError unless @ptr
-        result = ::Zwebrap::FFI.xrap_msg_parameters @ptr
+        self_p = @ptr
+        result = ::Zwebrap::FFI.xrap_msg_parameters(self_p)
         result
       end
 
       # //  Get the parameters field and transfer ownership to caller
-      def get_parameters
+      def get_parameters()
         raise DestroyedError unless @ptr
-        result = ::Zwebrap::FFI.xrap_msg_get_parameters @ptr
+        self_p = @ptr
+        result = ::Zwebrap::FFI.xrap_msg_get_parameters(self_p)
         result
       end
 
       # 
-      def set_parameters parameters_p
+      def set_parameters(parameters_p)
         raise DestroyedError unless @ptr
-        result = ::Zwebrap::FFI.xrap_msg_set_parameters @ptr, parameters_p
+        self_p = @ptr
+        result = ::Zwebrap::FFI.xrap_msg_set_parameters(self_p, parameters_p)
         result
       end
 
       # Get/set the parameters field
-      def parameters_string key, default_value
+      def parameters_string(key, default_value)
         raise DestroyedError unless @ptr
+        self_p = @ptr
         key = String(key)
         default_value = String(default_value)
-        result = ::Zwebrap::FFI.xrap_msg_parameters_string @ptr, key, default_value
+        result = ::Zwebrap::FFI.xrap_msg_parameters_string(self_p, key, default_value)
         result
       end
 
       # 
-      def parameters_insert key, format, result
+      def parameters_insert(key, format, *args)
         raise DestroyedError unless @ptr
+        self_p = @ptr
         key = String(key)
         format = String(format)
-        result = ::Zwebrap::FFI.xrap_msg_parameters_insert @ptr, key, format, result
+        result = ::Zwebrap::FFI.xrap_msg_parameters_insert(self_p, key, format, *args)
         result
       end
 
       # Get/set the if_modified_since field
-      def if_modified_since
+      def if_modified_since()
         raise DestroyedError unless @ptr
-        result = ::Zwebrap::FFI.xrap_msg_if_modified_since @ptr
+        self_p = @ptr
+        result = ::Zwebrap::FFI.xrap_msg_if_modified_since(self_p)
         result
       end
 
       # 
-      def set_if_modified_since if_modified_since
+      def set_if_modified_since(if_modified_since)
         raise DestroyedError unless @ptr
-        result = ::Zwebrap::FFI.xrap_msg_set_if_modified_since @ptr, if_modified_since
+        self_p = @ptr
+        result = ::Zwebrap::FFI.xrap_msg_set_if_modified_since(self_p, if_modified_since)
         result
       end
 
       # Get/set the if_none_match field
-      def if_none_match
+      def if_none_match()
         raise DestroyedError unless @ptr
-        result = ::Zwebrap::FFI.xrap_msg_if_none_match @ptr
+        self_p = @ptr
+        result = ::Zwebrap::FFI.xrap_msg_if_none_match(self_p)
         result
       end
 
       # 
-      def set_if_none_match format, result
+      def set_if_none_match(format, *args)
         raise DestroyedError unless @ptr
+        self_p = @ptr
         format = String(format)
-        result = ::Zwebrap::FFI.xrap_msg_set_if_none_match @ptr, format, result
+        result = ::Zwebrap::FFI.xrap_msg_set_if_none_match(self_p, format, *args)
         result
       end
 
       # //  Get/set the metadata field
-      def metadata
+      def metadata()
         raise DestroyedError unless @ptr
-        result = ::Zwebrap::FFI.xrap_msg_metadata @ptr
+        self_p = @ptr
+        result = ::Zwebrap::FFI.xrap_msg_metadata(self_p)
         result
       end
 
       # //  Get the metadata field and transfer ownership to caller
-      def get_metadata
+      def get_metadata()
         raise DestroyedError unless @ptr
-        result = ::Zwebrap::FFI.xrap_msg_get_metadata @ptr
+        self_p = @ptr
+        result = ::Zwebrap::FFI.xrap_msg_get_metadata(self_p)
         result
       end
 
       # 
-      def set_metadata metadata_p
+      def set_metadata(metadata_p)
         raise DestroyedError unless @ptr
-        result = ::Zwebrap::FFI.xrap_msg_set_metadata @ptr, metadata_p
+        self_p = @ptr
+        result = ::Zwebrap::FFI.xrap_msg_set_metadata(self_p, metadata_p)
         result
       end
 
       # Get/set a value in the metadata dictionary
-      def metadata_string key, default_value
+      def metadata_string(key, default_value)
         raise DestroyedError unless @ptr
+        self_p = @ptr
         key = String(key)
         default_value = String(default_value)
-        result = ::Zwebrap::FFI.xrap_msg_metadata_string @ptr, key, default_value
+        result = ::Zwebrap::FFI.xrap_msg_metadata_string(self_p, key, default_value)
         result
       end
 
       # 
-      def metadata_insert key, format, result
+      def metadata_insert(key, format, *args)
         raise DestroyedError unless @ptr
+        self_p = @ptr
         key = String(key)
         format = String(format)
-        result = ::Zwebrap::FFI.xrap_msg_metadata_insert @ptr, key, format, result
+        result = ::Zwebrap::FFI.xrap_msg_metadata_insert(self_p, key, format, *args)
         result
       end
 
       # Get/set the if_unmodified_since field
-      def if_unmodified_since
+      def if_unmodified_since()
         raise DestroyedError unless @ptr
-        result = ::Zwebrap::FFI.xrap_msg_if_unmodified_since @ptr
+        self_p = @ptr
+        result = ::Zwebrap::FFI.xrap_msg_if_unmodified_since(self_p)
         result
       end
 
       # 
-      def set_if_unmodified_since if_unmodified_since
+      def set_if_unmodified_since(if_unmodified_since)
         raise DestroyedError unless @ptr
-        result = ::Zwebrap::FFI.xrap_msg_set_if_unmodified_since @ptr, if_unmodified_since
+        self_p = @ptr
+        result = ::Zwebrap::FFI.xrap_msg_set_if_unmodified_since(self_p, if_unmodified_since)
         result
       end
 
       # Get/set the if_match field
-      def if_match
+      def if_match()
         raise DestroyedError unless @ptr
-        result = ::Zwebrap::FFI.xrap_msg_if_match @ptr
+        self_p = @ptr
+        result = ::Zwebrap::FFI.xrap_msg_if_match(self_p)
         result
       end
 
       # 
-      def set_if_match format, result
+      def set_if_match(format, *args)
         raise DestroyedError unless @ptr
+        self_p = @ptr
         format = String(format)
-        result = ::Zwebrap::FFI.xrap_msg_set_if_match @ptr, format, result
+        result = ::Zwebrap::FFI.xrap_msg_set_if_match(self_p, format, *args)
         result
       end
 
       # Get/set the status_text field
-      def status_text
+      def status_text()
         raise DestroyedError unless @ptr
-        result = ::Zwebrap::FFI.xrap_msg_status_text @ptr
+        self_p = @ptr
+        result = ::Zwebrap::FFI.xrap_msg_status_text(self_p)
         result
       end
 
       # 
-      def set_status_text format, result
+      def set_status_text(format, *args)
         raise DestroyedError unless @ptr
+        self_p = @ptr
         format = String(format)
-        result = ::Zwebrap::FFI.xrap_msg_set_status_text @ptr, format, result
+        result = ::Zwebrap::FFI.xrap_msg_set_status_text(self_p, format, *args)
         result
       end
 
       # Self test of this class.
-      def self.test verbose
+      def self.test(verbose)
         verbose = !(0==verbose||!verbose) # boolean
-        result = ::Zwebrap::FFI.xrap_msg_test verbose
+        result = ::Zwebrap::FFI.xrap_msg_test(verbose)
         result
       end
     end
-
   end
 end
 

@@ -67,15 +67,6 @@ int QZframe::send (void *dest, int flags)
 }
 
 ///
-//  Send a reply frame to a server socket, copy the routing id from source message, destroy frame after sending.
-//  Return -1 on error, 0 on success.                                                                           
-int QZframe::sendReply (QZframe *sourceMsg, void *dest, int flags)
-{
-    int rv = zframe_send_reply (&self, sourceMsg->self, dest, flags);
-    return rv;
-}
-
-///
 //  Return number of bytes in frame data
 size_t QZframe::size ()
 {
@@ -149,19 +140,20 @@ void QZframe::setMore (int more)
 }
 
 ///
-//  Return frame routing id, set when reading frame from server socket
-//  or by the zframe_set_routing_id() method.                         
-size_t QZframe::routingId ()
+//  Return frame routing ID, if the frame came from a ZMQ_SERVER socket.
+//  Else returns zero.                                                  
+quint32 QZframe::routingId ()
 {
-    size_t rv = zframe_routing_id (self);
+    uint32_t rv = zframe_routing_id (self);
     return rv;
 }
 
 ///
-//  Set frame routing id. Only relevant when sending to server socket.
-void QZframe::setRoutingId (size_t routingId)
+//  Set routing ID on frame. This is used if/when the frame is sent to a
+//  ZMQ_SERVER socket.                                                  
+void QZframe::setRoutingId (quint32 routingId)
 {
-    zframe_set_routing_id (self, routingId);
+    zframe_set_routing_id (self, (uint32_t) routingId);
     
 }
 
@@ -200,7 +192,7 @@ bool QZframe::is (void *self)
 }
 
 ///
-//  Self test of this class
+//  Self test of this class.
 void QZframe::test (bool verbose)
 {
     zframe_test (verbose);

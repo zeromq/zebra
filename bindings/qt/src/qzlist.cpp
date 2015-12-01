@@ -203,8 +203,8 @@ void * QZlist::freefn (void *item, zlist_free_fn fn, bool atTail)
 }
 
 ///
-//  Self test of this class
-void QZlist::test (int verbose)
+//  Self test of this class.
+void QZlist::test (bool verbose)
 {
     zlist_test (verbose);
     

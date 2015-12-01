@@ -40,10 +40,6 @@ public:
     //  Return -1 on error, 0 on success.                     
     int send (void *dest, int flags);
 
-    //  Send a reply frame to a server socket, copy the routing id from source message, destroy frame after sending.
-    //  Return -1 on error, 0 on success.                                                                           
-    int sendReply (QZframe *sourceMsg, void *dest, int flags);
-
     //  Return number of bytes in frame data
     size_t size ();
 
@@ -73,12 +69,13 @@ public:
     //  frame to socket, you have to specify flag explicitly.                
     void setMore (int more);
 
-    //  Return frame routing id, set when reading frame from server socket
-    //  or by the zframe_set_routing_id() method.                         
-    size_t routingId ();
+    //  Return frame routing ID, if the frame came from a ZMQ_SERVER socket.
+    //  Else returns zero.                                                  
+    quint32 routingId ();
 
-    //  Set frame routing id. Only relevant when sending to server socket.
-    void setRoutingId (size_t routingId);
+    //  Set routing ID on frame. This is used if/when the frame is sent to a
+    //  ZMQ_SERVER socket.                                                  
+    void setRoutingId (quint32 routingId);
 
     //  Return TRUE if two frames have identical size and data
     //  If either frame is NULL, equality is always false.    
@@ -94,7 +91,7 @@ public:
     //  Probe the supplied object, and report if it looks like a zframe_t.
     static bool is (void *self);
 
-    //  Self test of this class
+    //  Self test of this class.
     static void test (bool verbose);
 
     zframe_t *self;
