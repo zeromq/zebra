@@ -11,6 +11,7 @@ qzwebrap-uselib:!qzwebrap-buildlib {
 } else {
     HEADERS       += \
                      $$PWD/qzwebrap.h \
+                     $$PWD/qzebhandler.h \
                      $$PWD/qxrapmsg.h \
                      $$PWD/qzwrclient.h \
                      $$PWD/qzmsg.h \
@@ -22,6 +23,7 @@ qzwebrap-uselib:!qzwebrap-buildlib {
                      $$PWD/qzlist.h
 
     SOURCES       += \
+                     $$PWD/qzebhandler.cpp \
                      $$PWD/qxrapmsg.cpp \
                      $$PWD/qzwrclient.cpp \
                      $$PWD/qzmsg.cpp \

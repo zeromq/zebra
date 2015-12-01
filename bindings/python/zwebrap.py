@@ -29,13 +29,17 @@ class xrap_msg_t(Structure):
     pass # Empty - only for type checking
 xrap_msg_p = POINTER(xrap_msg_t)
 
-class zmsg_t(Structure):
-    pass # Empty - only for type checking
-zmsg_p = POINTER(zmsg_t)
-
 class number_t(Structure):
     pass # Empty - only for type checking
 number_p = POINTER(number_t)
+
+class zeb_handler_t(Structure):
+    pass # Empty - only for type checking
+zeb_handler_p = POINTER(zeb_handler_t)
+
+class zmsg_t(Structure):
+    pass # Empty - only for type checking
+zmsg_p = POINTER(zmsg_t)
 
 class zhash_t(Structure):
     pass # Empty - only for type checking
@@ -58,13 +62,92 @@ class zuuid_t(Structure):
 zuuid_p = POINTER(zuuid_t)
 
 
+# zeb_handler
+zeb_handler_handle_request_fn = CFUNCTYPE(xrap_msg_p, xrap_msg_p)
+zeb_handler_check_etag_fn = CFUNCTYPE(c_bool, c_char_p)
+zeb_handler_check_last_modified_fn = CFUNCTYPE(c_bool, number_p)
+lib.zeb_handler_new.restype = zeb_handler_p
+lib.zeb_handler_new.argtypes = [c_char_p]
+lib.zeb_handler_destroy.restype = None
+lib.zeb_handler_destroy.argtypes = [POINTER(zeb_handler_p)]
+lib.zeb_handler_add_offer.restype = c_int
+lib.zeb_handler_add_offer.argtypes = [zeb_handler_p, c_int, c_char_p]
+lib.zeb_handler_add_accept.restype = c_int
+lib.zeb_handler_add_accept.argtypes = [zeb_handler_p, c_char_p]
+lib.zeb_handler_set_handle_request_fn.restype = None
+lib.zeb_handler_set_handle_request_fn.argtypes = [zeb_handler_p, POINTER(zeb_handler_handle_request_fn)]
+lib.zeb_handler_set_check_etag_fn.restype = None
+lib.zeb_handler_set_check_etag_fn.argtypes = [zeb_handler_p, POINTER(zeb_handler_check_etag_fn)]
+lib.zeb_handler_set_check_last_modified_fn.restype = None
+lib.zeb_handler_set_check_last_modified_fn.argtypes = [zeb_handler_p, POINTER(zeb_handler_check_last_modified_fn)]
+lib.zeb_handler_test.restype = None
+lib.zeb_handler_test.argtypes = [c_bool]
+
+class ZebHandler(object):
+    """Handler for XRAP requests"""
+
+    def __init__(self, *args):
+        """Create a new zeb_handler"""
+        if len(args) == 2 and type(args[0]) is c_void_p and isinstance(args[1], bool):
+            self._as_parameter_ = cast(args[0], zeb_handler_p) # Conversion from raw type to binding
+            self.allow_destruct = args[1] # This is a 'fresh' value, owned by us
+        elif len(args) == 2 and type(args[0]) is zeb_handler_p and isinstance(args[1], bool):
+            self._as_parameter_ = args[0] # Conversion from raw type to binding
+            self.allow_destruct = args[1] # This is a 'fresh' value, owned by us
+        else:
+            assert(len(args) == 1)
+            self._as_parameter_ = lib.zeb_handler_new(args[0]) # Creation of new raw type
+            self.allow_destruct = True
+
+    def __del__(self):
+        """Destroy the zeb_handler"""
+        if self.allow_destruct:
+            lib.zeb_handler_destroy(byref(self._as_parameter_))
+
+    def __bool__(self):
+        "Determine whether the object is valid by converting to boolean" # Python 3
+        return self._as_parameter_.__bool__()
+
+    def __nonzero__(self):
+        "Determine whether the object is valid by converting to boolean" # Python 2
+        return self._as_parameter_.__nonzero__()
+
+    def add_offer(self, method, uri):
+        """Add a new offer this handler will handle. Returns 0 if successful,
+otherwise -1."""
+        return lib.zeb_handler_add_offer(self._as_parameter_, method, uri)
+
+    def add_accept(self, accept):
+        """Add a new accept type that this handler can deliver. May be a regular
+expression. Returns 0 if successfull, otherwise -1."""
+        return lib.zeb_handler_add_accept(self._as_parameter_, accept)
+
+    def set_handle_request_fn(self, handle_request_fn):
+        """Set a callback handler to handle incoming requests. Returns the response
+to be send back to the client."""
+        return lib.zeb_handler_set_handle_request_fn(self._as_parameter_, byref(zeb_handler_handle_request_fn.from_param(handle_request_fn)))
+
+    def set_check_etag_fn(self, check_etag_fn):
+        """Set a callback handler to check if provided etag matches the current one.
+Returns true if etags match, otherwise false."""
+        return lib.zeb_handler_set_check_etag_fn(self._as_parameter_, byref(zeb_handler_check_etag_fn.from_param(check_etag_fn)))
+
+    def set_check_last_modified_fn(self, last_modified_fn):
+        """Set a callback handler to check if provided last_modified timestamp matches
+the current one. Returns true if timestamp match, otherwise false."""
+        return lib.zeb_handler_set_check_last_modified_fn(self._as_parameter_, byref(zeb_handler_check_last_modified_fn.from_param(last_modified_fn)))
+
+    @staticmethod
+    def test(verbose):
+        """Self test of this class."""
+        return lib.zeb_handler_test(verbose)
+
+
 # xrap msg
 lib.xrap_msg_new.restype = xrap_msg_p
 lib.xrap_msg_new.argtypes = [c_int]
 lib.xrap_msg_destroy.restype = None
 lib.xrap_msg_destroy.argtypes = [POINTER(xrap_msg_p)]
-lib.xrap_msg_print.restype = None
-lib.xrap_msg_print.argtypes = [xrap_msg_p]
 lib.xrap_msg_decode.restype = xrap_msg_p
 lib.xrap_msg_decode.argtypes = [POINTER(zmsg_p)]
 lib.xrap_msg_encode.restype = zmsg_p
@@ -249,10 +332,6 @@ class XrapMsg(object):
     def __nonzero__(self):
         "Determine whether the object is valid by converting to boolean" # Python 2
         return self._as_parameter_.__nonzero__()
-
-    def print(self):
-        """Print properties of the xrap msg object."""
-        return lib.xrap_msg_print(self._as_parameter_)
 
     @staticmethod
     def decode(msg_p):
@@ -451,6 +530,8 @@ lib.zwr_client_new.restype = zwr_client_p
 lib.zwr_client_new.argtypes = []
 lib.zwr_client_destroy.restype = None
 lib.zwr_client_destroy.argtypes = [POINTER(zwr_client_p)]
+lib.zwr_client_print.restype = None
+lib.zwr_client_print.argtypes = [zwr_client_p]
 lib.zwr_client_actor.restype = zactor_p
 lib.zwr_client_actor.argtypes = [zwr_client_p]
 lib.zwr_client_msgpipe.restype = zsock_p
@@ -481,7 +562,7 @@ lib.zwr_client_test.restype = None
 lib.zwr_client_test.argtypes = [c_bool]
 
 class ZwrClient(object):
-    """ZWebRap Client"""
+    """zeb_server client implementation for both clients and handlers"""
 
     def __init__(self, *args):
         """Create a new zwr_client, return the reference if successful, or NULL
@@ -509,6 +590,10 @@ if construction failed due to lack of available memory."""
     def __nonzero__(self):
         "Determine whether the object is valid by converting to boolean" # Python 2
         return self._as_parameter_.__nonzero__()
+
+    def print(self):
+        """"""
+        return lib.zwr_client_print(self._as_parameter_)
 
     def actor(self):
         """Return actor, when caller wants to work with multiple actors and/or

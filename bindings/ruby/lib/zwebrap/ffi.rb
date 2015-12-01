@@ -4,12 +4,16 @@
 ################################################################################
 
 require 'ffi'
-
 require_relative 'ffi/version'
-
 
 module Zwebrap
   module FFI
+    module LibC
+      extend ::FFI::Library
+      ffi_lib ::FFI::Platform::LIBC
+      attach_function :free, [ :pointer ], :void, blocking: true
+    end
+
     extend ::FFI::Library
 
     def self.available?
@@ -34,9 +38,19 @@ module Zwebrap
         blocking: true  # only necessary on MRI to deal with the GIL.
       }
 
+      attach_function :zeb_handler_new, [:string], :pointer, **opts
+      attach_function :zeb_handler_destroy, [:pointer], :void, **opts
+      attach_function :zeb_handler_add_offer, [:pointer, :int, :string], :int, **opts
+      attach_function :zeb_handler_add_accept, [:pointer, :string], :int, **opts
+      attach_function :zeb_handler_set_handle_request_fn, [:pointer, :pointer], :void, **opts
+      attach_function :zeb_handler_set_check_etag_fn, [:pointer, :pointer], :void, **opts
+      attach_function :zeb_handler_set_check_last_modified_fn, [:pointer, :pointer], :void, **opts
+      attach_function :zeb_handler_test, [:bool], :void, **opts
+
+      require_relative 'ffi/zeb_handler'
+
       attach_function :xrap_msg_new, [:int], :pointer, **opts
       attach_function :xrap_msg_destroy, [:pointer], :void, **opts
-      attach_function :xrap_msg_print, [:pointer], :void, **opts
       attach_function :xrap_msg_decode, [:pointer], :pointer, **opts
       attach_function :xrap_msg_encode, [:pointer], :pointer, **opts
       attach_function :xrap_msg_recv, [:pointer], :pointer, **opts
@@ -87,6 +101,7 @@ module Zwebrap
 
       attach_function :zwr_client_new, [], :pointer, **opts
       attach_function :zwr_client_destroy, [:pointer], :void, **opts
+      attach_function :zwr_client_print, [:pointer], :void, **opts
       attach_function :zwr_client_actor, [:pointer], :pointer, **opts
       attach_function :zwr_client_msgpipe, [:pointer], :pointer, **opts
       attach_function :zwr_client_connected, [:pointer], :bool, **opts

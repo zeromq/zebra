@@ -24,6 +24,9 @@ public:
     //  Destroy the zwr_client and free all memory used by the object.
     ~QZwrClient ();
 
+    //  
+    void print ();
+
     //  Return actor, when caller wants to work with multiple actors and/or
     //  input sockets asynchronously.                                      
     QZactor * actor ();

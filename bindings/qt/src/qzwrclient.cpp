@@ -31,6 +31,14 @@ QZwrClient::~QZwrClient ()
 }
 
 ///
+//  
+void QZwrClient::print ()
+{
+    zwr_client_print (self);
+    
+}
+
+///
 //  Return actor, when caller wants to work with multiple actors and/or
 //  input sockets asynchronously.                                      
 QZactor * QZwrClient::actor ()

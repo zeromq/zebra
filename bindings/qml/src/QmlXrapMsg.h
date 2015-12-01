@@ -28,9 +28,6 @@ public:
     static QObject* qmlAttachedProperties(QObject* object); // defined in QmlXrapMsg.cpp
     
 public slots:
-    //  Print properties of the xrap msg object.
-    void print ();
-
     //  Send the xrap_msg to the output, and destroy it
     int sendAgain (void *output);
 

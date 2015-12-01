@@ -6,7 +6,7 @@
 module Zwebrap
   module FFI
 
-    # ZWebRap Client
+    # zeb_server client implementation for both clients and handlers
     class ZwrClient
       class DestroyedError < RuntimeError; end
 
@@ -19,7 +19,7 @@ module Zwebrap
         if @ptr.null?
           @ptr = nil # Remove null pointers so we don't have to test for them.
         elsif finalize
-          @finalizer = self.class.send :create_finalizer_for, @ptr
+          @finalizer = self.class.create_finalizer_for @ptr
           ObjectSpace.define_finalizer self, @finalizer
         end
       end
@@ -53,25 +53,33 @@ module Zwebrap
 
       # Create a new zwr_client, return the reference if successful, or NULL
       # if construction failed due to lack of available memory.             
-      def self.new
-        ptr = ::Zwebrap::FFI.zwr_client_new
-
+      def self.new()
+        ptr = ::Zwebrap::FFI.zwr_client_new()
         __new ptr
       end
 
       # Destroy the zwr_client and free all memory used by the object.
-      def destroy
+      def destroy()
         return unless @ptr
         self_p = __ptr_give_ref
-        result = ::Zwebrap::FFI.zwr_client_destroy self_p
+        result = ::Zwebrap::FFI.zwr_client_destroy(self_p)
+        result
+      end
+
+      # 
+      def print()
+        raise DestroyedError unless @ptr
+        self_p = @ptr
+        result = ::Zwebrap::FFI.zwr_client_print(self_p)
         result
       end
 
       # Return actor, when caller wants to work with multiple actors and/or
       # input sockets asynchronously.                                      
-      def actor
+      def actor()
         raise DestroyedError unless @ptr
-        result = ::Zwebrap::FFI.zwr_client_actor @ptr
+        self_p = @ptr
+        result = ::Zwebrap::FFI.zwr_client_actor(self_p)
         result
       end
 
@@ -80,18 +88,20 @@ module Zwebrap
       # we send/recv high volume message data to a second pipe, the msgpipe. In   
       # the low-volume case we can do everything over the actor pipe, if traffic  
       # is never ambiguous.                                                       
-      def msgpipe
+      def msgpipe()
         raise DestroyedError unless @ptr
-        result = ::Zwebrap::FFI.zwr_client_msgpipe @ptr
+        self_p = @ptr
+        result = ::Zwebrap::FFI.zwr_client_msgpipe(self_p)
         result
       end
 
       # Return true if client is currently connected, else false. Note that the   
       # client will automatically re-connect if the server dies and restarts after
       # a successful first connection.                                            
-      def connected
+      def connected()
         raise DestroyedError unless @ptr
-        result = ::Zwebrap::FFI.zwr_client_connected @ptr
+        self_p = @ptr
+        result = ::Zwebrap::FFI.zwr_client_connected(self_p)
         result
       end
 
@@ -99,92 +109,101 @@ module Zwebrap
       # forever). Constructor succeeds if connection is successful. The caller may  
       # specify its address.                                                        
       # Returns >= 0 if successful, -1 if interrupted.                              
-      def connect endpoint, timeout, address
+      def connect(endpoint, timeout, address)
         raise DestroyedError unless @ptr
+        self_p = @ptr
         endpoint = String(endpoint)
         address = String(address)
-        result = ::Zwebrap::FFI.zwr_client_connect @ptr, endpoint, timeout, address
+        result = ::Zwebrap::FFI.zwr_client_connect(self_p, endpoint, timeout, address)
         result
       end
 
       # Offer to handle particular XRAP requests, where the route matches request's
       # resource.                                                                  
       # Returns >= 0 if successful, -1 if interrupted.                             
-      def set_handler method, route
+      def set_handler(method, route)
         raise DestroyedError unless @ptr
+        self_p = @ptr
         method = String(method)
         route = String(route)
-        result = ::Zwebrap::FFI.zwr_client_set_handler @ptr, method, route
+        result = ::Zwebrap::FFI.zwr_client_set_handler(self_p, method, route)
         result
       end
 
       # No explanation                                
       # Returns >= 0 if successful, -1 if interrupted.
-      def request timeout, content_p
+      def request(timeout, content_p)
         raise DestroyedError unless @ptr
-        result = ::Zwebrap::FFI.zwr_client_request @ptr, timeout, content_p
+        self_p = @ptr
+        result = ::Zwebrap::FFI.zwr_client_request(self_p, timeout, content_p)
         result
       end
 
       # Send XRAP DELIVER message to server, takes ownership of message
       # and destroys message when done sending it.                     
-      def deliver sender, content_p
+      def deliver(sender, content_p)
         raise DestroyedError unless @ptr
-        result = ::Zwebrap::FFI.zwr_client_deliver @ptr, sender, content_p
+        self_p = @ptr
+        result = ::Zwebrap::FFI.zwr_client_deliver(self_p, sender, content_p)
         result
       end
 
       # Receive message from server; caller destroys message when done
-      def recv
+      def recv()
         raise DestroyedError unless @ptr
-        result = ::Zwebrap::FFI.zwr_client_recv @ptr
+        self_p = @ptr
+        result = ::Zwebrap::FFI.zwr_client_recv(self_p)
         result
       end
 
       # Return last received command. Can be one of these values:
       #     "XRAP DELIVER"                                       
-      def command
+      def command()
         raise DestroyedError unless @ptr
-        result = ::Zwebrap::FFI.zwr_client_command @ptr
+        self_p = @ptr
+        result = ::Zwebrap::FFI.zwr_client_command(self_p)
         result
       end
 
       # Return last received status
-      def status
+      def status()
         raise DestroyedError unless @ptr
-        result = ::Zwebrap::FFI.zwr_client_status @ptr
+        self_p = @ptr
+        result = ::Zwebrap::FFI.zwr_client_status(self_p)
         result
       end
 
       # Return last received reason
-      def reason
+      def reason()
         raise DestroyedError unless @ptr
-        result = ::Zwebrap::FFI.zwr_client_reason @ptr
+        self_p = @ptr
+        result = ::Zwebrap::FFI.zwr_client_reason(self_p)
         result
       end
 
       # Return last received sender
-      def sender
+      def sender()
         raise DestroyedError unless @ptr
-        result = ::Zwebrap::FFI.zwr_client_sender @ptr
+        self_p = @ptr
+        result = ::Zwebrap::FFI.zwr_client_sender(self_p)
         result
       end
 
       # Return last received content
-      def content
+      def content()
         raise DestroyedError unless @ptr
-        result = ::Zwebrap::FFI.zwr_client_content @ptr
+        self_p = @ptr
+        result = ::Zwebrap::FFI.zwr_client_content(self_p)
         result
       end
 
       # Self test of this class.
-      def self.test verbose
+      def self.test(verbose)
         verbose = !(0==verbose||!verbose) # boolean
-        result = ::Zwebrap::FFI.zwr_client_test verbose
+        result = ::Zwebrap::FFI.zwr_client_test(verbose)
         result
       end
     end
-
   end
 end
 

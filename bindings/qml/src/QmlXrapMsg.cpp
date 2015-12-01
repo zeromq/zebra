@@ -9,12 +9,6 @@
 
 
 ///
-//  Print properties of the xrap msg object.
-void QmlXrapMsg::print () {
-    xrap_msg_print (self);
-};
-
-///
 //  Send the xrap_msg to the output, and destroy it
 int QmlXrapMsg::sendAgain (void *output) {
     return xrap_msg_send_again (self, output);
