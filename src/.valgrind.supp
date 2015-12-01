@@ -104,6 +104,13 @@
 }
 
 {
+    <curl_multi_perform>
+    Memcheck:Leak
+    ...
+    fun:curl_multi_perform
+    ...
+}
+{
     <curl_crypto_realloc>
     Memcheck:Leak
     ...

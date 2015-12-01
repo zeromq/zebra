@@ -1,6 +1,6 @@
 <class
     name = "zwr_client"
-    title = "ZWebRap Client"
+    title = "zeb_server client implementation for both clients and handlers"
     script = "zproto_client_c"
     protocol_class = "xrap_traffic"
     package_dir = "../include"

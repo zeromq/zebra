@@ -118,7 +118,10 @@
     <define name = "BAD REQUEST" value = "400" />
     <define name = "ACCESS REFUSED" value = "401" />
     <define name = "NOT FOUND" value = "404" />
+    <define name = "METHOD NOT ALLOWED" value = "405" />
+    <define name = "NOT ACCEPTABLE" value = "406" />
     <define name = "CONFLICT" value = "409" />
+    <define name = "PRECONDITION FAILED" value = "412" />
     <define name = "RESOURCE LOCKED" value = "423" />
 
     <!-- System errors -->

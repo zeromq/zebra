@@ -43,6 +43,7 @@ typedef struct
 #define DECLARE_TEST(TEST) {#TEST, TEST}
 
 test_item_t all_tests [] = {
+    DECLARE_TEST(zeb_handler_test),
     DECLARE_TEST(zwr_request_test),
     DECLARE_TEST(zwr_response_test),
     DECLARE_TEST(zwr_connection_test),

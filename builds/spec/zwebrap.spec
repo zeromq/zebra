@@ -50,7 +50,7 @@ This package contains shared library.
 Summary:        translates rest http-request into the xrap protocol.
 Group:          System/Libraries
 Requires:       libzwebrap0 = %{version}
-Requires:       libzmq-devel
+Requires:       zeromq-devel
 Requires:       czmq-devel
 Requires:       libmicrohttpd-devel
 Requires:       libcurl-devel

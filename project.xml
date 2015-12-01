@@ -55,6 +55,7 @@
         generate a skeletons for them.
         use private = "1" for internal classes
     -->
+    <class name = "zeb_handler">Handler for XRAP requests</class>
     <class name = "zwr_request" private = "1">Representation of a HTTP request.</class>
     <class name = "zwr_response" private = "1">Representation of a HTTP response.</class>
     <class name = "zwr_connection" private = "1">Wrapper for zwr_request and zwr_response.</class>

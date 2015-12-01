@@ -14,6 +14,7 @@ pkgconfig_DATA = src/libzwebrap.pc
 
 include_HEADERS = \
     include/zwebrap.h \
+    include/zeb_handler.h \
     include/zwr_microhttpd.h \
     include/xrap_msg.h \
     include/xrap_traffic.h \
@@ -22,6 +23,7 @@ include_HEADERS = \
     include/zwebrap_library.h
 
 src_libzwebrap_la_SOURCES = \
+    src/zeb_handler.c \
     src/zwr_request.c \
     src/zwr_response.c \
     src/zwr_connection.c \
@@ -30,8 +32,8 @@ src_libzwebrap_la_SOURCES = \
     src/xrap_traffic.c \
     src/zwr_server.c \
     src/zwr_client.c \
-    src/zwr_server_engine.inc \
-    src/zwr_client_engine.inc \
+    src/zwr_server_engine_inc \
+    src/zwr_client_engine_inc \
     src/platform.h
 
 src_libzwebrap_la_CPPFLAGS = ${AM_CPPFLAGS}
@@ -58,12 +60,12 @@ src_libzwebrap_la_LIBADD = ${project_libs}
 check_PROGRAMS += src/zwebrap_selftest
 src_zwebrap_selftest_CPPFLAGS = ${src_libzwebrap_la_CPPFLAGS}
 src_zwebrap_selftest_LDADD = ${program_libs}
-src_zwebrap_selftest_SOURCES = src/zwebrap_selftest.c
 
 
 # Install api files into /usr/local/share/zproject
 apidir = @datadir@/zproject/zwebrap
 dist_api_DATA = \
+    api/zeb_handler.xml \
     api/xrap_msg.xml \
     api/zwr_client.xml
 

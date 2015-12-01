@@ -1,0 +1,78 @@
+<class name = "zeb_handler">
+    <!--
+    Copyright (c) the Contributors as noted in the AUTHORS file.
+    This file is part of ZWEBRAP.
+
+    This Source Code Form is subject to the terms of the Mozilla Public
+    License, v. 2.0. If a copy of the MPL was not distributed with this
+    file, You can obtain one at http://mozilla.org/MPL/2.0/.
+    -->
+    Handler for XRAP requests
+
+    <callback_type name = "handle request fn">
+        Handle an incomming XRAP request. Callee keeps ownership of the request.
+        <argument name = "xrequest" type = "xrap_msg" />
+        <return type = "xrap_msg" />
+    </callback_type>
+
+    <callback_type name = "check etag fn">
+        Checks if the request etag matches our current one. Returns true if etags
+        match, otherwise false.
+        <argument name = "etag" type = "string" />
+        <return type = "boolean" />
+    </callback_type>
+
+    <callback_type name = "check last modified fn">
+        Checks if the request last modified timestamp matches our current one.
+        Returns true if timestamps match, otherwise false.
+        <argument name = "last modified" type = "number" size = "8" mutable = "0" />
+        <return type = "boolean" />
+    </callback_type>
+
+    <constructor>
+        Create a new zeb_handler
+        <argument name = "endpoint" type = "string" />
+    </constructor>
+
+    <destructor>
+        Destroy the zeb_handler
+    </destructor>
+
+    <method name = "add offer">
+        Add a new offer this handler will handle. Returns 0 if successful,
+        otherwise -1.
+        <argument name = "method" type = "integer" />
+        <argument name = "uri" type = "string" />
+        <return type = "integer" />
+    </method>
+
+    <method name = "add accept">
+        Add a new accept type that this handler can deliver. May be a regular
+        expression. Returns 0 if successfull, otherwise -1.
+        <argument name = "accept" type = "string" />
+        <return type = "integer" />
+    </method>
+
+    <method name = "set handle request fn">
+        Set a callback handler to handle incoming requests. Returns the response
+        to be send back to the client.
+        <argument name = "handle request fn" type = "zeb_handler_handle_request_fn"
+                  callback = "1" by_reference = "1" />
+    </method>
+
+    <method name = "set check etag fn">
+        Set a callback handler to check if provided etag matches the current one.
+        Returns true if etags match, otherwise false.
+        <argument name = "check etag fn" type = "zeb_handler_check_etag_fn"
+                  callback = "1" by_reference = "1" />
+    </method>
+
+    <method name = "set check last modified fn">
+        Set a callback handler to check if provided last_modified timestamp matches
+        the current one. Returns true if timestamp match, otherwise false.
+        <argument name = "last modified fn" type = "zeb_handler_check_last_modified_fn"
+                  callback = "1" by_reference = "1" />
+    </method>
+
+</class>
+

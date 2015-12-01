@@ -40,8 +40,8 @@ Depends:
     ${shlibs:Depends},
     libzmq4-dev,
     libczmq-dev,
-    liblibmicrohttpd-dev,
-    liblibcurl-dev,
+    libmicrohttpd-dev,
+    libcurl-dev,
     ${misc:Depends}
 Description: development files for zwebrap
  This package contains development files for zwebrap: translates rest http-request into the xrap protocol.

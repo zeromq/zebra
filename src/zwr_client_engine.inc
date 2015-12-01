@@ -1,5 +1,5 @@
 /*  =========================================================================
-    zwr_client_engine - ZWebRap Client engine
+    zwr_client_engine - zeb_server client implementation for both clients and handlers engine
 
     ** WARNING *************************************************************
     THIS SOURCE FILE IS 100% GENERATED. If you edit this file, you will lose
