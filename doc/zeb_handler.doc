@@ -1,0 +1,285 @@
+#### zeb_handler - Handler for XRAP requests
+
+zeb_handler - Handler for XRAP requests
+
+Please add @discuss section in ../src/zeb_handler.c.
+
+This is the class interface:
+
+    //  Handle an incomming XRAP request. Callee keeps ownership of the request.
+    typedef xrap_msg_t * (zeb_handler_handle_request_fn) (xrap_msg_t *xrequest);
+    
+    //  Checks if the request etag matches our current one. Returns true if etags
+    //  match, otherwise false.
+    typedef bool (zeb_handler_check_etag_fn) (const char *etag);
+    
+    //  Checks if the request last modified timestamp matches our current one.
+    //  Returns true if timestamps match, otherwise false.
+    typedef bool (zeb_handler_check_last_modified_fn) (const uint64_t last_modified);
+    
+    //  Create a new zeb_handler
+    ZWEBRAP_EXPORT zeb_handler_t *
+       zeb_handler_new (char *endpoint);
+    
+    //  Destroy the zeb_handler
+    ZWEBRAP_EXPORT void
+       zeb_handler_destroy (zeb_handler_t **self_p);
+    
+    //  Add a new offer this handler will handle. Returns 0 if successful,
+    //  otherwise -1.
+    ZWEBRAP_EXPORT int
+       zeb_handler_add_offer (zeb_handler_t *self, int method, char *uri);
+    
+    //  Add a new accept type that this handler can deliver. May be a regular
+    //  expression. Returns 0 if successfull, otherwise -1.
+    ZWEBRAP_EXPORT int
+       zeb_handler_add_accept (zeb_handler_t *self, char *accept);
+    
+    //  Set a callback handler to handle incoming requests. Returns the response
+    //  to be send back to the client.
+    ZWEBRAP_EXPORT void
+       zeb_handler_set_handle_request_fn (zeb_handler_t *self,
+             zeb_handler_handle_request_fn *handle_request_fn);
+    
+    //  Set a callback handler to check if provided etag matches the current one.
+    //  Returns true if etags match, otherwise false.
+    ZWEBRAP_EXPORT void
+       zeb_handler_set_check_etag_fn (zeb_handler_t *self,
+             zeb_handler_check_etag_fn *check_etag_fn);
+    
+    //  Set a callback handler to check if provided last_modified timestamp matches
+    //  the current one. Returns true if timestamp match, otherwise false.
+    ZWEBRAP_EXPORT void
+       zeb_handler_set_check_last_modified_fn (zeb_handler_t *self,
+          zeb_handler_check_last_modified_fn *last_modified_fn);
+    
+    //  Self test of this class
+    ZWEBRAP_EXPORT void
+        zeb_handler_test (bool verbose);
+
+This is the class self test code:
+
+    //  Simple create/destroy test
+    
+    //  Start a server to test against, and bind to endpoint
+    zactor_t *server = zactor_new (zwr_server, "zwr_client_test");
+    if (verbose)
+        zstr_send (server, "VERBOSE");
+    zstr_sendx (server, "LOAD", "src/zwr_client.cfg", NULL);
+    
+    //  Create a client and connect it to the server
+    zwr_client_t *client = zwr_client_new ();
+    int rc = zwr_client_connect (client, "tcp://127.0.0.1:9999", 1000, "client");
+    assert (rc == 0);
+    assert (zwr_client_connected (client) == true);
+    
+    //  Create a handler
+    zeb_handler_t *handler = zeb_handler_new ("tcp://127.0.0.1:9999");
+    assert (handler);
+    
+    //  Register callbacks for offers
+    zeb_handler_set_handle_request_fn (handler, s_test_handle_request);
+    zeb_handler_set_check_etag_fn (handler, s_test_check_etag);
+    zeb_handler_set_check_last_modified_fn (handler, s_test_check_last_modified);
+    
+    //  Set accepted document formats
+    rc = zeb_handler_add_accept (handler, "application/(xml|json)");
+    assert (rc == 0);
+    
+    //  Offer a service
+    rc = zeb_handler_add_offer (handler, XRAP_MSG_GET, "/dummy");
+    assert (rc == 0);
+    rc = zeb_handler_add_offer (handler, XRAP_MSG_PUT, "/dummy");
+    assert (rc == 0);
+    
+    //  Provide Rubbish Offering
+    rc = zeb_handler_add_offer (handler, XRAP_MSG_GET, "/dummy");
+    assert (rc == -1);
+    
+    //  ================================
+    //  GET Tests
+    
+    //  Send Request
+    xrap_msg_t *xmsg = xrap_msg_new (XRAP_MSG_GET);
+    xrap_msg_set_resource (xmsg, "%s", "/dummy");
+    xrap_msg_set_content_type (xmsg, "application/xml");
+    zmsg_t *msg = xrap_msg_encode (&xmsg);
+    rc = zwr_client_request (client, 0, &msg);
+    assert (rc == 0);
+    
+    //  Receive Request (is echo)
+    msg = zwr_client_recv (client);
+    xmsg = xrap_msg_decode (&msg);
+    assert (xrap_msg_id (xmsg) == XRAP_MSG_GET);
+    assert (streq (xrap_msg_resource (xmsg), "/dummy"));
+    assert (streq (xrap_msg_content_type (xmsg), "application/xml"));
+    xrap_msg_destroy (&xmsg);
+    zuuid_t *sender = zwr_client_sender (client);
+    zuuid_destroy (&sender);
+    
+    //  Send Request without ACCEPT
+    xmsg = xrap_msg_new (XRAP_MSG_GET);
+    xrap_msg_set_resource (xmsg, "%s", "/dummy");
+    msg = xrap_msg_encode (&xmsg);
+    rc = zwr_client_request (client, 0, &msg);
+    assert (rc == 0);
+    
+    //  Receive Request without ACCEPT
+    msg = zwr_client_recv (client);
+    xmsg = xrap_msg_decode (&msg);
+    assert (xrap_msg_id (xmsg) == XRAP_MSG_ERROR);
+    assert (xrap_msg_status_code (xmsg) == XRAP_TRAFFIC_NOT_ACCEPTABLE);
+    xrap_msg_destroy (&xmsg);
+    sender = zwr_client_sender (client);
+    zuuid_destroy (&sender);
+    
+    //  Send Request with conditionals (not changed)
+    xmsg = xrap_msg_new (XRAP_MSG_GET);
+    xrap_msg_set_resource (xmsg, "%s", "/dummy");
+    xrap_msg_set_content_type (xmsg, "application/json");
+    xrap_msg_set_if_none_match (xmsg, "MATCH");
+    xrap_msg_set_if_modified_since (xmsg, 10);
+    msg = xrap_msg_encode (&xmsg);
+    rc = zwr_client_request (client, 0, &msg);
+    assert (rc == 0);
+    
+    //  Receive Request with conditionals
+    msg = zwr_client_recv (client);
+    xmsg = xrap_msg_decode (&msg);
+    assert (xrap_msg_id (xmsg) == XRAP_MSG_GET_EMPTY);
+    xrap_msg_destroy (&xmsg);
+    sender = zwr_client_sender (client);
+    zuuid_destroy (&sender);
+    
+    //  Send Request with conditionals (changed)
+    xmsg = xrap_msg_new (XRAP_MSG_GET);
+    xrap_msg_set_resource (xmsg, "%s", "/dummy");
+    xrap_msg_set_content_type (xmsg, "application/json");
+    xrap_msg_set_if_none_match (xmsg, "NONE MATCH");
+    xrap_msg_set_if_modified_since (xmsg, 20);
+    msg = xrap_msg_encode (&xmsg);
+    rc = zwr_client_request (client, 0, &msg);
+    assert (rc == 0);
+    
+    //  Receive Request with conditionals
+    msg = zwr_client_recv (client);
+    xmsg = xrap_msg_decode (&msg);
+    assert (xrap_msg_id (xmsg) == XRAP_MSG_GET);
+    assert (streq (xrap_msg_resource (xmsg), "/dummy"));
+    assert (streq (xrap_msg_content_type (xmsg), "application/json"));
+    xrap_msg_destroy (&xmsg);
+    sender = zwr_client_sender (client);
+    zuuid_destroy (&sender);
+    
+    //  ================================
+    //  PUT Tests
+    
+    //  Send Request
+    xmsg = xrap_msg_new (XRAP_MSG_PUT);
+    xrap_msg_set_resource (xmsg, "%s", "/dummy");
+    xrap_msg_set_content_type (xmsg, "application/xml");
+    xrap_msg_set_content_body (xmsg, "application/xml");
+    msg = xrap_msg_encode (&xmsg);
+    rc = zwr_client_request (client, 0, &msg);
+    assert (rc == 0);
+    
+    //  Receive Request (is echo)
+    msg = zwr_client_recv (client);
+    xmsg = xrap_msg_decode (&msg);
+    assert (xrap_msg_id (xmsg) == XRAP_MSG_PUT);
+    assert (streq (xrap_msg_resource (xmsg), "/dummy"));
+    assert (streq (xrap_msg_content_type (xmsg), "application/xml"));
+    assert (streq (xrap_msg_content_body (xmsg), "application/xml"));
+    xrap_msg_destroy (&xmsg);
+    sender = zwr_client_sender (client);
+    zuuid_destroy (&sender);
+    
+    //  Send Request with conditionals (update, both)
+    xmsg = xrap_msg_new (XRAP_MSG_PUT);
+    xrap_msg_set_resource (xmsg, "%s", "/dummy");
+    xrap_msg_set_content_type (xmsg, "application/json");
+    xrap_msg_set_if_match (xmsg, "MATCH");
+    xrap_msg_set_if_unmodified_since (xmsg, 10);
+    msg = xrap_msg_encode (&xmsg);
+    rc = zwr_client_request (client, 0, &msg);
+    assert (rc == 0);
+    
+    //  Receive Request with conditionals (update, both)
+    msg = zwr_client_recv (client);
+    xmsg = xrap_msg_decode (&msg);
+    assert (xrap_msg_id (xmsg) == XRAP_MSG_PUT);
+    assert (streq (xrap_msg_resource (xmsg), "/dummy"));
+    assert (streq (xrap_msg_content_type (xmsg), "application/json"));
+    xrap_msg_destroy (&xmsg);
+    sender = zwr_client_sender (client);
+    zuuid_destroy (&sender);
+    
+    //  Send Request with conditionals (update, etag)
+    xmsg = xrap_msg_new (XRAP_MSG_PUT);
+    xrap_msg_set_resource (xmsg, "%s", "/dummy");
+    xrap_msg_set_content_type (xmsg, "application/json");
+    xrap_msg_set_if_match (xmsg, "MATCH");
+    msg = xrap_msg_encode (&xmsg);
+    rc = zwr_client_request (client, 0, &msg);
+    assert (rc == 0);
+    
+    //  Receive Request with conditionals (update, etag)
+    msg = zwr_client_recv (client);
+    xmsg = xrap_msg_decode (&msg);
+    assert (xrap_msg_id (xmsg) == XRAP_MSG_PUT);
+    xrap_msg_destroy (&xmsg);
+    sender = zwr_client_sender (client);
+    zuuid_destroy (&sender);
+    
+    //  Send Request with conditionals (update, last_modified)
+    xmsg = xrap_msg_new (XRAP_MSG_PUT);
+    xrap_msg_set_resource (xmsg, "%s", "/dummy");
+    xrap_msg_set_content_type (xmsg, "application/json");
+    xrap_msg_set_if_unmodified_since (xmsg, 10);
+    msg = xrap_msg_encode (&xmsg);
+    rc = zwr_client_request (client, 0, &msg);
+    assert (rc == 0);
+    
+    //  Receive Request with conditionals (update, last_modified)
+    msg = zwr_client_recv (client);
+    xmsg = xrap_msg_decode (&msg);
+    assert (xrap_msg_id (xmsg) == XRAP_MSG_PUT);
+    xrap_msg_destroy (&xmsg);
+    sender = zwr_client_sender (client);
+    zuuid_destroy (&sender);
+    
+    
+    //  Send Request with conditionals (no update)
+    xmsg = xrap_msg_new (XRAP_MSG_PUT);
+    xrap_msg_set_resource (xmsg, "%s", "/dummy");
+    xrap_msg_set_content_type (xmsg, "application/json");
+    xrap_msg_set_if_match (xmsg, "NONE MATCH");
+    xrap_msg_set_if_unmodified_since (xmsg, 20);
+    msg = xrap_msg_encode (&xmsg);
+    rc = zwr_client_request (client, 0, &msg);
+    assert (rc == 0);
+    
+    //  Receive Request with conditionals (no update)
+    msg = zwr_client_recv (client);
+    xmsg = xrap_msg_decode (&msg);
+    assert (xrap_msg_id (xmsg) == XRAP_MSG_ERROR);
+    assert (xrap_msg_status_code (xmsg) == XRAP_TRAFFIC_PRECONDITION_FAILED);
+    xrap_msg_destroy (&xmsg);
+    sender = zwr_client_sender (client);
+    zuuid_destroy (&sender);
+    
+    //  ================================
+    //  Invalid Tests
+    
+    //  Send Request
+    xmsg = xrap_msg_new (XRAP_MSG_GET_EMPTY);
+    msg = xrap_msg_encode (&xmsg);
+    rc = zwr_client_request (client, 0, &msg);
+    assert (rc == XRAP_TRAFFIC_NOT_FOUND);
+    
+    zwr_client_destroy (&client);
+    zeb_handler_destroy (&handler);
+    
+    //  Done, shut down
+    zactor_destroy (&server);
+

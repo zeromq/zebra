@@ -126,6 +126,7 @@ XRAP allows responses to return an ETag header as well as a Last-Modified header
 
 This is the API provided by zwebrap v0.x, in alphabetical order.
 
+.pull doc/zeb_handler.doc
 .pull doc/zwr_microhttpd.doc
 .pull doc/zwr_server.doc
 .pull doc/zwr_client.doc
