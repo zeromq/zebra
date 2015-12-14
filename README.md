@@ -25,13 +25,13 @@
 
 **<a href="#toc3-136">Usage</a>**
 &emsp;<a href="#toc4-141">zeb_handler - Handler for XRAP requests</a>
-&emsp;<a href="#toc4-427">zwr_microhttpd - Simple HTTP web server</a>
-&emsp;<a href="#toc4-624">zwr_server - Request/response dispatcher.</a>
-&emsp;<a href="#toc4-799">zwr_client - Dispatcher client</a>
+&emsp;<a href="#toc4-543">zwr_microhttpd - Simple HTTP web server</a>
+&emsp;<a href="#toc4-740">zwr_server - Request/response dispatcher.</a>
+&emsp;<a href="#toc4-915">zwr_client - Dispatcher client</a>
 
-**<a href="#toc3-978">Hints to Contributors</a>**
+**<a href="#toc3-1094">Hints to Contributors</a>**
 
-**<a href="#toc3-987">This Document</a>**
+**<a href="#toc3-1103">This Document</a>**
 
 <A name="toc2-11" title="Overview" />
 ## Overview
@@ -148,54 +148,65 @@ Please add @discuss section in ../src/zeb_handler.c.
 
 This is the class interface:
 
-    //  Handle an incomming XRAP request. Callee keeps ownership of the request.
-    typedef xrap_msg_t * (zeb_handler_handle_request_fn) (xrap_msg_t *xrequest);
-    
-    //  Checks if the request etag matches our current one. Returns true if etags
-    //  match, otherwise false.
-    typedef bool (zeb_handler_check_etag_fn) (const char *etag);
-    
-    //  Checks if the request last modified timestamp matches our current one.
-    //  Returns true if timestamps match, otherwise false.
-    typedef bool (zeb_handler_check_last_modified_fn) (const uint64_t last_modified);
-    
-    //  Create a new zeb_handler
-    ZWEBRAP_EXPORT zeb_handler_t *
-       zeb_handler_new (char *endpoint);
-    
-    //  Destroy the zeb_handler
+    //  To work with zeb_handler, use the CZMQ zactor API:                      
+    //                                                                          
+    //  Create new zeb_handler instance, passing dispatcher endpoint:           
+    //                                                                          
+    //      zactor_t *handler = zactor_new (zeb_handler, "inproc://dispatcher");
+    //                                                                          
+    //  Destroy zeb_handler instance                                            
+    //                                                                          
+    //      zactor_destroy (&handler);                                          
+    //                                                                          
+    //  Enable verbose logging of commands and activity:                        
+    //                                                                          
+    //      zstr_send (handler, "VERBOSE");                                     
+    //                                                                          
+    //  Receive API calls from zeb_handler:                                     
+    //                                                                          
+    //      char *command = zstr_recv (handler);                                
+    //                                                                          
+    //  Check if an etag is current, MUST signal 0 if true otherwise 1.         
+    //                                                                          
+    //    if (streq (command, "CHECK ETAG")) {                                  
+    //       char *etag = zstr_recv (handler);                                  
+    //       zsock_signal (handler, 0);                                         
+    //    }                                                                     
+    //                                                                          
+    //    Check if a last modified timestamp is current, MUST signal 0 if true  
+    //    otherwise 1.                                                          
+    //                                                                          
+    //    if (streq (command, "CHECK LAST MODIFIED")) {                         
+    //       uint64_t last_modified;                                            
+    //       zsock_brecv (handler, "8", &last_modified);                        
+    //       zsock_signal (handler, 0);                                         
+    //    }                                                                     
+    //                                                                          
+    //  Handle incomming request from clients. MUST return a response.          
+    //                                                                          
+    //  if (streq (command, "HANDLE REQUEST")) {                                
+    //      zmsg_t *request = zmsg_recv (handle);                               
+    //      xrap_msg_t *xrequest = xrap_msg_decode (&request);                  
+    //      zmsg_t *response = xrap_msg_encode (&xrequest);                     
+    //      zmsg_send (&response, handler);                                     
+    //  }                                                                       
+    //                                                                          
+    //  This is the handler actor which runs in its own thread and polls its two
+    //  sockets to process incoming messages.                                   
     ZWEBRAP_EXPORT void
-       zeb_handler_destroy (zeb_handler_t **self_p);
+        zeb_handler (zsock_t *pipe, void *args);
     
     //  Add a new offer this handler will handle. Returns 0 if successful,
-    //  otherwise -1.
+    //  otherwise -1.                                                     
     ZWEBRAP_EXPORT int
-       zeb_handler_add_offer (zeb_handler_t *self, int method, char *uri);
+        zeb_handler_add_offer (zactor_t *self, int method, const char *uri);
     
     //  Add a new accept type that this handler can deliver. May be a regular
-    //  expression. Returns 0 if successfull, otherwise -1.
+    //  expression. Returns 0 if successfull, otherwise -1.                  
     ZWEBRAP_EXPORT int
-       zeb_handler_add_accept (zeb_handler_t *self, char *accept);
+        zeb_handler_add_accept (zactor_t *self, const char *accept);
     
-    //  Set a callback handler to handle incoming requests. Returns the response
-    //  to be send back to the client.
-    ZWEBRAP_EXPORT void
-       zeb_handler_set_handle_request_fn (zeb_handler_t *self,
-             zeb_handler_handle_request_fn *handle_request_fn);
-    
-    //  Set a callback handler to check if provided etag matches the current one.
-    //  Returns true if etags match, otherwise false.
-    ZWEBRAP_EXPORT void
-       zeb_handler_set_check_etag_fn (zeb_handler_t *self,
-             zeb_handler_check_etag_fn *check_etag_fn);
-    
-    //  Set a callback handler to check if provided last_modified timestamp matches
-    //  the current one. Returns true if timestamp match, otherwise false.
-    ZWEBRAP_EXPORT void
-       zeb_handler_set_check_last_modified_fn (zeb_handler_t *self,
-          zeb_handler_check_last_modified_fn *last_modified_fn);
-    
-    //  Self test of this class
+    //  Self test of this class.
     ZWEBRAP_EXPORT void
         zeb_handler_test (bool verbose);
 
@@ -216,13 +227,8 @@ This is the class self test code:
     assert (zwr_client_connected (client) == true);
     
     //  Create a handler
-    zeb_handler_t *handler = zeb_handler_new ("tcp://127.0.0.1:9999");
+    zactor_t *handler = zactor_new (zeb_handler, (void *) "tcp://127.0.0.1:9999");
     assert (handler);
-    
-    //  Register callbacks for offers
-    zeb_handler_set_handle_request_fn (handler, s_test_handle_request);
-    zeb_handler_set_check_etag_fn (handler, s_test_check_etag);
-    zeb_handler_set_check_last_modified_fn (handler, s_test_check_last_modified);
     
     //  Set accepted document formats
     rc = zeb_handler_add_accept (handler, "application/(xml|json)");
@@ -249,7 +255,14 @@ This is the class self test code:
     rc = zwr_client_request (client, 0, &msg);
     assert (rc == 0);
     
-    //  Receive Request (is echo)
+    //  Receive request and Echo response
+    char *command;
+    zsock_recv (handler, "sm", &command, &msg);
+    assert (streq (command, "HANDLE REQUEST"));
+    zstr_free (&command);
+    zmsg_send (&msg, handler);
+    
+    //  Receive Response (is echo)
     msg = zwr_client_recv (client);
     xmsg = xrap_msg_decode (&msg);
     assert (xrap_msg_id (xmsg) == XRAP_MSG_GET);
@@ -285,6 +298,22 @@ This is the class self test code:
     rc = zwr_client_request (client, 0, &msg);
     assert (rc == 0);
     
+    //  Check etag (match)
+    char *etag;
+    zsock_recv (handler, "ss", &command, &etag);
+    assert (streq (command, "CHECK ETAG"));
+    zstr_free (&command);
+    assert (streq (etag, "MATCH"));
+    zstr_free (&etag);
+    zsock_signal (handler, 0);
+    
+    //  Check last modified (not modified)
+    uint64_t last_modified;
+    zsock_recv (handler, "s8", &command, &last_modified);
+    assert (streq (command, "CHECK LAST MODIFIED"));
+    zstr_free (&command);
+    zsock_signal (handler, 0);
+    
     //  Receive Request with conditionals
     msg = zwr_client_recv (client);
     xmsg = xrap_msg_decode (&msg);
@@ -303,7 +332,28 @@ This is the class self test code:
     rc = zwr_client_request (client, 0, &msg);
     assert (rc == 0);
     
-    //  Receive Request with conditionals
+    //  Check etag (none match)
+    zsock_recv (handler, "ss", &command, &etag);
+    assert (streq (command, "CHECK ETAG"));
+    zstr_free (&command);
+    assert (streq (etag, "NONE MATCH"));
+    zstr_free (&etag);
+    zsock_signal (handler, 1);
+    
+    //  Check last modified (modified)
+    zsock_recv (handler, "s8", &command, &last_modified);
+    assert (streq (command, "CHECK LAST MODIFIED"));
+    zstr_free (&command);
+    assert (last_modified == 20);
+    zsock_signal (handler, 1);
+    
+    //  Receive request and Echo response
+    zsock_recv (handler, "sm", &command, &msg);
+    assert (streq (command, "HANDLE REQUEST"));
+    zstr_free (&command);
+    zmsg_send (&msg, handler);
+    
+    //  Receive response with conditionals
     msg = zwr_client_recv (client);
     xmsg = xrap_msg_decode (&msg);
     assert (xrap_msg_id (xmsg) == XRAP_MSG_GET);
@@ -325,7 +375,13 @@ This is the class self test code:
     rc = zwr_client_request (client, 0, &msg);
     assert (rc == 0);
     
-    //  Receive Request (is echo)
+    //  Receive request and Echo response
+    zsock_recv (handler, "sm", &command, &msg);
+    assert (streq (command, "HANDLE REQUEST"));
+    zstr_free (&command);
+    zmsg_send (&msg, handler);
+    
+    //  Receive response (is echo)
     msg = zwr_client_recv (client);
     xmsg = xrap_msg_decode (&msg);
     assert (xrap_msg_id (xmsg) == XRAP_MSG_PUT);
@@ -346,7 +402,27 @@ This is the class self test code:
     rc = zwr_client_request (client, 0, &msg);
     assert (rc == 0);
     
-    //  Receive Request with conditionals (update, both)
+    //  Check etag (match)
+    zsock_recv (handler, "ss", &command, &etag);
+    assert (streq (command, "CHECK ETAG"));
+    zstr_free (&command);
+    assert (streq (etag, "MATCH"));
+    zstr_free (&etag);
+    zsock_signal (handler, 0);
+    
+    //  Check last modified (not modified)
+    zsock_recv (handler, "s8", &command, &last_modified);
+    assert (streq (command, "CHECK LAST MODIFIED"));
+    zstr_free (&command);
+    zsock_signal (handler, 0);
+    
+    //  Receive request and Echo response
+    zsock_recv (handler, "sm", &command, &msg);
+    assert (streq (command, "HANDLE REQUEST"));
+    zstr_free (&command);
+    zmsg_send (&msg, handler);
+    
+    //  Receive response with conditionals (update, both)
     msg = zwr_client_recv (client);
     xmsg = xrap_msg_decode (&msg);
     assert (xrap_msg_id (xmsg) == XRAP_MSG_PUT);
@@ -365,7 +441,21 @@ This is the class self test code:
     rc = zwr_client_request (client, 0, &msg);
     assert (rc == 0);
     
-    //  Receive Request with conditionals (update, etag)
+    //  Check etag (match)
+    zsock_recv (handler, "ss", &command, &etag);
+    assert (streq (command, "CHECK ETAG"));
+    zstr_free (&command);
+    assert (streq (etag, "MATCH"));
+    zstr_free (&etag);
+    zsock_signal (handler, 0);
+    
+    //  Receive request and Echo response
+    zsock_recv (handler, "sm", &command, &msg);
+    assert (streq (command, "HANDLE REQUEST"));
+    zstr_free (&command);
+    zmsg_send (&msg, handler);
+    
+    //  Receive response with conditionals (update, etag)
     msg = zwr_client_recv (client);
     xmsg = xrap_msg_decode (&msg);
     assert (xrap_msg_id (xmsg) == XRAP_MSG_PUT);
@@ -382,14 +472,25 @@ This is the class self test code:
     rc = zwr_client_request (client, 0, &msg);
     assert (rc == 0);
     
-    //  Receive Request with conditionals (update, last_modified)
+    //  Check last modified (not modified)
+    zsock_recv (handler, "s8", &command, &last_modified);
+    assert (streq (command, "CHECK LAST MODIFIED"));
+    zstr_free (&command);
+    zsock_signal (handler, 0);
+    
+    //  Receive request and Echo response
+    zsock_recv (handler, "sm", &command, &msg);
+    assert (streq (command, "HANDLE REQUEST"));
+    zstr_free (&command);
+    zmsg_send (&msg, handler);
+    
+    //  Receive response with conditionals (update, last_modified)
     msg = zwr_client_recv (client);
     xmsg = xrap_msg_decode (&msg);
     assert (xrap_msg_id (xmsg) == XRAP_MSG_PUT);
     xrap_msg_destroy (&xmsg);
     sender = zwr_client_sender (client);
     zuuid_destroy (&sender);
-    
     
     //  Send Request with conditionals (no update)
     xmsg = xrap_msg_new (XRAP_MSG_PUT);
@@ -400,6 +501,21 @@ This is the class self test code:
     msg = xrap_msg_encode (&xmsg);
     rc = zwr_client_request (client, 0, &msg);
     assert (rc == 0);
+    
+    //  Check etag (none match)
+    zsock_recv (handler, "ss", &command, &etag);
+    assert (streq (command, "CHECK ETAG"));
+    zstr_free (&command);
+    assert (streq (etag, "NONE MATCH"));
+    zstr_free (&etag);
+    zsock_signal (handler, 1);
+    
+    //  Check last modified (modified)
+    zsock_recv (handler, "s8", &command, &last_modified);
+    assert (streq (command, "CHECK LAST MODIFIED"));
+    zstr_free (&command);
+    assert (last_modified == 20);
+    zsock_signal (handler, 1);
     
     //  Receive Request with conditionals (no update)
     msg = zwr_client_recv (client);
@@ -420,12 +536,12 @@ This is the class self test code:
     assert (rc == XRAP_TRAFFIC_NOT_FOUND);
     
     zwr_client_destroy (&client);
-    zeb_handler_destroy (&handler);
+    zactor_destroy (&handler);
     
     //  Done, shut down
     zactor_destroy (&server);
 
-<A name="toc4-427" title="zwr_microhttpd - Simple HTTP web server" />
+<A name="toc4-543" title="zwr_microhttpd - Simple HTTP web server" />
 #### zwr_microhttpd - Simple HTTP web server
 
 Simple HTTP webserver implementation using the libmicrohttpd library.
@@ -622,7 +738,7 @@ This is the class self test code:
     
     zactor_destroy (&zwr_microhttpd);
 
-<A name="toc4-624" title="zwr_server - Request/response dispatcher." />
+<A name="toc4-740" title="zwr_server - Request/response dispatcher." />
 #### zwr_server - Request/response dispatcher.
 
 The zwr_server implements the zproto server. It acts as dispatcher for XRAP
@@ -797,7 +913,7 @@ This is the class self test code:
     zsock_destroy (&worker);
     zactor_destroy (&server);
 
-<A name="toc4-799" title="zwr_client - Dispatcher client" />
+<A name="toc4-915" title="zwr_client - Dispatcher client" />
 #### zwr_client - Dispatcher client
 
 Client implementation to communicate with the dispatcher. This
@@ -976,7 +1092,7 @@ This is the class self test code:
     zactor_destroy (&server);
 
 
-<A name="toc3-978" title="Hints to Contributors" />
+<A name="toc3-1094" title="Hints to Contributors" />
 ### Hints to Contributors
 
 Read the CLASS style guide please, and write your code to make it indistinguishable from the rest of the code in the library. That is the only real criteria for good style: it's invisible.
@@ -985,7 +1101,7 @@ Do read your code after you write it and ask, "Can I make this simpler?" We do u
 
 Before opening a pull request read our [contribution guidelines](https://github.com/zeromq/zwebrap/blob/master/CONTRIBUTING.md). Thanks!
 
-<A name="toc3-987" title="This Document" />
+<A name="toc3-1103" title="This Document" />
 ### This Document
 
 This document is originally at README.txt and is built using [gitdown](http://github.com/imatix/gitdown).

@@ -9,69 +9,69 @@
     -->
     Handler for XRAP requests
 
-    <callback_type name = "handle request fn">
-        Handle an incomming XRAP request. Callee keeps ownership of the request.
-        <argument name = "xrequest" type = "xrap_msg" />
-        <return type = "xrap_msg" />
-    </callback_type>
+    <actor>
+        To work with zeb_handler, use the CZMQ zactor API:
 
-    <callback_type name = "check etag fn">
-        Checks if the request etag matches our current one. Returns true if etags
-        match, otherwise false.
-        <argument name = "etag" type = "string" />
-        <return type = "boolean" />
-    </callback_type>
+        Create new zeb_handler instance, passing dispatcher endpoint:
 
-    <callback_type name = "check last modified fn">
-        Checks if the request last modified timestamp matches our current one.
-        Returns true if timestamps match, otherwise false.
-        <argument name = "last modified" type = "number" size = "8" mutable = "0" />
-        <return type = "boolean" />
-    </callback_type>
+            zactor_t *handler = zactor_new (zeb_handler, "inproc://dispatcher");
 
-    <constructor>
-        Create a new zeb_handler
-        <argument name = "endpoint" type = "string" />
-    </constructor>
+        Destroy zeb_handler instance
 
-    <destructor>
-        Destroy the zeb_handler
-    </destructor>
+            zactor_destroy (&amp;handler);
 
-    <method name = "add offer">
+        Enable verbose logging of commands and activity:
+
+            zstr_send (handler, "VERBOSE");
+
+        Receive API calls from zeb_handler:
+
+            char *command = zstr_recv (handler);
+
+        Check if an etag is current, MUST signal 0 if true otherwise 1.
+
+          if (streq (command, "CHECK ETAG")) {
+             char *etag = zstr_recv (handler);
+             zsock_signal (handler, 0);
+          }
+
+          Check if a last modified timestamp is current, MUST signal 0 if true
+          otherwise 1.
+
+          if (streq (command, "CHECK LAST MODIFIED")) {
+             uint64_t last_modified;
+             zsock_brecv (handler, "8", &amp;last_modified);
+             zsock_signal (handler, 0);
+          }
+
+        Handle incomming request from clients. MUST return a response.
+
+        if (streq (command, "HANDLE REQUEST")) {
+            zmsg_t *request = zmsg_recv (handle);
+            xrap_msg_t *xrequest = xrap_msg_decode (&amp;request);
+            zmsg_t *response = xrap_msg_encode (&amp;xrequest);
+            zmsg_send (&amp;response, handler);
+        }
+
+        This is the handler actor which runs in its own thread and polls its two
+        sockets to process incoming messages.
+    </actor>
+
+    <method name = "add offer" singleton = "1">
         Add a new offer this handler will handle. Returns 0 if successful,
         otherwise -1.
+        <argument name = "self" type = "zactor" />
         <argument name = "method" type = "integer" />
         <argument name = "uri" type = "string" />
         <return type = "integer" />
     </method>
 
-    <method name = "add accept">
+    <method name = "add accept" singleton = "1">
         Add a new accept type that this handler can deliver. May be a regular
         expression. Returns 0 if successfull, otherwise -1.
+        <argument name = "self" type = "zactor" />
         <argument name = "accept" type = "string" />
         <return type = "integer" />
-    </method>
-
-    <method name = "set handle request fn">
-        Set a callback handler to handle incoming requests. Returns the response
-        to be send back to the client.
-        <argument name = "handle request fn" type = "zeb_handler_handle_request_fn"
-                  callback = "1" by_reference = "1" />
-    </method>
-
-    <method name = "set check etag fn">
-        Set a callback handler to check if provided etag matches the current one.
-        Returns true if etags match, otherwise false.
-        <argument name = "check etag fn" type = "zeb_handler_check_etag_fn"
-                  callback = "1" by_reference = "1" />
-    </method>
-
-    <method name = "set check last modified fn">
-        Set a callback handler to check if provided last_modified timestamp matches
-        the current one. Returns true if timestamp match, otherwise false.
-        <argument name = "last modified fn" type = "zeb_handler_check_last_modified_fn"
-                  callback = "1" by_reference = "1" />
     </method>
 
 </class>
