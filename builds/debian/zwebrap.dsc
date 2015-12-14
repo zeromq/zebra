@@ -1,7 +1,7 @@
 Format:         1.0
 Source:         zwebrap
 Version:        0.1.0-1
-Binary:         libzwebrap0
+Binary:         libzwebrap0, zwebrap-dev
 Architecture:   any all
 Maintainer:     John Doe <John.Doe@example.com>
 Standards-Version: 3.9.5
@@ -17,5 +17,6 @@ Build-Depends: bison, debhelper (>= 8),
     dh-autoreconf
 
 Package-List:
- libzwebrap0 dev net optional arch-any
+ libzwebrap0 deb net optional arch=any
+ zwebrap-dev deb libdevel optional arch=any
 

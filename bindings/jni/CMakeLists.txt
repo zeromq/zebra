@@ -10,9 +10,9 @@ find_library (ZWEBRAP_LIBRARY NAMES zwebrap REQUIRED)
 include_directories (${JAVA_INCLUDE_PATH} ${JAVA_INCLUDE_PATH2} src/native/include)
 
 set (zwebrapjni_sources
-   src/main/c/org_zeromq_zwebrap_ZebHandler.c
-   src/main/c/org_zeromq_zwebrap_XrapMsg.c
-   src/main/c/org_zeromq_zwebrap_ZwrClient.c
+    src/main/c/org_zeromq_zwebrap_ZebHandler.c
+    src/main/c/org_zeromq_zwebrap_XrapMsg.c
+    src/main/c/org_zeromq_zwebrap_ZwrClient.c
 )
 
 add_library (zwebrapjni SHARED ${zwebrapjni_sources})

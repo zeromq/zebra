@@ -14,9 +14,9 @@ qzwebrap-uselib:!qzwebrap-buildlib {
                      $$PWD/qzebhandler.h \
                      $$PWD/qxrapmsg.h \
                      $$PWD/qzwrclient.h \
+                     $$PWD/qzactor.h \
                      $$PWD/qzmsg.h \
                      $$PWD/qzhash.h \
-                     $$PWD/qzactor.h \
                      $$PWD/qzsock.h \
                      $$PWD/qzuuid.h \
                      $$PWD/qzframe.h \
@@ -26,9 +26,9 @@ qzwebrap-uselib:!qzwebrap-buildlib {
                      $$PWD/qzebhandler.cpp \
                      $$PWD/qxrapmsg.cpp \
                      $$PWD/qzwrclient.cpp \
+                     $$PWD/qzactor.cpp \
                      $$PWD/qzmsg.cpp \
                      $$PWD/qzhash.cpp \
-                     $$PWD/qzactor.cpp \
                      $$PWD/qzsock.cpp \
                      $$PWD/qzuuid.cpp \
                      $$PWD/qzframe.cpp \

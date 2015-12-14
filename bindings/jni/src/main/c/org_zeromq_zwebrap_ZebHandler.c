@@ -10,41 +10,26 @@
 #include "zwebrap.h"
 #include "../../native/include/org_zeromq_zwebrap_ZebHandler.h"
 
-JNIEXPORT jlong JNICALL
-Java_zeb_handler__1_1new (JNIEnv *env, jclass c, jstring endpoint)
-{
-    char *endpoint_ = (char *) (*env)->GetStringUTFChars (env, endpoint, NULL);
-    jlong new_ = (jlong) zeb_handler_new (endpoint_);
-    (*env)->ReleaseStringUTFChars (env, endpoint, endpoint_);
-    return new_;
-}
-
-JNIEXPORT void JNICALL
-Java_zeb_handler__1_1destroy (JNIEnv *env, jclass c, jlong self_p)
-{
-    zeb_handler_destroy ((zeb_handler_t **) &self_p);
-}
-
 JNIEXPORT jint JNICALL
-Java_zeb_handler__1_1add_offer (JNIEnv *env, jclass c, jlong self, jint method, jstring uri)
+Java_org_zeromq_zwebrap_ZebHandler__1_1addOffer (JNIEnv *env, jclass c, jlong self, jint method, jstring uri)
 {
     char *uri_ = (char *) (*env)->GetStringUTFChars (env, uri, NULL);
-    jint add_offer_ = (jint) zeb_handler_add_offer ((zeb_handler_t *) self, (int) method, uri_);
+    jint add_offer_ = (jint) zeb_handler_add_offer ((zactor_t *) self, (int) method, uri_);
     (*env)->ReleaseStringUTFChars (env, uri, uri_);
     return add_offer_;
 }
 
 JNIEXPORT jint JNICALL
-Java_zeb_handler__1_1add_accept (JNIEnv *env, jclass c, jlong self, jstring accept)
+Java_org_zeromq_zwebrap_ZebHandler__1_1addAccept (JNIEnv *env, jclass c, jlong self, jstring accept)
 {
     char *accept_ = (char *) (*env)->GetStringUTFChars (env, accept, NULL);
-    jint add_accept_ = (jint) zeb_handler_add_accept ((zeb_handler_t *) self, accept_);
+    jint add_accept_ = (jint) zeb_handler_add_accept ((zactor_t *) self, accept_);
     (*env)->ReleaseStringUTFChars (env, accept, accept_);
     return add_accept_;
 }
 
 JNIEXPORT void JNICALL
-Java_zeb_handler__1_1test (JNIEnv *env, jclass c, jboolean verbose)
+Java_org_zeromq_zwebrap_ZebHandler__1_1test (JNIEnv *env, jclass c, jboolean verbose)
 {
     zeb_handler_test ((bool) verbose);
 }

@@ -7,14 +7,21 @@ module Zwebrap
   module FFI
 
     # Handler for XRAP requests
+    # @note This class is 100% generated using zproject.
     class ZebHandler
+      # Raised when one tries to use an instance of {ZebHandler} after
+      # the internal pointer to the native object has been nullified.
       class DestroyedError < RuntimeError; end
 
       # Boilerplate for self pointer, initializer, and finalizer
       class << self
         alias :__new :new
       end
-      def initialize ptr, finalize=true
+      # Attaches the pointer _ptr_ to this instance and defines a finalizer for
+      # it if necessary.
+      # @param ptr [::FFI::Pointer]
+      # @param finalize [Boolean]
+      def initialize(ptr, finalize = true)
         @ptr = ptr
         if @ptr.null?
           @ptr = nil # Remove null pointers so we don't have to test for them.
@@ -23,152 +30,76 @@ module Zwebrap
           ObjectSpace.define_finalizer self, @finalizer
         end
       end
-      def self.create_finalizer_for ptr
+      # @return [Proc]
+      def self.create_finalizer_for(ptr)
         Proc.new do
-          ptr_ptr = ::FFI::MemoryPointer.new :pointer
-          ptr_ptr.write_pointer ptr
-          ::Zwebrap::FFI.zeb_handler_destroy ptr_ptr
+          "WARNING: "\
+          "Objects of type #{self} cannot be destroyed implicitly. "\
+          "Please call the correct destroy method with the relevant arguments."
         end
       end
+      # @return [Boolean]
       def null?
         !@ptr or @ptr.null?
       end
       # Return internal pointer
+      # @return [::FFI::Pointer]
       def __ptr
         raise DestroyedError unless @ptr
         @ptr
       end
       # So external Libraries can just pass the Object to a FFI function which expects a :pointer
       alias_method :to_ptr, :__ptr
-      # Nullify internal pointer and return pointer pointer
+      # Nullify internal pointer and return pointer pointer.
+      # @note This detaches the current instance from the native object
+      #   and thus makes it unusable.
+      # @return [::FFI::MemoryPointer] the pointer pointing to a pointer
+      #   pointing to the native object
       def __ptr_give_ref
         raise DestroyedError unless @ptr
         ptr_ptr = ::FFI::MemoryPointer.new :pointer
         ptr_ptr.write_pointer @ptr
-        ObjectSpace.undefine_finalizer self if @finalizer
-        @finalizer = nil
+        __undef_finalizer if @finalizer
         @ptr = nil
         ptr_ptr
       end
-
-      # Create a new callback of the following type:
-      # Handle an incomming XRAP request. Callee keeps ownership of the request.
-      #     typedef xrap_msg_t * (zeb_handler_handle_request_fn) (
-      #         xrap_msg_t *xrequest);                            
-      #
-      # WARNING: If your Ruby code doesn't retain a reference to the
-      #   FFI::Function object after passing it to a C function call,
-      #   it may be garbage collected while C still holds the pointer,
-      #   potentially resulting in a segmentation fault.
-      def self.handle request fn
-        ::FFI::Function.new :pointer, [:pointer], blocking: true do |xrequest|
-          xrequest = XrapMsg.__new xrequest, false
-          result = yield xrequest
-          result = result.__ptr if result
-          result
-        end
-      end
-
-      # Create a new callback of the following type:
-      # Checks if the request etag matches our current one. Returns true if etags
-      # match, otherwise false.                                                  
-      #     typedef bool (zeb_handler_check_etag_fn) (
-      #         const char *etag);                    
-      #
-      # WARNING: If your Ruby code doesn't retain a reference to the
-      #   FFI::Function object after passing it to a C function call,
-      #   it may be garbage collected while C still holds the pointer,
-      #   potentially resulting in a segmentation fault.
-      def self.check etag fn
-        ::FFI::Function.new :bool, [:string], blocking: true do |etag|
-          result = yield etag
-          result = !(0==result||!result) # boolean
-          result
-        end
-      end
-
-      # Create a new callback of the following type:
-      # Checks if the request last modified timestamp matches our current one.
-      # Returns true if timestamps match, otherwise false.                    
-      #     typedef bool (zeb_handler_check_last_modified_fn) (
-      #         const uint64_t last_modified);                 
-      #
-      # WARNING: If your Ruby code doesn't retain a reference to the
-      #   FFI::Function object after passing it to a C function call,
-      #   it may be garbage collected while C still holds the pointer,
-      #   potentially resulting in a segmentation fault.
-      def self.check last modified fn
-        ::FFI::Function.new :bool, [:pointer], blocking: true do |last_modified|
-          result = yield last_modified
-          result = !(0==result||!result) # boolean
-          result
-        end
-      end
-
-      # Create a new zeb_handler
-      def self.new(endpoint)
-        endpoint = String(endpoint)
-        ptr = ::Zwebrap::FFI.zeb_handler_new(endpoint)
-        __new ptr
-      end
-
-      # Destroy the zeb_handler
-      def destroy()
-        return unless @ptr
-        self_p = __ptr_give_ref
-        result = ::Zwebrap::FFI.zeb_handler_destroy(self_p)
-        result
+      # Undefines the finalizer for this object.
+      # @note Only use this if you need to and can guarantee that the native
+      #   object will be freed by other means.
+      # @return [void]
+      def __undef_finalizer
+        ObjectSpace.undefine_finalizer self
+        @finalizer = nil
       end
 
       # Add a new offer this handler will handle. Returns 0 if successful,
       # otherwise -1.                                                     
-      def add_offer(method, uri)
-        raise DestroyedError unless @ptr
-        self_p = @ptr
+      #
+      # @param self_ [::FFI::Pointer, #to_ptr]
+      # @param method [Integer, #to_int, #to_i]
+      # @param uri [String, #to_s, nil]
+      # @return [Integer]
+      def self.add_offer(self_, method, uri)
         method = Integer(method)
-        uri = String(uri)
-        result = ::Zwebrap::FFI.zeb_handler_add_offer(self_p, method, uri)
+        result = ::Zwebrap::FFI.zeb_handler_add_offer(self_, method, uri)
         result
       end
 
       # Add a new accept type that this handler can deliver. May be a regular
       # expression. Returns 0 if successfull, otherwise -1.                  
-      def add_accept(accept)
-        raise DestroyedError unless @ptr
-        self_p = @ptr
-        accept = String(accept)
-        result = ::Zwebrap::FFI.zeb_handler_add_accept(self_p, accept)
-        result
-      end
-
-      # Set a callback handler to handle incoming requests. Returns the response
-      # to be send back to the client.                                          
-      def set_handle_request_fn(handle_request_fn)
-        raise DestroyedError unless @ptr
-        self_p = @ptr
-        result = ::Zwebrap::FFI.zeb_handler_set_handle_request_fn(self_p, handle_request_fn)
-        result
-      end
-
-      # Set a callback handler to check if provided etag matches the current one.
-      # Returns true if etags match, otherwise false.                            
-      def set_check_etag_fn(check_etag_fn)
-        raise DestroyedError unless @ptr
-        self_p = @ptr
-        result = ::Zwebrap::FFI.zeb_handler_set_check_etag_fn(self_p, check_etag_fn)
-        result
-      end
-
-      # Set a callback handler to check if provided last_modified timestamp matches
-      # the current one. Returns true if timestamp match, otherwise false.         
-      def set_check_last_modified_fn(last_modified_fn)
-        raise DestroyedError unless @ptr
-        self_p = @ptr
-        result = ::Zwebrap::FFI.zeb_handler_set_check_last_modified_fn(self_p, last_modified_fn)
+      #
+      # @param self_ [::FFI::Pointer, #to_ptr]
+      # @param accept [String, #to_s, nil]
+      # @return [Integer]
+      def self.add_accept(self_, accept)
+        result = ::Zwebrap::FFI.zeb_handler_add_accept(self_, accept)
         result
       end
 
       # Self test of this class.
+      #
+      # @param verbose [Boolean]
+      # @return [void]
       def self.test(verbose)
         verbose = !(0==verbose||!verbose) # boolean
         result = ::Zwebrap::FFI.zeb_handler_test(verbose)

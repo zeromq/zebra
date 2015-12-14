@@ -189,7 +189,7 @@ QString QZmsg::popstr ()
 {
     char *retStr_ = zmsg_popstr (self);
     QString rv = QString (retStr_);
-    free (retStr_);;
+    zstr_free (&retStr_);
     return rv;
 }
 

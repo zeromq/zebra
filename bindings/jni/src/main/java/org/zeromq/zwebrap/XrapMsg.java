@@ -5,8 +5,9 @@
 ################################################################################
 */
 package org.zeromq.zwebrap;
+import org.zeromq.czmq.*;
 
-public class XrapMsg implements AutoCloseable {
+public class XrapMsg implements AutoCloseable{
     static {
         try {
             System.loadLibrary ("zwebrapjni");
@@ -15,22 +16,24 @@ public class XrapMsg implements AutoCloseable {
             System.exit (-1);
         }
     }
-    long self;
-
+    public long self;
     /*
     Create a new xrap_msg
     */
-    native static long __init (int id);
+    native static long __new (int id);
     public XrapMsg (int id) {
-        /*  TODO: if __init fails, self is null...  */
-        self = __init (id);
+        /*  TODO: if __new fails, self is null...            */
+        self = __new (id);
+    }
+    public XrapMsg (long pointer) {
+        self = pointer;
     }
     /*
     Destroy the xrap_msg
     */
     native static void __destroy (long self);
     @Override
-    public void close() {
+    public void close () {
         __destroy (self);
         self = 0;
     }
@@ -39,319 +42,320 @@ public class XrapMsg implements AutoCloseable {
     the message could not be parsed, or was NULL. Destroys msg and
     nullifies the msg reference.                                  
     */
-    native static XrapMsg __decode (Zmsg msgP);
+    native static long __decode (long msgP);
     public XrapMsg decode (Zmsg msgP) {
-        return XrapMsg.__decode (msgP);
+        return new XrapMsg (__decode (msgP.self));
     }
     /*
     Encode xrap_msg into zmsg and destroy it. Returns a newly created       
     object or NULL if error. Use when not in control of sending the message.
     */
-    native static Zmsg __encode (XrapMsg xrapMsgP);
+    native static long __encode (long xrapMsgP);
     public Zmsg encode (XrapMsg xrapMsgP) {
-        return XrapMsg.__encode (xrapMsgP);
+        return new Zmsg (__encode (xrapMsgP.self));
     }
     /*
     Receive and parse a xrap_msg from the socket. Returns new object,
     or NULL if error. Will block if there's no message waiting.      
     */
-    native static XrapMsg __recv (void * input);
-    public XrapMsg recv (void * input) {
-        return XrapMsg.__recv (input);
+    native static long __recv (long input);
+    public XrapMsg recv (long input) {
+        return new XrapMsg (__recv (input));
     }
     /*
     Receive and parse a xrap_msg from the socket. Returns new object,         
     or NULL either if there was no input waiting, or the recv was interrupted.
     */
-    native static XrapMsg __recv_nowait (void * input);
-    public XrapMsg recv_nowait (void * input) {
-        return XrapMsg.__recv_nowait (input);
+    native static long __recvNowait (long input);
+    public XrapMsg recvNowait (long input) {
+        return new XrapMsg (__recvNowait (input));
     }
     /*
     Send the xrap_msg to the output, and destroy it
     */
-    native static int __send (XrapMsg selfP, void * output);
-    public int send (XrapMsg selfP, void * output) {
-        return XrapMsg.__send (selfP, output);
+    native static int __send (long self, long output);
+    public int send (long output) {
+        self = __send (self, output);
+        return 0;
     }
     /*
     Send the xrap_msg to the output, and destroy it
     */
-    native static int __send_again (long self, void * output);
-    public int send_again (long self, void * output) {
-        return XrapMsg.__send_again (self, output);
+    native static int __sendAgain (long self, long output);
+    public int sendAgain (long output) {
+        return __sendAgain (self, output);
     }
     /*
     Get the xrap_msg id and printable command
     */
     native static int __id (long self);
-    public int id (long self) {
-        return XrapMsg.__id (self);
+    public int id () {
+        return __id (self);
     }
     /*
     
     */
-    native static void __set_id (long self, int id);
-    public void set_id (long self, int id) {
-        return XrapMsg.__set_id (self, id);
+    native static void __setId (long self, int id);
+    public void setId (int id) {
+        __setId (self, id);
     }
     /*
     Get/set the parent field
     */
     native static String __parent (long self);
-    public String parent (long self) {
-        return XrapMsg.__parent (self);
+    public String parent () {
+        return __parent (self);
     }
     /*
     
     */
-    native static void __set_parent (long self, String format);
-    public void set_parent (long self, String format) {
-        return XrapMsg.__set_parent (self, format);
+    native static void __setParent (long self, String format);
+    public void setParent (String format) {
+        __setParent (self, format);
     }
     /*
     Get/set the content_type field
     */
-    native static String __content_type (long self);
-    public String content_type (long self) {
-        return XrapMsg.__content_type (self);
+    native static String __contentType (long self);
+    public String contentType () {
+        return __contentType (self);
     }
     /*
     
     */
-    native static void __set_content_type (long self, String format);
-    public void set_content_type (long self, String format) {
-        return XrapMsg.__set_content_type (self, format);
+    native static void __setContentType (long self, String format);
+    public void setContentType (String format) {
+        __setContentType (self, format);
     }
     /*
     Get/set the parent field
     */
-    native static String __content_body (long self);
-    public String content_body (long self) {
-        return XrapMsg.__content_body (self);
+    native static String __contentBody (long self);
+    public String contentBody () {
+        return __contentBody (self);
     }
     /*
     
     */
-    native static void __set_content_body (long self, String format);
-    public void set_content_body (long self, String format) {
-        return XrapMsg.__set_content_body (self, format);
+    native static void __setContentBody (long self, String format);
+    public void setContentBody (String format) {
+        __setContentBody (self, format);
     }
     /*
     Get/set the status_code field
     */
-    native static short __status_code (long self);
-    public short status_code (long self) {
-        return XrapMsg.__status_code (self);
+    native static short __statusCode (long self);
+    public short statusCode () {
+        return __statusCode (self);
     }
     /*
     
     */
-    native static void __set_status_code (long self, short statusCode);
-    public void set_status_code (long self, short statusCode) {
-        return XrapMsg.__set_status_code (self, statusCode);
+    native static void __setStatusCode (long self, short statusCode);
+    public void setStatusCode (short statusCode) {
+        __setStatusCode (self, statusCode);
     }
     /*
     Get/set the location field
     */
     native static String __location (long self);
-    public String location (long self) {
-        return XrapMsg.__location (self);
+    public String location () {
+        return __location (self);
     }
     /*
     
     */
-    native static void __set_location (long self, String format);
-    public void set_location (long self, String format) {
-        return XrapMsg.__set_location (self, format);
+    native static void __setLocation (long self, String format);
+    public void setLocation (String format) {
+        __setLocation (self, format);
     }
     /*
     Get/set the etag field
     */
     native static String __etag (long self);
-    public String etag (long self) {
-        return XrapMsg.__etag (self);
+    public String etag () {
+        return __etag (self);
     }
     /*
     
     */
-    native static void __set_etag (long self, String format);
-    public void set_etag (long self, String format) {
-        return XrapMsg.__set_etag (self, format);
+    native static void __setEtag (long self, String format);
+    public void setEtag (String format) {
+        __setEtag (self, format);
     }
     /*
     Get/set the date_modified field
     */
-    native static long __date_modified (long self);
-    public long date_modified (long self) {
-        return XrapMsg.__date_modified (self);
+    native static long __dateModified (long self);
+    public long dateModified () {
+        return __dateModified (self);
     }
     /*
     
     */
-    native static void __set_date_modified (long self, long dateModified);
-    public void set_date_modified (long self, long dateModified) {
-        return XrapMsg.__set_date_modified (self, dateModified);
+    native static void __setDateModified (long self, long dateModified);
+    public void setDateModified (long dateModified) {
+        __setDateModified (self, dateModified);
     }
     /*
     Get/set the resource field
     */
     native static String __resource (long self);
-    public String resource (long self) {
-        return XrapMsg.__resource (self);
+    public String resource () {
+        return __resource (self);
     }
     /*
     
     */
-    native static void __set_resource (long self, String format);
-    public void set_resource (long self, String format) {
-        return XrapMsg.__set_resource (self, format);
+    native static void __setResource (long self, String format);
+    public void setResource (String format) {
+        __setResource (self, format);
     }
     /*
     //  Get/set the parameters field
     */
-    native static Zhash __parameters (long self);
-    public Zhash parameters (long self) {
-        return XrapMsg.__parameters (self);
+    native static long __parameters (long self);
+    public Zhash parameters () {
+        return new Zhash (__parameters (self));
     }
     /*
     //  Get the parameters field and transfer ownership to caller
     */
-    native static Zhash __get_parameters (long self);
-    public Zhash get_parameters (long self) {
-        return XrapMsg.__get_parameters (self);
+    native static long __getParameters (long self);
+    public Zhash getParameters () {
+        return new Zhash (__getParameters (self));
     }
     /*
     
     */
-    native static void __set_parameters (long self, Zhash parametersP);
-    public void set_parameters (long self, Zhash parametersP) {
-        return XrapMsg.__set_parameters (self, parametersP);
+    native static void __setParameters (long self, long parametersP);
+    public void setParameters (Zhash parametersP) {
+        __setParameters (self, parametersP.self);
     }
     /*
     Get/set the parameters field
     */
-    native static String __parameters_string (long self, String key, String defaultValue);
-    public String parameters_string (long self, String key, String defaultValue) {
-        return XrapMsg.__parameters_string (self, key, defaultValue);
+    native static String __parametersString (long self, String key, String defaultValue);
+    public String parametersString (String key, String defaultValue) {
+        return __parametersString (self, key, defaultValue);
     }
     /*
     
     */
-    native static void __parameters_insert (long self, String key, String format);
-    public void parameters_insert (long self, String key, String format) {
-        return XrapMsg.__parameters_insert (self, key, format);
+    native static void __parametersInsert (long self, String key, String format);
+    public void parametersInsert (String key, String format) {
+        __parametersInsert (self, key, format);
     }
     /*
     Get/set the if_modified_since field
     */
-    native static long __if_modified_since (long self);
-    public long if_modified_since (long self) {
-        return XrapMsg.__if_modified_since (self);
+    native static long __ifModifiedSince (long self);
+    public long ifModifiedSince () {
+        return __ifModifiedSince (self);
     }
     /*
     
     */
-    native static void __set_if_modified_since (long self, long ifModifiedSince);
-    public void set_if_modified_since (long self, long ifModifiedSince) {
-        return XrapMsg.__set_if_modified_since (self, ifModifiedSince);
+    native static void __setIfModifiedSince (long self, long ifModifiedSince);
+    public void setIfModifiedSince (long ifModifiedSince) {
+        __setIfModifiedSince (self, ifModifiedSince);
     }
     /*
     Get/set the if_none_match field
     */
-    native static String __if_none_match (long self);
-    public String if_none_match (long self) {
-        return XrapMsg.__if_none_match (self);
+    native static String __ifNoneMatch (long self);
+    public String ifNoneMatch () {
+        return __ifNoneMatch (self);
     }
     /*
     
     */
-    native static void __set_if_none_match (long self, String format);
-    public void set_if_none_match (long self, String format) {
-        return XrapMsg.__set_if_none_match (self, format);
+    native static void __setIfNoneMatch (long self, String format);
+    public void setIfNoneMatch (String format) {
+        __setIfNoneMatch (self, format);
     }
     /*
     //  Get/set the metadata field
     */
-    native static Zhash __metadata (long self);
-    public Zhash metadata (long self) {
-        return XrapMsg.__metadata (self);
+    native static long __metadata (long self);
+    public Zhash metadata () {
+        return new Zhash (__metadata (self));
     }
     /*
     //  Get the metadata field and transfer ownership to caller
     */
-    native static Zhash __get_metadata (long self);
-    public Zhash get_metadata (long self) {
-        return XrapMsg.__get_metadata (self);
+    native static long __getMetadata (long self);
+    public Zhash getMetadata () {
+        return new Zhash (__getMetadata (self));
     }
     /*
     
     */
-    native static void __set_metadata (long self, Zhash metadataP);
-    public void set_metadata (long self, Zhash metadataP) {
-        return XrapMsg.__set_metadata (self, metadataP);
+    native static void __setMetadata (long self, long metadataP);
+    public void setMetadata (Zhash metadataP) {
+        __setMetadata (self, metadataP.self);
     }
     /*
     Get/set a value in the metadata dictionary
     */
-    native static String __metadata_string (long self, String key, String defaultValue);
-    public String metadata_string (long self, String key, String defaultValue) {
-        return XrapMsg.__metadata_string (self, key, defaultValue);
+    native static String __metadataString (long self, String key, String defaultValue);
+    public String metadataString (String key, String defaultValue) {
+        return __metadataString (self, key, defaultValue);
     }
     /*
     
     */
-    native static void __metadata_insert (long self, String key, String format);
-    public void metadata_insert (long self, String key, String format) {
-        return XrapMsg.__metadata_insert (self, key, format);
+    native static void __metadataInsert (long self, String key, String format);
+    public void metadataInsert (String key, String format) {
+        __metadataInsert (self, key, format);
     }
     /*
     Get/set the if_unmodified_since field
     */
-    native static long __if_unmodified_since (long self);
-    public long if_unmodified_since (long self) {
-        return XrapMsg.__if_unmodified_since (self);
+    native static long __ifUnmodifiedSince (long self);
+    public long ifUnmodifiedSince () {
+        return __ifUnmodifiedSince (self);
     }
     /*
     
     */
-    native static void __set_if_unmodified_since (long self, long ifUnmodifiedSince);
-    public void set_if_unmodified_since (long self, long ifUnmodifiedSince) {
-        return XrapMsg.__set_if_unmodified_since (self, ifUnmodifiedSince);
+    native static void __setIfUnmodifiedSince (long self, long ifUnmodifiedSince);
+    public void setIfUnmodifiedSince (long ifUnmodifiedSince) {
+        __setIfUnmodifiedSince (self, ifUnmodifiedSince);
     }
     /*
     Get/set the if_match field
     */
-    native static String __if_match (long self);
-    public String if_match (long self) {
-        return XrapMsg.__if_match (self);
+    native static String __ifMatch (long self);
+    public String ifMatch () {
+        return __ifMatch (self);
     }
     /*
     
     */
-    native static void __set_if_match (long self, String format);
-    public void set_if_match (long self, String format) {
-        return XrapMsg.__set_if_match (self, format);
+    native static void __setIfMatch (long self, String format);
+    public void setIfMatch (String format) {
+        __setIfMatch (self, format);
     }
     /*
     Get/set the status_text field
     */
-    native static String __status_text (long self);
-    public String status_text (long self) {
-        return XrapMsg.__status_text (self);
+    native static String __statusText (long self);
+    public String statusText () {
+        return __statusText (self);
     }
     /*
     
     */
-    native static void __set_status_text (long self, String format);
-    public void set_status_text (long self, String format) {
-        return XrapMsg.__set_status_text (self, format);
+    native static void __setStatusText (long self, String format);
+    public void setStatusText (String format) {
+        __setStatusText (self, format);
     }
     /*
     Self test of this class.
     */
     native static void __test (boolean verbose);
-    public void test (boolean verbose) {
-        return XrapMsg.__test (verbose);
+    public static void test (boolean verbose) {
+        __test (verbose);
     }
 }
