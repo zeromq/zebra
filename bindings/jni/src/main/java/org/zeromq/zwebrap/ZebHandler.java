@@ -5,8 +5,9 @@
 ################################################################################
 */
 package org.zeromq.zwebrap;
+import org.zeromq.czmq.*;
 
-public class ZebHandler implements AutoCloseable {
+public class ZebHandler {
     static {
         try {
             System.loadLibrary ("zwebrapjni");
@@ -15,46 +16,28 @@ public class ZebHandler implements AutoCloseable {
             System.exit (-1);
         }
     }
-    long self;
-
-    /*
-    Create a new zeb_handler
-    */
-    native static long __init (String endpoint);
-    public ZebHandler (String endpoint) {
-        /*  TODO: if __init fails, self is null...  */
-        self = __init (endpoint);
-    }
-    /*
-    Destroy the zeb_handler
-    */
-    native static void __destroy (long self);
-    @Override
-    public void close() {
-        __destroy (self);
-        self = 0;
-    }
+    public long self;
     /*
     Add a new offer this handler will handle. Returns 0 if successful,
     otherwise -1.                                                     
     */
-    native static int __add_offer (long self, int method, String uri);
-    public int add_offer (long self, int method, String uri) {
-        return ZebHandler.__add_offer (self, method, uri);
+    native static int __addOffer (long self, int method, String uri);
+    public int addOffer (Zactor self, int method, String uri) {
+        return __addOffer (self.self, method, uri);
     }
     /*
     Add a new accept type that this handler can deliver. May be a regular
     expression. Returns 0 if successfull, otherwise -1.                  
     */
-    native static int __add_accept (long self, String accept);
-    public int add_accept (long self, String accept) {
-        return ZebHandler.__add_accept (self, accept);
+    native static int __addAccept (long self, String accept);
+    public int addAccept (Zactor self, String accept) {
+        return __addAccept (self.self, accept);
     }
     /*
     Self test of this class.
     */
     native static void __test (boolean verbose);
-    public void test (boolean verbose) {
-        return ZebHandler.__test (verbose);
+    public static void test (boolean verbose) {
+        __test (verbose);
     }
 }

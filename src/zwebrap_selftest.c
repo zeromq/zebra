@@ -107,8 +107,8 @@ test_available (const char *testname)
 static inline void
 test_runall (bool verbose)
 {
-    printf ("Running zwebrap selftests...\n");
     test_item_t *item;
+    printf ("Running zwebrap selftests...\n");
     for (item = all_tests; item->test; item++)
         item->test (verbose);
 

@@ -63,7 +63,7 @@ This package contains development files.
 %defattr(-,root,root)
 %{_includedir}/*
 %{_libdir}/libzwebrap.so
-%{_libdir}/pkgconfig/zwebrap.pc
+%{_libdir}/pkgconfig/libzwebrap.pc
 
 %prep
 %setup -q

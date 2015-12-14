@@ -8,41 +8,6 @@
 #include "QmlZebHandler.h"
 
 
-///
-//  Add a new offer this handler will handle. Returns 0 if successful,
-//  otherwise -1.                                                     
-int QmlZebHandler::addOffer (int method, const QString &uri) {
-    return zeb_handler_add_offer (self, method, uri.toUtf8().data());
-};
-
-///
-//  Add a new accept type that this handler can deliver. May be a regular
-//  expression. Returns 0 if successfull, otherwise -1.                  
-int QmlZebHandler::addAccept (const QString &accept) {
-    return zeb_handler_add_accept (self, accept.toUtf8().data());
-};
-
-///
-//  Set a callback handler to handle incoming requests. Returns the response
-//  to be send back to the client.                                          
-void QmlZebHandler::setHandleRequestFn (zeb_handler_handle_request_fn *handleRequestFn) {
-    zeb_handler_set_handle_request_fn (self, handleRequestFn);
-};
-
-///
-//  Set a callback handler to check if provided etag matches the current one.
-//  Returns true if etags match, otherwise false.                            
-void QmlZebHandler::setCheckEtagFn (zeb_handler_check_etag_fn *checkEtagFn) {
-    zeb_handler_set_check_etag_fn (self, checkEtagFn);
-};
-
-///
-//  Set a callback handler to check if provided last_modified timestamp matches
-//  the current one. Returns true if timestamp match, otherwise false.         
-void QmlZebHandler::setCheckLastModifiedFn (zeb_handler_check_last_modified_fn *lastModifiedFn) {
-    zeb_handler_set_check_last_modified_fn (self, lastModifiedFn);
-};
-
 
 QObject* QmlZebHandler::qmlAttachedProperties(QObject* object) {
     return new QmlZebHandlerAttached(object);
@@ -50,23 +15,23 @@ QObject* QmlZebHandler::qmlAttachedProperties(QObject* object) {
 
 
 ///
+//  Add a new offer this handler will handle. Returns 0 if successful,
+//  otherwise -1.                                                     
+int QmlZebHandlerAttached::addOffer (zactor_t *self, int method, const QString &uri) {
+    return zeb_handler_add_offer (self, method, uri.toUtf8().data());
+};
+
+///
+//  Add a new accept type that this handler can deliver. May be a regular
+//  expression. Returns 0 if successfull, otherwise -1.                  
+int QmlZebHandlerAttached::addAccept (zactor_t *self, const QString &accept) {
+    return zeb_handler_add_accept (self, accept.toUtf8().data());
+};
+
+///
 //  Self test of this class.
 void QmlZebHandlerAttached::test (bool verbose) {
     zeb_handler_test (verbose);
-};
-
-///
-//  Create a new zeb_handler
-QmlZebHandler *QmlZebHandlerAttached::construct (const QString &endpoint) {
-    QmlZebHandler *qmlSelf = new QmlZebHandler ();
-    qmlSelf->self = zeb_handler_new (endpoint.toUtf8().data());
-    return qmlSelf;
-};
-
-///
-//  Destroy the zeb_handler
-void QmlZebHandlerAttached::destruct (QmlZebHandler *qmlSelf) {
-    zeb_handler_destroy (&qmlSelf->self);
 };
 
 /*

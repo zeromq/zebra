@@ -38,13 +38,8 @@ module Zwebrap
         blocking: true  # only necessary on MRI to deal with the GIL.
       }
 
-      attach_function :zeb_handler_new, [:string], :pointer, **opts
-      attach_function :zeb_handler_destroy, [:pointer], :void, **opts
       attach_function :zeb_handler_add_offer, [:pointer, :int, :string], :int, **opts
       attach_function :zeb_handler_add_accept, [:pointer, :string], :int, **opts
-      attach_function :zeb_handler_set_handle_request_fn, [:pointer, :pointer], :void, **opts
-      attach_function :zeb_handler_set_check_etag_fn, [:pointer, :pointer], :void, **opts
-      attach_function :zeb_handler_set_check_last_modified_fn, [:pointer, :pointer], :void, **opts
       attach_function :zeb_handler_test, [:bool], :void, **opts
 
       require_relative 'ffi/zeb_handler'
@@ -65,14 +60,14 @@ module Zwebrap
       attach_function :xrap_msg_set_content_type, [:pointer, :string, :varargs], :void, **opts
       attach_function :xrap_msg_content_body, [:pointer], :string, **opts
       attach_function :xrap_msg_set_content_body, [:pointer, :string, :varargs], :void, **opts
-      attach_function :xrap_msg_status_code, [:pointer], :pointer, **opts
-      attach_function :xrap_msg_set_status_code, [:pointer, :pointer], :void, **opts
+      attach_function :xrap_msg_status_code, [:pointer], :uint16, **opts
+      attach_function :xrap_msg_set_status_code, [:pointer, :uint16], :void, **opts
       attach_function :xrap_msg_location, [:pointer], :string, **opts
       attach_function :xrap_msg_set_location, [:pointer, :string, :varargs], :void, **opts
       attach_function :xrap_msg_etag, [:pointer], :string, **opts
       attach_function :xrap_msg_set_etag, [:pointer, :string, :varargs], :void, **opts
-      attach_function :xrap_msg_date_modified, [:pointer], :pointer, **opts
-      attach_function :xrap_msg_set_date_modified, [:pointer, :pointer], :void, **opts
+      attach_function :xrap_msg_date_modified, [:pointer], :uint64, **opts
+      attach_function :xrap_msg_set_date_modified, [:pointer, :uint64], :void, **opts
       attach_function :xrap_msg_resource, [:pointer], :string, **opts
       attach_function :xrap_msg_set_resource, [:pointer, :string, :varargs], :void, **opts
       attach_function :xrap_msg_parameters, [:pointer], :pointer, **opts
@@ -80,8 +75,8 @@ module Zwebrap
       attach_function :xrap_msg_set_parameters, [:pointer, :pointer], :void, **opts
       attach_function :xrap_msg_parameters_string, [:pointer, :string, :string], :string, **opts
       attach_function :xrap_msg_parameters_insert, [:pointer, :string, :string, :varargs], :void, **opts
-      attach_function :xrap_msg_if_modified_since, [:pointer], :pointer, **opts
-      attach_function :xrap_msg_set_if_modified_since, [:pointer, :pointer], :void, **opts
+      attach_function :xrap_msg_if_modified_since, [:pointer], :uint64, **opts
+      attach_function :xrap_msg_set_if_modified_since, [:pointer, :uint64], :void, **opts
       attach_function :xrap_msg_if_none_match, [:pointer], :string, **opts
       attach_function :xrap_msg_set_if_none_match, [:pointer, :string, :varargs], :void, **opts
       attach_function :xrap_msg_metadata, [:pointer], :pointer, **opts
@@ -89,8 +84,8 @@ module Zwebrap
       attach_function :xrap_msg_set_metadata, [:pointer, :pointer], :void, **opts
       attach_function :xrap_msg_metadata_string, [:pointer, :string, :string], :string, **opts
       attach_function :xrap_msg_metadata_insert, [:pointer, :string, :string, :varargs], :void, **opts
-      attach_function :xrap_msg_if_unmodified_since, [:pointer], :pointer, **opts
-      attach_function :xrap_msg_set_if_unmodified_since, [:pointer, :pointer], :void, **opts
+      attach_function :xrap_msg_if_unmodified_since, [:pointer], :uint64, **opts
+      attach_function :xrap_msg_set_if_unmodified_since, [:pointer, :uint64], :void, **opts
       attach_function :xrap_msg_if_match, [:pointer], :string, **opts
       attach_function :xrap_msg_set_if_match, [:pointer, :string, :varargs], :void, **opts
       attach_function :xrap_msg_status_text, [:pointer], :string, **opts
@@ -101,13 +96,12 @@ module Zwebrap
 
       attach_function :zwr_client_new, [], :pointer, **opts
       attach_function :zwr_client_destroy, [:pointer], :void, **opts
-      attach_function :zwr_client_print, [:pointer], :void, **opts
       attach_function :zwr_client_actor, [:pointer], :pointer, **opts
       attach_function :zwr_client_msgpipe, [:pointer], :pointer, **opts
       attach_function :zwr_client_connected, [:pointer], :bool, **opts
-      attach_function :zwr_client_connect, [:pointer, :string, :pointer, :string], :int, **opts
+      attach_function :zwr_client_connect, [:pointer, :string, :uint32, :string], :int, **opts
       attach_function :zwr_client_set_handler, [:pointer, :string, :string], :int, **opts
-      attach_function :zwr_client_request, [:pointer, :pointer, :pointer], :int, **opts
+      attach_function :zwr_client_request, [:pointer, :uint32, :pointer], :int, **opts
       attach_function :zwr_client_deliver, [:pointer, :pointer, :pointer], :int, **opts
       attach_function :zwr_client_recv, [:pointer], :pointer, **opts
       attach_function :zwr_client_command, [:pointer], :string, **opts

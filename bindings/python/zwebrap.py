@@ -7,6 +7,7 @@ from __future__ import print_function
 import os, sys
 from ctypes import *
 from ctypes.util import find_library
+import czmq
 
 # zwebrap
 try:
@@ -33,76 +34,21 @@ class number_t(Structure):
     pass # Empty - only for type checking
 number_p = POINTER(number_t)
 
-class zeb_handler_t(Structure):
-    pass # Empty - only for type checking
-zeb_handler_p = POINTER(zeb_handler_t)
-
-class zmsg_t(Structure):
-    pass # Empty - only for type checking
-zmsg_p = POINTER(zmsg_t)
-
-class zhash_t(Structure):
-    pass # Empty - only for type checking
-zhash_p = POINTER(zhash_t)
-
 class zwr_client_t(Structure):
     pass # Empty - only for type checking
 zwr_client_p = POINTER(zwr_client_t)
 
-class zactor_t(Structure):
-    pass # Empty - only for type checking
-zactor_p = POINTER(zactor_t)
-
-class zsock_t(Structure):
-    pass # Empty - only for type checking
-zsock_p = POINTER(zsock_t)
-
-class zuuid_t(Structure):
-    pass # Empty - only for type checking
-zuuid_p = POINTER(zuuid_t)
-
 
 # zeb_handler
-zeb_handler_handle_request_fn = CFUNCTYPE(xrap_msg_p, xrap_msg_p)
-zeb_handler_check_etag_fn = CFUNCTYPE(c_bool, c_char_p)
-zeb_handler_check_last_modified_fn = CFUNCTYPE(c_bool, number_p)
-lib.zeb_handler_new.restype = zeb_handler_p
-lib.zeb_handler_new.argtypes = [c_char_p]
-lib.zeb_handler_destroy.restype = None
-lib.zeb_handler_destroy.argtypes = [POINTER(zeb_handler_p)]
 lib.zeb_handler_add_offer.restype = c_int
-lib.zeb_handler_add_offer.argtypes = [zeb_handler_p, c_int, c_char_p]
+lib.zeb_handler_add_offer.argtypes = [czmq.zactor_p, c_int, c_char_p]
 lib.zeb_handler_add_accept.restype = c_int
-lib.zeb_handler_add_accept.argtypes = [zeb_handler_p, c_char_p]
-lib.zeb_handler_set_handle_request_fn.restype = None
-lib.zeb_handler_set_handle_request_fn.argtypes = [zeb_handler_p, POINTER(zeb_handler_handle_request_fn)]
-lib.zeb_handler_set_check_etag_fn.restype = None
-lib.zeb_handler_set_check_etag_fn.argtypes = [zeb_handler_p, POINTER(zeb_handler_check_etag_fn)]
-lib.zeb_handler_set_check_last_modified_fn.restype = None
-lib.zeb_handler_set_check_last_modified_fn.argtypes = [zeb_handler_p, POINTER(zeb_handler_check_last_modified_fn)]
+lib.zeb_handler_add_accept.argtypes = [czmq.zactor_p, c_char_p]
 lib.zeb_handler_test.restype = None
 lib.zeb_handler_test.argtypes = [c_bool]
 
 class ZebHandler(object):
     """Handler for XRAP requests"""
-
-    def __init__(self, *args):
-        """Create a new zeb_handler"""
-        if len(args) == 2 and type(args[0]) is c_void_p and isinstance(args[1], bool):
-            self._as_parameter_ = cast(args[0], zeb_handler_p) # Conversion from raw type to binding
-            self.allow_destruct = args[1] # This is a 'fresh' value, owned by us
-        elif len(args) == 2 and type(args[0]) is zeb_handler_p and isinstance(args[1], bool):
-            self._as_parameter_ = args[0] # Conversion from raw type to binding
-            self.allow_destruct = args[1] # This is a 'fresh' value, owned by us
-        else:
-            assert(len(args) == 1)
-            self._as_parameter_ = lib.zeb_handler_new(args[0]) # Creation of new raw type
-            self.allow_destruct = True
-
-    def __del__(self):
-        """Destroy the zeb_handler"""
-        if self.allow_destruct:
-            lib.zeb_handler_destroy(byref(self._as_parameter_))
 
     def __bool__(self):
         "Determine whether the object is valid by converting to boolean" # Python 3
@@ -112,30 +58,17 @@ class ZebHandler(object):
         "Determine whether the object is valid by converting to boolean" # Python 2
         return self._as_parameter_.__nonzero__()
 
+    @staticmethod
     def add_offer(self, method, uri):
         """Add a new offer this handler will handle. Returns 0 if successful,
 otherwise -1."""
-        return lib.zeb_handler_add_offer(self._as_parameter_, method, uri)
+        return lib.zeb_handler_add_offer(self, method, uri)
 
+    @staticmethod
     def add_accept(self, accept):
         """Add a new accept type that this handler can deliver. May be a regular
 expression. Returns 0 if successfull, otherwise -1."""
-        return lib.zeb_handler_add_accept(self._as_parameter_, accept)
-
-    def set_handle_request_fn(self, handle_request_fn):
-        """Set a callback handler to handle incoming requests. Returns the response
-to be send back to the client."""
-        return lib.zeb_handler_set_handle_request_fn(self._as_parameter_, byref(zeb_handler_handle_request_fn.from_param(handle_request_fn)))
-
-    def set_check_etag_fn(self, check_etag_fn):
-        """Set a callback handler to check if provided etag matches the current one.
-Returns true if etags match, otherwise false."""
-        return lib.zeb_handler_set_check_etag_fn(self._as_parameter_, byref(zeb_handler_check_etag_fn.from_param(check_etag_fn)))
-
-    def set_check_last_modified_fn(self, last_modified_fn):
-        """Set a callback handler to check if provided last_modified timestamp matches
-the current one. Returns true if timestamp match, otherwise false."""
-        return lib.zeb_handler_set_check_last_modified_fn(self._as_parameter_, byref(zeb_handler_check_last_modified_fn.from_param(last_modified_fn)))
+        return lib.zeb_handler_add_accept(self, accept)
 
     @staticmethod
     def test(verbose):
@@ -149,8 +82,8 @@ lib.xrap_msg_new.argtypes = [c_int]
 lib.xrap_msg_destroy.restype = None
 lib.xrap_msg_destroy.argtypes = [POINTER(xrap_msg_p)]
 lib.xrap_msg_decode.restype = xrap_msg_p
-lib.xrap_msg_decode.argtypes = [POINTER(zmsg_p)]
-lib.xrap_msg_encode.restype = zmsg_p
+lib.xrap_msg_decode.argtypes = [POINTER(czmq.zmsg_p)]
+lib.xrap_msg_encode.restype = czmq.zmsg_p
 lib.xrap_msg_encode.argtypes = [POINTER(xrap_msg_p)]
 lib.xrap_msg_recv.restype = xrap_msg_p
 lib.xrap_msg_recv.argtypes = [c_void_p]
@@ -196,12 +129,12 @@ lib.xrap_msg_resource.restype = c_char_p
 lib.xrap_msg_resource.argtypes = [xrap_msg_p]
 lib.xrap_msg_set_resource.restype = None
 lib.xrap_msg_set_resource.argtypes = [xrap_msg_p, c_char_p]
-lib.xrap_msg_parameters.restype = zhash_p
+lib.xrap_msg_parameters.restype = czmq.zhash_p
 lib.xrap_msg_parameters.argtypes = [xrap_msg_p]
-lib.xrap_msg_get_parameters.restype = zhash_p
+lib.xrap_msg_get_parameters.restype = czmq.zhash_p
 lib.xrap_msg_get_parameters.argtypes = [xrap_msg_p]
 lib.xrap_msg_set_parameters.restype = None
-lib.xrap_msg_set_parameters.argtypes = [xrap_msg_p, POINTER(zhash_p)]
+lib.xrap_msg_set_parameters.argtypes = [xrap_msg_p, POINTER(czmq.zhash_p)]
 lib.xrap_msg_parameters_string.restype = c_char_p
 lib.xrap_msg_parameters_string.argtypes = [xrap_msg_p, c_char_p, c_char_p]
 lib.xrap_msg_parameters_insert.restype = None
@@ -214,12 +147,12 @@ lib.xrap_msg_if_none_match.restype = c_char_p
 lib.xrap_msg_if_none_match.argtypes = [xrap_msg_p]
 lib.xrap_msg_set_if_none_match.restype = None
 lib.xrap_msg_set_if_none_match.argtypes = [xrap_msg_p, c_char_p]
-lib.xrap_msg_metadata.restype = zhash_p
+lib.xrap_msg_metadata.restype = czmq.zhash_p
 lib.xrap_msg_metadata.argtypes = [xrap_msg_p]
-lib.xrap_msg_get_metadata.restype = zhash_p
+lib.xrap_msg_get_metadata.restype = czmq.zhash_p
 lib.xrap_msg_get_metadata.argtypes = [xrap_msg_p]
 lib.xrap_msg_set_metadata.restype = None
-lib.xrap_msg_set_metadata.argtypes = [xrap_msg_p, POINTER(zhash_p)]
+lib.xrap_msg_set_metadata.argtypes = [xrap_msg_p, POINTER(czmq.zhash_p)]
 lib.xrap_msg_metadata_string.restype = c_char_p
 lib.xrap_msg_metadata_string.argtypes = [xrap_msg_p, c_char_p, c_char_p]
 lib.xrap_msg_metadata_insert.restype = None
@@ -338,13 +271,13 @@ class XrapMsg(object):
         """Parse a xrap_msg from zmsg_t. Returns a new object, or NULL if
 the message could not be parsed, or was NULL. Destroys msg and
 nullifies the msg reference."""
-        return lib.xrap_msg_decode(byref(zmsg_p.from_param(msg_p)))
+        return lib.xrap_msg_decode(byref(czmq.zmsg_p.from_param(msg_p)))
 
     @staticmethod
     def encode(xrap_msg_p):
         """Encode xrap_msg into zmsg and destroy it. Returns a newly created
 object or NULL if error. Use when not in control of sending the message."""
-        return lib.xrap_msg_encode(byref(xrap_msg_p.from_param(xrap_msg_p)))
+        return czmq.Zmsg(lib.xrap_msg_encode(byref(xrap_msg_p.from_param(xrap_msg_p))), False)
 
     @staticmethod
     def recv(input):
@@ -441,15 +374,15 @@ or NULL either if there was no input waiting, or the recv was interrupted."""
 
     def parameters(self):
         """//  Get/set the parameters field"""
-        return lib.xrap_msg_parameters(self._as_parameter_)
+        return czmq.Zhash(lib.xrap_msg_parameters(self._as_parameter_), False)
 
     def get_parameters(self):
         """//  Get the parameters field and transfer ownership to caller"""
-        return lib.xrap_msg_get_parameters(self._as_parameter_)
+        return czmq.Zhash(lib.xrap_msg_get_parameters(self._as_parameter_), False)
 
     def set_parameters(self, parameters_p):
         """"""
-        return lib.xrap_msg_set_parameters(self._as_parameter_, byref(zhash_p.from_param(parameters_p)))
+        return lib.xrap_msg_set_parameters(self._as_parameter_, byref(czmq.zhash_p.from_param(parameters_p)))
 
     def parameters_string(self, key, default_value):
         """Get/set the parameters field"""
@@ -477,15 +410,15 @@ or NULL either if there was no input waiting, or the recv was interrupted."""
 
     def metadata(self):
         """//  Get/set the metadata field"""
-        return lib.xrap_msg_metadata(self._as_parameter_)
+        return czmq.Zhash(lib.xrap_msg_metadata(self._as_parameter_), False)
 
     def get_metadata(self):
         """//  Get the metadata field and transfer ownership to caller"""
-        return lib.xrap_msg_get_metadata(self._as_parameter_)
+        return czmq.Zhash(lib.xrap_msg_get_metadata(self._as_parameter_), False)
 
     def set_metadata(self, metadata_p):
         """"""
-        return lib.xrap_msg_set_metadata(self._as_parameter_, byref(zhash_p.from_param(metadata_p)))
+        return lib.xrap_msg_set_metadata(self._as_parameter_, byref(czmq.zhash_p.from_param(metadata_p)))
 
     def metadata_string(self, key, default_value):
         """Get/set a value in the metadata dictionary"""
@@ -530,11 +463,9 @@ lib.zwr_client_new.restype = zwr_client_p
 lib.zwr_client_new.argtypes = []
 lib.zwr_client_destroy.restype = None
 lib.zwr_client_destroy.argtypes = [POINTER(zwr_client_p)]
-lib.zwr_client_print.restype = None
-lib.zwr_client_print.argtypes = [zwr_client_p]
-lib.zwr_client_actor.restype = zactor_p
+lib.zwr_client_actor.restype = czmq.zactor_p
 lib.zwr_client_actor.argtypes = [zwr_client_p]
-lib.zwr_client_msgpipe.restype = zsock_p
+lib.zwr_client_msgpipe.restype = czmq.zsock_p
 lib.zwr_client_msgpipe.argtypes = [zwr_client_p]
 lib.zwr_client_connected.restype = c_bool
 lib.zwr_client_connected.argtypes = [zwr_client_p]
@@ -543,10 +474,10 @@ lib.zwr_client_connect.argtypes = [zwr_client_p, c_char_p, number_p, c_char_p]
 lib.zwr_client_set_handler.restype = c_int
 lib.zwr_client_set_handler.argtypes = [zwr_client_p, c_char_p, c_char_p]
 lib.zwr_client_request.restype = c_int
-lib.zwr_client_request.argtypes = [zwr_client_p, number_p, POINTER(zmsg_p)]
+lib.zwr_client_request.argtypes = [zwr_client_p, number_p, POINTER(czmq.zmsg_p)]
 lib.zwr_client_deliver.restype = c_int
-lib.zwr_client_deliver.argtypes = [zwr_client_p, zuuid_p, POINTER(zmsg_p)]
-lib.zwr_client_recv.restype = zmsg_p
+lib.zwr_client_deliver.argtypes = [zwr_client_p, czmq.zuuid_p, POINTER(czmq.zmsg_p)]
+lib.zwr_client_recv.restype = czmq.zmsg_p
 lib.zwr_client_recv.argtypes = [zwr_client_p]
 lib.zwr_client_command.restype = c_char_p
 lib.zwr_client_command.argtypes = [zwr_client_p]
@@ -554,9 +485,9 @@ lib.zwr_client_status.restype = c_int
 lib.zwr_client_status.argtypes = [zwr_client_p]
 lib.zwr_client_reason.restype = c_char_p
 lib.zwr_client_reason.argtypes = [zwr_client_p]
-lib.zwr_client_sender.restype = zuuid_p
+lib.zwr_client_sender.restype = czmq.zuuid_p
 lib.zwr_client_sender.argtypes = [zwr_client_p]
-lib.zwr_client_content.restype = zmsg_p
+lib.zwr_client_content.restype = czmq.zmsg_p
 lib.zwr_client_content.argtypes = [zwr_client_p]
 lib.zwr_client_test.restype = None
 lib.zwr_client_test.argtypes = [c_bool]
@@ -591,14 +522,10 @@ if construction failed due to lack of available memory."""
         "Determine whether the object is valid by converting to boolean" # Python 2
         return self._as_parameter_.__nonzero__()
 
-    def print(self):
-        """"""
-        return lib.zwr_client_print(self._as_parameter_)
-
     def actor(self):
         """Return actor, when caller wants to work with multiple actors and/or
 input sockets asynchronously."""
-        return lib.zwr_client_actor(self._as_parameter_)
+        return czmq.Zactor(lib.zwr_client_actor(self._as_parameter_), False)
 
     def msgpipe(self):
         """Return message pipe for asynchronous message I/O. In the high-volume case,
@@ -606,7 +533,7 @@ we send methods and get replies to the actor, in a synchronous manner, and
 we send/recv high volume message data to a second pipe, the msgpipe. In
 the low-volume case we can do everything over the actor pipe, if traffic
 is never ambiguous."""
-        return lib.zwr_client_msgpipe(self._as_parameter_)
+        return czmq.Zsock(lib.zwr_client_msgpipe(self._as_parameter_), False)
 
     def connected(self):
         """Return true if client is currently connected, else false. Note that the
@@ -630,16 +557,16 @@ Returns >= 0 if successful, -1 if interrupted."""
     def request(self, timeout, content_p):
         """No explanation
 Returns >= 0 if successful, -1 if interrupted."""
-        return lib.zwr_client_request(self._as_parameter_, timeout, byref(zmsg_p.from_param(content_p)))
+        return lib.zwr_client_request(self._as_parameter_, timeout, byref(czmq.zmsg_p.from_param(content_p)))
 
     def deliver(self, sender, content_p):
         """Send XRAP DELIVER message to server, takes ownership of message
 and destroys message when done sending it."""
-        return lib.zwr_client_deliver(self._as_parameter_, sender, byref(zmsg_p.from_param(content_p)))
+        return lib.zwr_client_deliver(self._as_parameter_, sender, byref(czmq.zmsg_p.from_param(content_p)))
 
     def recv(self):
         """Receive message from server; caller destroys message when done"""
-        return lib.zwr_client_recv(self._as_parameter_)
+        return czmq.Zmsg(lib.zwr_client_recv(self._as_parameter_), False)
 
     def command(self):
         """Return last received command. Can be one of these values:
@@ -656,11 +583,11 @@ and destroys message when done sending it."""
 
     def sender(self):
         """Return last received sender"""
-        return lib.zwr_client_sender(self._as_parameter_)
+        return czmq.Zuuid(lib.zwr_client_sender(self._as_parameter_), False)
 
     def content(self):
         """Return last received content"""
-        return lib.zwr_client_content(self._as_parameter_)
+        return czmq.Zmsg(lib.zwr_client_content(self._as_parameter_), False)
 
     @staticmethod
     def test(verbose):

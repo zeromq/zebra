@@ -7,7 +7,7 @@
 #    This Source Code Form is subject to the terms of the Mozilla Public
 #    License, v. 2.0. If a copy of the MPL was not distributed with this
 #    file, You can obtain one at http://mozilla.org/MPL/2.0/.           
-#
+
 
 Source:         zwebrap
 Section:        net
@@ -28,7 +28,7 @@ Build-Depends: bison, debhelper (>= 8),
 
 Package: libzwebrap0
 Architecture: any
-Depends: ${misc:Depends}, ${shlibs:Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: zwebrap
  This package contains shared library for zwebrap: translates rest http-request into the xrap protocol.
 
@@ -36,13 +36,11 @@ Package: zwebrap-dev
 Architecture: all
 Section: libdevel
 Depends:
-    libzwebrap0 (= ${binary:Version}),
-    ${shlibs:Depends},
     libzmq4-dev,
     libczmq-dev,
     libmicrohttpd-dev,
     libcurl-dev,
-    ${misc:Depends}
+    libzwebrap0 (= ${binary:Version})
 Description: development files for zwebrap
  This package contains development files for zwebrap: translates rest http-request into the xrap protocol.
 

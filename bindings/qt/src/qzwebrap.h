@@ -31,9 +31,9 @@
 class QZebHandler;
 class QXrapMsg;
 class QZwrClient;
+class QZactor;
 class QZmsg;
 class QZhash;
-class QZactor;
 class QZsock;
 class QZuuid;
 class QZframe;
@@ -43,9 +43,9 @@ class QZlist;
 #include "qzebhandler.h"
 #include "qxrapmsg.h"
 #include "qzwrclient.h"
+#include "qzactor.h"
 #include "qzmsg.h"
 #include "qzhash.h"
-#include "qzactor.h"
 #include "qzsock.h"
 #include "qzuuid.h"
 #include "qzframe.h"

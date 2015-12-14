@@ -20,12 +20,6 @@
 #include "../include/zwebrap.h"
 #include "zwebrap_classes.h"
 
-typedef struct {
-    zeb_handler_handle_request_fn *handle_request_fn;
-    zeb_handler_check_etag_fn *check_etag_fn;
-    zeb_handler_check_last_modified_fn *check_last_modified_fn;
-} s_handler_callback_t;
-
 //  Structure of the actor
 
 typedef struct {
@@ -146,12 +140,11 @@ s_handler_add_offer (s_handler_t *self)
 
     uint8_t method;
     char *uri = NULL;
-    s_handler_callback_t *callback = NULL;
-    zsock_brecv (self->pipe, "p1s", &callback, &method, &uri);
+    zsock_brecv (self->pipe, "1s", &method, &uri);
     assert (uri);
 
     char *joined_uri = s_concat (method, uri);
-    int rc = ztrie_insert_route (self->offers, joined_uri, (void *) callback, NULL);
+    int rc = ztrie_insert_route (self->offers, joined_uri, NULL, NULL);
     zstr_free (&joined_uri);
 
     if (rc == 0)
@@ -205,37 +198,29 @@ s_handler_recv_client (s_handler_t *self)
         goto cleanup;
     }
 
-    //  Check if content type is valid
-    bool matching_accept = false;
-    const char *content_type = xrap_msg_content_type (xrequest);
-    zrex_t *accept_expr = (zrex_t *) zlistx_first (self->accepts);
-    while (accept_expr) {
-        if (zrex_matches (accept_expr, content_type))
-            matching_accept = true;
-        accept_expr = (zrex_t *) zlistx_next (self->accepts);
-    }
-    if (!matching_accept) {
-        xrap_msg_t *xresponse = xrap_msg_new (XRAP_MSG_ERROR);
-        xrap_msg_set_status_code (xresponse, XRAP_TRAFFIC_NOT_ACCEPTABLE);
-        xrap_msg_set_status_text (xresponse, "Ressource accept format is not valid!");
-        zmsg_t *response = xrap_msg_encode (&xresponse);
-        zwr_client_deliver (self->client, zwr_client_sender (self->client), &response);
-        goto cleanup;
+    {   // Jump scoping needed for c++
+        //  Check if content type is valid
+        bool matching_accept = false;
+        const char *content_type = xrap_msg_content_type (xrequest);
+        zrex_t *accept_expr = (zrex_t *) zlistx_first (self->accepts);
+        while (accept_expr) {
+            if (zrex_matches (accept_expr, content_type))
+                matching_accept = true;
+            accept_expr = (zrex_t *) zlistx_next (self->accepts);
+        }
+        if (!matching_accept) {
+            xrap_msg_t *xresponse = xrap_msg_new (XRAP_MSG_ERROR);
+            xrap_msg_set_status_code (xresponse, XRAP_TRAFFIC_NOT_ACCEPTABLE);
+            xrap_msg_set_status_text (xresponse, "Ressource accept format is not valid!");
+            zmsg_t *response = xrap_msg_encode (&xresponse);
+            zwr_client_deliver (self->client, zwr_client_sender (self->client), &response);
+            goto cleanup;
+        }
     }
 
-    //  Get callbacks for ressource
-    const char *resource = xrap_msg_resource (xrequest);
-    int method = xrap_msg_id (xrequest);
-    s_handler_callback_t *callback;
-    char *joined_uri = s_concat (method, resource);
-    if (ztrie_matches (self->offers, joined_uri))
-        callback = (s_handler_callback_t *) ztrie_hit_data (self->offers);
-    else
-        goto cleanup;
-    zstr_free (&joined_uri);
+    {   // Jump scoping needed for c++
 
-    //  Check if request is conditional
-    if (callback->check_etag_fn || callback->check_last_modified_fn) {
+        //  Check if request is conditional
         if (xrap_msg_id (xrequest) == XRAP_MSG_GET) {
             const char *etag = xrap_msg_if_none_match (xrequest);
             uint64_t last_modified = xrap_msg_if_modified_since (xrequest);
@@ -244,10 +229,14 @@ s_handler_recv_client (s_handler_t *self)
                 bool etag_matches = true;
                 bool last_modified_matches = true;
                 //  Check etag and last modified
-                if (etag && strneq (etag, ""))
-                    etag_matches = callback->check_etag_fn (etag);
-                if (last_modified > 0)
-                    last_modified_matches = callback->check_last_modified_fn (last_modified);
+                if (etag && strneq (etag, "")) {
+                    zsock_send (self->pipe, "ss", "CHECK ETAG", etag);
+                    etag_matches = zsock_wait (self->pipe) == 0;
+                }
+                if (last_modified > 0) {
+                    zsock_send (self->pipe, "s8", "CHECK LAST MODIFIED", last_modified);
+                    last_modified_matches = zsock_wait (self->pipe) == 0;
+                }
                 //  If etag and last modified matches send GET_EMPTY
                 if (etag_matches && last_modified_matches) {
                     xrap_msg_t *xresponse = xrap_msg_new (XRAP_MSG_GET_EMPTY);
@@ -267,10 +256,14 @@ s_handler_recv_client (s_handler_t *self)
                 bool etag_matches = true;
                 bool last_modified_matches = true;
                 //  Check etag and last modified
-                if (etag && strneq (etag, ""))
-                    etag_matches = callback->check_etag_fn (etag);
-                if (last_modified > 0)
-                    last_modified_matches = callback->check_last_modified_fn (last_modified);
+                if (etag && strneq (etag, "")) {
+                    zsock_send (self->pipe, "ss", "CHECK ETAG", etag);
+                    etag_matches = zsock_wait (self->pipe) == 0;
+                }
+                if (last_modified > 0) {
+                    zsock_send (self->pipe, "s8", "CHECK LAST MODIFIED", last_modified);
+                    last_modified_matches = zsock_wait (self->pipe) == 0;
+                }
                 //  If either etag or last modified mismatches send precondition failed
                 if (! (etag_matches && last_modified_matches)) {
                     xrap_msg_t *xresponse = xrap_msg_new (XRAP_MSG_ERROR);
@@ -282,12 +275,15 @@ s_handler_recv_client (s_handler_t *self)
                 }
             }
         }
-    }
 
-    //  Dispatch request to handle_request_fn
-    xrap_msg_t *xresponse = callback->handle_request_fn (xrequest);
-    zmsg_t *response = xrap_msg_encode (&xresponse);
-    zwr_client_deliver (self->client, zwr_client_sender (self->client), &response);
+        //  Dispatch request to handle_request_fn
+        xrap_msg_t *xrequest_dup = xrap_msg_dup (xrequest);
+        request = xrap_msg_encode (&xrequest_dup);
+        zsock_send (self->pipe, "sm", "HANDLE REQUEST", request);
+        zmsg_destroy (&request);
+        zmsg_t *response = zmsg_recv (self->pipe);
+        zwr_client_deliver (self->client, zwr_client_sender (self->client), &response);
+    }
 
 cleanup:
     xrap_msg_destroy (&xrequest);
@@ -329,7 +325,7 @@ s_handler_recv_api (s_handler_t *self)
 
 //  --------------------------------------------------------------------------
 //  This is the handler actor which runs in its own thread and polls its two
-//  sockets and processes incoming messages.
+//  sockets to process incoming messages.
 
 void
 zeb_handler (zsock_t *pipe, void *args)
@@ -359,62 +355,17 @@ zeb_handler (zsock_t *pipe, void *args)
 
 
 //  ---------------------------------------------------------------------------
-//  Class interface
-
-struct _zeb_handler_t {
-    zactor_t *actor;        //  Handler actor
-    s_handler_callback_t *callback;
-};
-
-
-//  ---------------------------------------------------------------------------
-//  Create a new zeb_handler
-
-zeb_handler_t *
-zeb_handler_new (const char *endpoint)
-{
-    zeb_handler_t *self = (zeb_handler_t *) zmalloc (sizeof (zeb_handler_t));
-    if (self) {
-        self->callback = (s_handler_callback_t *) zmalloc (sizeof (s_handler_callback_t));
-        assert (self->callback);
-        self->actor = zactor_new (zeb_handler, (void *) endpoint);
-        if (!self->actor)
-            zeb_handler_destroy (&self);
-    }
-    return self;
-}
-
-//  ---------------------------------------------------------------------------
-//  Destroy the zeb_handler
-
-void
-zeb_handler_destroy (zeb_handler_t **self_p)
-{
-    assert (self_p);
-    if (*self_p) {
-        zeb_handler_t *self = *self_p;
-        free (self->callback);
-        //  Free properties
-        zactor_destroy (&self->actor);
-        //  Free object itself
-        free (self);
-        *self_p = NULL;
-    }
-}
-
-
-//  ---------------------------------------------------------------------------
 //  Add a new accept type that this handler can deliver. May be a regular
 //  expression. Returns 0 if successful, otherwise -1.
 
 int
-zeb_handler_add_accept (zeb_handler_t *self, const char *accept)
+zeb_handler_add_accept (zactor_t *self, const char *accept)
 {
     assert (self);
     assert (accept);
-    int rc = zstr_sendx (self->actor, "ADD ACCEPT", accept, NULL);
+    int rc = zstr_sendx (self, "ADD ACCEPT", accept, NULL);
     if (rc == 0)
-        rc = zsock_wait (self->actor);
+        rc = zsock_wait (self);
     return rc == 1? -1: rc;
 }
 
@@ -424,80 +375,23 @@ zeb_handler_add_accept (zeb_handler_t *self, const char *accept)
 //  otherwise -1;
 
 int
-zeb_handler_add_offer (zeb_handler_t *self, int method, const char *uri)
+zeb_handler_add_offer (zactor_t *self, int method, const char *uri)
 {
     assert (self);
     assert (uri);
     int rc = -1;
     //  Send message name as first, separate frame
-    rc = zstr_sendm (self->actor, "ADD OFFER");
+    rc = zstr_sendm (self, "ADD OFFER");
     if (rc == 0)
-        rc = zsock_bsend (self->actor, "p1s", self->callback, (uint8_t) method, uri);
+        rc = zsock_bsend (self, "1s", (uint8_t) method, uri);
     if (rc == 0)
-        rc = zsock_wait (self->actor);
+        rc = zsock_wait (self);
     return rc == 1? -1: rc;
 }
 
-//  ---------------------------------------------------------------------------
-//  Set a callback handler to handle incoming requests. Returns the response
-//  to be send back to the client.
-
-void
-zeb_handler_set_handle_request_fn (zeb_handler_t *self,
-       zeb_handler_handle_request_fn *handle_request_fn)
-{
-    assert (self);
-    self->callback->handle_request_fn = handle_request_fn;
-}
-
 
 //  ---------------------------------------------------------------------------
-//  Set a callback handler to check if provided etag matches the current one.
-//  Returns true if etags match, otherwise false.
-
-void
-zeb_handler_set_check_etag_fn (zeb_handler_t *self,
-         zeb_handler_check_etag_fn *check_etag_fn)
-{
-    assert (self);
-    self->callback->check_etag_fn = check_etag_fn;
-}
-
-
-//  ---------------------------------------------------------------------------
-//  Set a callback handler to check if provided last_modified timestamp matches
-//  the current one. Returns true if timestamp match, otherwise false.
-
-void
-zeb_handler_set_check_last_modified_fn (zeb_handler_t *self,
-      zeb_handler_check_last_modified_fn *last_modified_fn)
-{
-    assert (self);
-    self->callback->check_last_modified_fn = last_modified_fn;
-}
-
-
-//  --------------------------------------------------------------------------
 //  Self test of this class.
-
-static bool
-s_test_check_etag (const char *etag)
-{
-    return streq (etag, "MATCH");
-}
-
-
-static bool
-s_test_check_last_modified (const uint64_t last_modified)
-{
-    return last_modified == 10;
-}
-
-static xrap_msg_t *
-s_test_handle_request (xrap_msg_t *xrequest)
-{
-    return xrap_msg_dup (xrequest);
-}
 
 void
 zeb_handler_test (bool verbose)
@@ -520,13 +414,8 @@ zeb_handler_test (bool verbose)
     assert (zwr_client_connected (client) == true);
 
     //  Create a handler
-    zeb_handler_t *handler = zeb_handler_new ("tcp://127.0.0.1:9999");
+    zactor_t *handler = zactor_new (zeb_handler, (void *) "tcp://127.0.0.1:9999");
     assert (handler);
-
-    //  Register callbacks for offers
-    zeb_handler_set_handle_request_fn (handler, s_test_handle_request);
-    zeb_handler_set_check_etag_fn (handler, s_test_check_etag);
-    zeb_handler_set_check_last_modified_fn (handler, s_test_check_last_modified);
 
     //  Set accepted document formats
     rc = zeb_handler_add_accept (handler, "application/(xml|json)");
@@ -553,7 +442,14 @@ zeb_handler_test (bool verbose)
     rc = zwr_client_request (client, 0, &msg);
     assert (rc == 0);
 
-    //  Receive Request (is echo)
+    //  Receive request and Echo response
+    char *command;
+    zsock_recv (handler, "sm", &command, &msg);
+    assert (streq (command, "HANDLE REQUEST"));
+    zstr_free (&command);
+    zmsg_send (&msg, handler);
+
+    //  Receive Response (is echo)
     msg = zwr_client_recv (client);
     xmsg = xrap_msg_decode (&msg);
     assert (xrap_msg_id (xmsg) == XRAP_MSG_GET);
@@ -589,6 +485,22 @@ zeb_handler_test (bool verbose)
     rc = zwr_client_request (client, 0, &msg);
     assert (rc == 0);
 
+    //  Check etag (match)
+    char *etag;
+    zsock_recv (handler, "ss", &command, &etag);
+    assert (streq (command, "CHECK ETAG"));
+    zstr_free (&command);
+    assert (streq (etag, "MATCH"));
+    zstr_free (&etag);
+    zsock_signal (handler, 0);
+
+    //  Check last modified (not modified)
+    uint64_t last_modified;
+    zsock_recv (handler, "s8", &command, &last_modified);
+    assert (streq (command, "CHECK LAST MODIFIED"));
+    zstr_free (&command);
+    zsock_signal (handler, 0);
+
     //  Receive Request with conditionals
     msg = zwr_client_recv (client);
     xmsg = xrap_msg_decode (&msg);
@@ -607,7 +519,28 @@ zeb_handler_test (bool verbose)
     rc = zwr_client_request (client, 0, &msg);
     assert (rc == 0);
 
-    //  Receive Request with conditionals
+    //  Check etag (none match)
+    zsock_recv (handler, "ss", &command, &etag);
+    assert (streq (command, "CHECK ETAG"));
+    zstr_free (&command);
+    assert (streq (etag, "NONE MATCH"));
+    zstr_free (&etag);
+    zsock_signal (handler, 1);
+
+    //  Check last modified (modified)
+    zsock_recv (handler, "s8", &command, &last_modified);
+    assert (streq (command, "CHECK LAST MODIFIED"));
+    zstr_free (&command);
+    assert (last_modified == 20);
+    zsock_signal (handler, 1);
+
+    //  Receive request and Echo response
+    zsock_recv (handler, "sm", &command, &msg);
+    assert (streq (command, "HANDLE REQUEST"));
+    zstr_free (&command);
+    zmsg_send (&msg, handler);
+
+    //  Receive response with conditionals
     msg = zwr_client_recv (client);
     xmsg = xrap_msg_decode (&msg);
     assert (xrap_msg_id (xmsg) == XRAP_MSG_GET);
@@ -629,7 +562,13 @@ zeb_handler_test (bool verbose)
     rc = zwr_client_request (client, 0, &msg);
     assert (rc == 0);
 
-    //  Receive Request (is echo)
+    //  Receive request and Echo response
+    zsock_recv (handler, "sm", &command, &msg);
+    assert (streq (command, "HANDLE REQUEST"));
+    zstr_free (&command);
+    zmsg_send (&msg, handler);
+
+    //  Receive response (is echo)
     msg = zwr_client_recv (client);
     xmsg = xrap_msg_decode (&msg);
     assert (xrap_msg_id (xmsg) == XRAP_MSG_PUT);
@@ -650,7 +589,27 @@ zeb_handler_test (bool verbose)
     rc = zwr_client_request (client, 0, &msg);
     assert (rc == 0);
 
-    //  Receive Request with conditionals (update, both)
+    //  Check etag (match)
+    zsock_recv (handler, "ss", &command, &etag);
+    assert (streq (command, "CHECK ETAG"));
+    zstr_free (&command);
+    assert (streq (etag, "MATCH"));
+    zstr_free (&etag);
+    zsock_signal (handler, 0);
+
+    //  Check last modified (not modified)
+    zsock_recv (handler, "s8", &command, &last_modified);
+    assert (streq (command, "CHECK LAST MODIFIED"));
+    zstr_free (&command);
+    zsock_signal (handler, 0);
+
+    //  Receive request and Echo response
+    zsock_recv (handler, "sm", &command, &msg);
+    assert (streq (command, "HANDLE REQUEST"));
+    zstr_free (&command);
+    zmsg_send (&msg, handler);
+
+    //  Receive response with conditionals (update, both)
     msg = zwr_client_recv (client);
     xmsg = xrap_msg_decode (&msg);
     assert (xrap_msg_id (xmsg) == XRAP_MSG_PUT);
@@ -669,7 +628,21 @@ zeb_handler_test (bool verbose)
     rc = zwr_client_request (client, 0, &msg);
     assert (rc == 0);
 
-    //  Receive Request with conditionals (update, etag)
+    //  Check etag (match)
+    zsock_recv (handler, "ss", &command, &etag);
+    assert (streq (command, "CHECK ETAG"));
+    zstr_free (&command);
+    assert (streq (etag, "MATCH"));
+    zstr_free (&etag);
+    zsock_signal (handler, 0);
+
+    //  Receive request and Echo response
+    zsock_recv (handler, "sm", &command, &msg);
+    assert (streq (command, "HANDLE REQUEST"));
+    zstr_free (&command);
+    zmsg_send (&msg, handler);
+
+    //  Receive response with conditionals (update, etag)
     msg = zwr_client_recv (client);
     xmsg = xrap_msg_decode (&msg);
     assert (xrap_msg_id (xmsg) == XRAP_MSG_PUT);
@@ -686,14 +659,25 @@ zeb_handler_test (bool verbose)
     rc = zwr_client_request (client, 0, &msg);
     assert (rc == 0);
 
-    //  Receive Request with conditionals (update, last_modified)
+    //  Check last modified (not modified)
+    zsock_recv (handler, "s8", &command, &last_modified);
+    assert (streq (command, "CHECK LAST MODIFIED"));
+    zstr_free (&command);
+    zsock_signal (handler, 0);
+
+    //  Receive request and Echo response
+    zsock_recv (handler, "sm", &command, &msg);
+    assert (streq (command, "HANDLE REQUEST"));
+    zstr_free (&command);
+    zmsg_send (&msg, handler);
+
+    //  Receive response with conditionals (update, last_modified)
     msg = zwr_client_recv (client);
     xmsg = xrap_msg_decode (&msg);
     assert (xrap_msg_id (xmsg) == XRAP_MSG_PUT);
     xrap_msg_destroy (&xmsg);
     sender = zwr_client_sender (client);
     zuuid_destroy (&sender);
-
 
     //  Send Request with conditionals (no update)
     xmsg = xrap_msg_new (XRAP_MSG_PUT);
@@ -704,6 +688,21 @@ zeb_handler_test (bool verbose)
     msg = xrap_msg_encode (&xmsg);
     rc = zwr_client_request (client, 0, &msg);
     assert (rc == 0);
+
+    //  Check etag (none match)
+    zsock_recv (handler, "ss", &command, &etag);
+    assert (streq (command, "CHECK ETAG"));
+    zstr_free (&command);
+    assert (streq (etag, "NONE MATCH"));
+    zstr_free (&etag);
+    zsock_signal (handler, 1);
+
+    //  Check last modified (modified)
+    zsock_recv (handler, "s8", &command, &last_modified);
+    assert (streq (command, "CHECK LAST MODIFIED"));
+    zstr_free (&command);
+    assert (last_modified == 20);
+    zsock_signal (handler, 1);
 
     //  Receive Request with conditionals (no update)
     msg = zwr_client_recv (client);
@@ -724,7 +723,7 @@ zeb_handler_test (bool verbose)
     assert (rc == XRAP_TRAFFIC_NOT_FOUND);
 
     zwr_client_destroy (&client);
-    zeb_handler_destroy (&handler);
+    zactor_destroy (&handler);
 
     //  Done, shut down
     zactor_destroy (&server);

@@ -5,8 +5,9 @@
 ################################################################################
 */
 package org.zeromq.zwebrap;
+import org.zeromq.czmq.*;
 
-public class ZwrClient implements AutoCloseable {
+public class ZwrClient implements AutoCloseable{
     static {
         try {
             System.loadLibrary ("zwebrapjni");
@@ -15,40 +16,35 @@ public class ZwrClient implements AutoCloseable {
             System.exit (-1);
         }
     }
-    long self;
-
+    public long self;
     /*
     Create a new zwr_client, return the reference if successful, or NULL
     if construction failed due to lack of available memory.             
     */
-    native static long __init ();
+    native static long __new ();
     public ZwrClient () {
-        /*  TODO: if __init fails, self is null...  */
-        self = __init ();
+        /*  TODO: if __new fails, self is null...            */
+        self = __new ();
+    }
+    public ZwrClient (long pointer) {
+        self = pointer;
     }
     /*
     Destroy the zwr_client and free all memory used by the object.
     */
     native static void __destroy (long self);
     @Override
-    public void close() {
+    public void close () {
         __destroy (self);
         self = 0;
-    }
-    /*
-    
-    */
-    native static void __print (long self);
-    public void print (long self) {
-        return ZwrClient.__print (self);
     }
     /*
     Return actor, when caller wants to work with multiple actors and/or
     input sockets asynchronously.                                      
     */
-    native static Zactor __actor (long self);
-    public Zactor actor (long self) {
-        return ZwrClient.__actor (self);
+    native static long __actor (long self);
+    public Zactor actor () {
+        return new Zactor (__actor (self));
     }
     /*
     Return message pipe for asynchronous message I/O. In the high-volume case,
@@ -57,9 +53,9 @@ public class ZwrClient implements AutoCloseable {
     the low-volume case we can do everything over the actor pipe, if traffic  
     is never ambiguous.                                                       
     */
-    native static Zsock __msgpipe (long self);
-    public Zsock msgpipe (long self) {
-        return ZwrClient.__msgpipe (self);
+    native static long __msgpipe (long self);
+    public Zsock msgpipe () {
+        return new Zsock (__msgpipe (self));
     }
     /*
     Return true if client is currently connected, else false. Note that the   
@@ -67,8 +63,8 @@ public class ZwrClient implements AutoCloseable {
     a successful first connection.                                            
     */
     native static boolean __connected (long self);
-    public boolean connected (long self) {
-        return ZwrClient.__connected (self);
+    public boolean connected () {
+        return __connected (self);
     }
     /*
     Connect to server endpoint, with specified timeout in msecs (zero means wait
@@ -77,82 +73,82 @@ public class ZwrClient implements AutoCloseable {
     Returns >= 0 if successful, -1 if interrupted.                              
     */
     native static int __connect (long self, String endpoint, int timeout, String address);
-    public int connect (long self, String endpoint, int timeout, String address) {
-        return ZwrClient.__connect (self, endpoint, timeout, address);
+    public int connect (String endpoint, int timeout, String address) {
+        return __connect (self, endpoint, timeout, address);
     }
     /*
     Offer to handle particular XRAP requests, where the route matches request's
     resource.                                                                  
     Returns >= 0 if successful, -1 if interrupted.                             
     */
-    native static int __set_handler (long self, String method, String route);
-    public int set_handler (long self, String method, String route) {
-        return ZwrClient.__set_handler (self, method, route);
+    native static int __setHandler (long self, String method, String route);
+    public int setHandler (String method, String route) {
+        return __setHandler (self, method, route);
     }
     /*
     No explanation                                
     Returns >= 0 if successful, -1 if interrupted.
     */
-    native static int __request (long self, int timeout, Zmsg contentP);
-    public int request (long self, int timeout, Zmsg contentP) {
-        return ZwrClient.__request (self, timeout, contentP);
+    native static int __request (long self, int timeout, long contentP);
+    public int request (int timeout, Zmsg contentP) {
+        return __request (self, timeout, contentP.self);
     }
     /*
     Send XRAP DELIVER message to server, takes ownership of message
     and destroys message when done sending it.                     
     */
-    native static int __deliver (long self, Zuuid sender, Zmsg contentP);
-    public int deliver (long self, Zuuid sender, Zmsg contentP) {
-        return ZwrClient.__deliver (self, sender, contentP);
+    native static int __deliver (long self, long sender, long contentP);
+    public int deliver (Zuuid sender, Zmsg contentP) {
+        return __deliver (self, sender.self, contentP.self);
     }
     /*
     Receive message from server; caller destroys message when done
     */
-    native static Zmsg __recv (long self);
-    public Zmsg recv (long self) {
-        return ZwrClient.__recv (self);
+    native static long __recv (long self);
+    public Zmsg recv () {
+        return new Zmsg (__recv (self));
     }
     /*
     Return last received command. Can be one of these values:
         "XRAP DELIVER"                                       
     */
     native static String __command (long self);
-    public String command (long self) {
-        return ZwrClient.__command (self);
+    public String command () {
+        return __command (self);
     }
     /*
     Return last received status
     */
     native static int __status (long self);
-    public int status (long self) {
-        return ZwrClient.__status (self);
+    public int status () {
+        return __status (self);
     }
     /*
     Return last received reason
     */
     native static String __reason (long self);
-    public String reason (long self) {
-        return ZwrClient.__reason (self);
+    public String reason () {
+        return __reason (self);
     }
     /*
     Return last received sender
     */
-    native static Zuuid __sender (long self);
-    public Zuuid sender (long self) {
-        return ZwrClient.__sender (self);
+    native static long __sender (long self);
+    public Zuuid sender () {
+        return new Zuuid (__sender (self));
     }
     /*
     Return last received content
     */
-    native static Zmsg __content (long self);
-    public Zmsg content (long self) {
-        return ZwrClient.__content (self);
+    native static long __content (long self);
+    public Zmsg content () {
+        return new Zmsg (__content (self));
     }
     /*
     Self test of this class.
     */
     native static void __test (boolean verbose);
-    public void test (boolean verbose) {
-        return ZwrClient.__test (verbose);
+    public static void test (boolean verbose) {
+        __test (verbose);
     }
 }

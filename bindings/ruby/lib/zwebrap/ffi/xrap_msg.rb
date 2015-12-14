@@ -62,14 +62,21 @@ module Zwebrap
     #         status_code         number 2    Response status code, 4xx or 5xx
     #         status_text         string      Response status text            
     # */                                                                      
+    # @note This class is 100% generated using zproject.
     class XrapMsg
+      # Raised when one tries to use an instance of {XrapMsg} after
+      # the internal pointer to the native object has been nullified.
       class DestroyedError < RuntimeError; end
 
       # Boilerplate for self pointer, initializer, and finalizer
       class << self
         alias :__new :new
       end
-      def initialize ptr, finalize=true
+      # Attaches the pointer _ptr_ to this instance and defines a finalizer for
+      # it if necessary.
+      # @param ptr [::FFI::Pointer]
+      # @param finalize [Boolean]
+      def initialize(ptr, finalize = true)
         @ptr = ptr
         if @ptr.null?
           @ptr = nil # Remove null pointers so we don't have to test for them.
@@ -78,35 +85,52 @@ module Zwebrap
           ObjectSpace.define_finalizer self, @finalizer
         end
       end
-      def self.create_finalizer_for ptr
+      # @param ptr [::FFI::Pointer]
+      # @return [Proc]
+      def self.create_finalizer_for(ptr)
         Proc.new do
           ptr_ptr = ::FFI::MemoryPointer.new :pointer
           ptr_ptr.write_pointer ptr
           ::Zwebrap::FFI.xrap_msg_destroy ptr_ptr
         end
       end
+      # @return [Boolean]
       def null?
         !@ptr or @ptr.null?
       end
       # Return internal pointer
+      # @return [::FFI::Pointer]
       def __ptr
         raise DestroyedError unless @ptr
         @ptr
       end
       # So external Libraries can just pass the Object to a FFI function which expects a :pointer
       alias_method :to_ptr, :__ptr
-      # Nullify internal pointer and return pointer pointer
+      # Nullify internal pointer and return pointer pointer.
+      # @note This detaches the current instance from the native object
+      #   and thus makes it unusable.
+      # @return [::FFI::MemoryPointer] the pointer pointing to a pointer
+      #   pointing to the native object
       def __ptr_give_ref
         raise DestroyedError unless @ptr
         ptr_ptr = ::FFI::MemoryPointer.new :pointer
         ptr_ptr.write_pointer @ptr
-        ObjectSpace.undefine_finalizer self if @finalizer
-        @finalizer = nil
+        __undef_finalizer if @finalizer
         @ptr = nil
         ptr_ptr
       end
+      # Undefines the finalizer for this object.
+      # @note Only use this if you need to and can guarantee that the native
+      #   object will be freed by other means.
+      # @return [void]
+      def __undef_finalizer
+        ObjectSpace.undefine_finalizer self
+        @finalizer = nil
+      end
 
       # Create a new xrap_msg
+      # @param id [Integer, #to_int, #to_i]
+      # @return [Zwebrap::XrapMsg]
       def self.new(id)
         id = Integer(id)
         ptr = ::Zwebrap::FFI.xrap_msg_new(id)
@@ -114,6 +138,8 @@ module Zwebrap
       end
 
       # Destroy the xrap_msg
+      #
+      # @return [void]
       def destroy()
         return unless @ptr
         self_p = __ptr_give_ref
@@ -124,6 +150,9 @@ module Zwebrap
       # Parse a xrap_msg from zmsg_t. Returns a new object, or NULL if
       # the message could not be parsed, or was NULL. Destroys msg and
       # nullifies the msg reference.                                  
+      #
+      # @param msg_p [::FFI::Pointer, #to_ptr]
+      # @return [XrapMsg]
       def self.decode(msg_p)
         result = ::Zwebrap::FFI.xrap_msg_decode(msg_p)
         result = XrapMsg.__new result, false
@@ -132,6 +161,9 @@ module Zwebrap
 
       # Encode xrap_msg into zmsg and destroy it. Returns a newly created       
       # object or NULL if error. Use when not in control of sending the message.
+      #
+      # @param xrap_msg_p [#__ptr_give_ref]
+      # @return [::FFI::Pointer]
       def self.encode(xrap_msg_p)
         xrap_msg_p = xrap_msg_p.__ptr_give_ref
         result = ::Zwebrap::FFI.xrap_msg_encode(xrap_msg_p)
@@ -140,6 +172,9 @@ module Zwebrap
 
       # Receive and parse a xrap_msg from the socket. Returns new object,
       # or NULL if error. Will block if there's no message waiting.      
+      #
+      # @param input [::FFI::Pointer, #to_ptr]
+      # @return [XrapMsg]
       def self.recv(input)
         result = ::Zwebrap::FFI.xrap_msg_recv(input)
         result = XrapMsg.__new result, false
@@ -148,6 +183,9 @@ module Zwebrap
 
       # Receive and parse a xrap_msg from the socket. Returns new object,         
       # or NULL either if there was no input waiting, or the recv was interrupted.
+      #
+      # @param input [::FFI::Pointer, #to_ptr]
+      # @return [XrapMsg]
       def self.recv_nowait(input)
         result = ::Zwebrap::FFI.xrap_msg_recv_nowait(input)
         result = XrapMsg.__new result, false
@@ -155,6 +193,10 @@ module Zwebrap
       end
 
       # Send the xrap_msg to the output, and destroy it
+      #
+      # @param self_p [#__ptr_give_ref]
+      # @param output [::FFI::Pointer, #to_ptr]
+      # @return [Integer]
       def self.send(self_p, output)
         self_p = self_p.__ptr_give_ref
         result = ::Zwebrap::FFI.xrap_msg_send(self_p, output)
@@ -162,6 +204,9 @@ module Zwebrap
       end
 
       # Send the xrap_msg to the output, and destroy it
+      #
+      # @param output [::FFI::Pointer, #to_ptr]
+      # @return [Integer]
       def send_again(output)
         raise DestroyedError unless @ptr
         self_p = @ptr
@@ -170,6 +215,8 @@ module Zwebrap
       end
 
       # Get the xrap_msg id and printable command
+      #
+      # @return [Integer]
       def id()
         raise DestroyedError unless @ptr
         self_p = @ptr
@@ -178,6 +225,9 @@ module Zwebrap
       end
 
       # 
+      #
+      # @param id [Integer, #to_int, #to_i]
+      # @return [void]
       def set_id(id)
         raise DestroyedError unless @ptr
         self_p = @ptr
@@ -187,6 +237,8 @@ module Zwebrap
       end
 
       # Get/set the parent field
+      #
+      # @return [String]
       def parent()
         raise DestroyedError unless @ptr
         self_p = @ptr
@@ -195,15 +247,20 @@ module Zwebrap
       end
 
       # 
+      #
+      # @param format [String, #to_s, nil]
+      # @param args [Array<Object>] see https://github.com/ffi/ffi/wiki/examples#using-varargs
+      # @return [void]
       def set_parent(format, *args)
         raise DestroyedError unless @ptr
         self_p = @ptr
-        format = String(format)
         result = ::Zwebrap::FFI.xrap_msg_set_parent(self_p, format, *args)
         result
       end
 
       # Get/set the content_type field
+      #
+      # @return [String]
       def content_type()
         raise DestroyedError unless @ptr
         self_p = @ptr
@@ -212,15 +269,20 @@ module Zwebrap
       end
 
       # 
+      #
+      # @param format [String, #to_s, nil]
+      # @param args [Array<Object>] see https://github.com/ffi/ffi/wiki/examples#using-varargs
+      # @return [void]
       def set_content_type(format, *args)
         raise DestroyedError unless @ptr
         self_p = @ptr
-        format = String(format)
         result = ::Zwebrap::FFI.xrap_msg_set_content_type(self_p, format, *args)
         result
       end
 
       # Get/set the parent field
+      #
+      # @return [String]
       def content_body()
         raise DestroyedError unless @ptr
         self_p = @ptr
@@ -229,15 +291,20 @@ module Zwebrap
       end
 
       # 
+      #
+      # @param format [String, #to_s, nil]
+      # @param args [Array<Object>] see https://github.com/ffi/ffi/wiki/examples#using-varargs
+      # @return [void]
       def set_content_body(format, *args)
         raise DestroyedError unless @ptr
         self_p = @ptr
-        format = String(format)
         result = ::Zwebrap::FFI.xrap_msg_set_content_body(self_p, format, *args)
         result
       end
 
       # Get/set the status_code field
+      #
+      # @return [Integer]
       def status_code()
         raise DestroyedError unless @ptr
         self_p = @ptr
@@ -246,14 +313,20 @@ module Zwebrap
       end
 
       # 
+      #
+      # @param status_code [Integer, #to_int, #to_i]
+      # @return [void]
       def set_status_code(status_code)
         raise DestroyedError unless @ptr
         self_p = @ptr
+        status_code = Integer(status_code)
         result = ::Zwebrap::FFI.xrap_msg_set_status_code(self_p, status_code)
         result
       end
 
       # Get/set the location field
+      #
+      # @return [String]
       def location()
         raise DestroyedError unless @ptr
         self_p = @ptr
@@ -262,15 +335,20 @@ module Zwebrap
       end
 
       # 
+      #
+      # @param format [String, #to_s, nil]
+      # @param args [Array<Object>] see https://github.com/ffi/ffi/wiki/examples#using-varargs
+      # @return [void]
       def set_location(format, *args)
         raise DestroyedError unless @ptr
         self_p = @ptr
-        format = String(format)
         result = ::Zwebrap::FFI.xrap_msg_set_location(self_p, format, *args)
         result
       end
 
       # Get/set the etag field
+      #
+      # @return [String]
       def etag()
         raise DestroyedError unless @ptr
         self_p = @ptr
@@ -279,15 +357,20 @@ module Zwebrap
       end
 
       # 
+      #
+      # @param format [String, #to_s, nil]
+      # @param args [Array<Object>] see https://github.com/ffi/ffi/wiki/examples#using-varargs
+      # @return [void]
       def set_etag(format, *args)
         raise DestroyedError unless @ptr
         self_p = @ptr
-        format = String(format)
         result = ::Zwebrap::FFI.xrap_msg_set_etag(self_p, format, *args)
         result
       end
 
       # Get/set the date_modified field
+      #
+      # @return [Integer]
       def date_modified()
         raise DestroyedError unless @ptr
         self_p = @ptr
@@ -296,14 +379,20 @@ module Zwebrap
       end
 
       # 
+      #
+      # @param date_modified [Integer, #to_int, #to_i]
+      # @return [void]
       def set_date_modified(date_modified)
         raise DestroyedError unless @ptr
         self_p = @ptr
+        date_modified = Integer(date_modified)
         result = ::Zwebrap::FFI.xrap_msg_set_date_modified(self_p, date_modified)
         result
       end
 
       # Get/set the resource field
+      #
+      # @return [String]
       def resource()
         raise DestroyedError unless @ptr
         self_p = @ptr
@@ -312,15 +401,20 @@ module Zwebrap
       end
 
       # 
+      #
+      # @param format [String, #to_s, nil]
+      # @param args [Array<Object>] see https://github.com/ffi/ffi/wiki/examples#using-varargs
+      # @return [void]
       def set_resource(format, *args)
         raise DestroyedError unless @ptr
         self_p = @ptr
-        format = String(format)
         result = ::Zwebrap::FFI.xrap_msg_set_resource(self_p, format, *args)
         result
       end
 
       # //  Get/set the parameters field
+      #
+      # @return [::FFI::Pointer]
       def parameters()
         raise DestroyedError unless @ptr
         self_p = @ptr
@@ -329,6 +423,8 @@ module Zwebrap
       end
 
       # //  Get the parameters field and transfer ownership to caller
+      #
+      # @return [::FFI::Pointer]
       def get_parameters()
         raise DestroyedError unless @ptr
         self_p = @ptr
@@ -337,6 +433,9 @@ module Zwebrap
       end
 
       # 
+      #
+      # @param parameters_p [::FFI::Pointer, #to_ptr]
+      # @return [void]
       def set_parameters(parameters_p)
         raise DestroyedError unless @ptr
         self_p = @ptr
@@ -345,26 +444,33 @@ module Zwebrap
       end
 
       # Get/set the parameters field
+      #
+      # @param key [String, #to_s, nil]
+      # @param default_value [String, #to_s, nil]
+      # @return [String]
       def parameters_string(key, default_value)
         raise DestroyedError unless @ptr
         self_p = @ptr
-        key = String(key)
-        default_value = String(default_value)
         result = ::Zwebrap::FFI.xrap_msg_parameters_string(self_p, key, default_value)
         result
       end
 
       # 
+      #
+      # @param key [String, #to_s, nil]
+      # @param format [String, #to_s, nil]
+      # @param args [Array<Object>] see https://github.com/ffi/ffi/wiki/examples#using-varargs
+      # @return [void]
       def parameters_insert(key, format, *args)
         raise DestroyedError unless @ptr
         self_p = @ptr
-        key = String(key)
-        format = String(format)
         result = ::Zwebrap::FFI.xrap_msg_parameters_insert(self_p, key, format, *args)
         result
       end
 
       # Get/set the if_modified_since field
+      #
+      # @return [Integer]
       def if_modified_since()
         raise DestroyedError unless @ptr
         self_p = @ptr
@@ -373,14 +479,20 @@ module Zwebrap
       end
 
       # 
+      #
+      # @param if_modified_since [Integer, #to_int, #to_i]
+      # @return [void]
       def set_if_modified_since(if_modified_since)
         raise DestroyedError unless @ptr
         self_p = @ptr
+        if_modified_since = Integer(if_modified_since)
         result = ::Zwebrap::FFI.xrap_msg_set_if_modified_since(self_p, if_modified_since)
         result
       end
 
       # Get/set the if_none_match field
+      #
+      # @return [String]
       def if_none_match()
         raise DestroyedError unless @ptr
         self_p = @ptr
@@ -389,15 +501,20 @@ module Zwebrap
       end
 
       # 
+      #
+      # @param format [String, #to_s, nil]
+      # @param args [Array<Object>] see https://github.com/ffi/ffi/wiki/examples#using-varargs
+      # @return [void]
       def set_if_none_match(format, *args)
         raise DestroyedError unless @ptr
         self_p = @ptr
-        format = String(format)
         result = ::Zwebrap::FFI.xrap_msg_set_if_none_match(self_p, format, *args)
         result
       end
 
       # //  Get/set the metadata field
+      #
+      # @return [::FFI::Pointer]
       def metadata()
         raise DestroyedError unless @ptr
         self_p = @ptr
@@ -406,6 +523,8 @@ module Zwebrap
       end
 
       # //  Get the metadata field and transfer ownership to caller
+      #
+      # @return [::FFI::Pointer]
       def get_metadata()
         raise DestroyedError unless @ptr
         self_p = @ptr
@@ -414,6 +533,9 @@ module Zwebrap
       end
 
       # 
+      #
+      # @param metadata_p [::FFI::Pointer, #to_ptr]
+      # @return [void]
       def set_metadata(metadata_p)
         raise DestroyedError unless @ptr
         self_p = @ptr
@@ -422,26 +544,33 @@ module Zwebrap
       end
 
       # Get/set a value in the metadata dictionary
+      #
+      # @param key [String, #to_s, nil]
+      # @param default_value [String, #to_s, nil]
+      # @return [String]
       def metadata_string(key, default_value)
         raise DestroyedError unless @ptr
         self_p = @ptr
-        key = String(key)
-        default_value = String(default_value)
         result = ::Zwebrap::FFI.xrap_msg_metadata_string(self_p, key, default_value)
         result
       end
 
       # 
+      #
+      # @param key [String, #to_s, nil]
+      # @param format [String, #to_s, nil]
+      # @param args [Array<Object>] see https://github.com/ffi/ffi/wiki/examples#using-varargs
+      # @return [void]
       def metadata_insert(key, format, *args)
         raise DestroyedError unless @ptr
         self_p = @ptr
-        key = String(key)
-        format = String(format)
         result = ::Zwebrap::FFI.xrap_msg_metadata_insert(self_p, key, format, *args)
         result
       end
 
       # Get/set the if_unmodified_since field
+      #
+      # @return [Integer]
       def if_unmodified_since()
         raise DestroyedError unless @ptr
         self_p = @ptr
@@ -450,14 +579,20 @@ module Zwebrap
       end
 
       # 
+      #
+      # @param if_unmodified_since [Integer, #to_int, #to_i]
+      # @return [void]
       def set_if_unmodified_since(if_unmodified_since)
         raise DestroyedError unless @ptr
         self_p = @ptr
+        if_unmodified_since = Integer(if_unmodified_since)
         result = ::Zwebrap::FFI.xrap_msg_set_if_unmodified_since(self_p, if_unmodified_since)
         result
       end
 
       # Get/set the if_match field
+      #
+      # @return [String]
       def if_match()
         raise DestroyedError unless @ptr
         self_p = @ptr
@@ -466,15 +601,20 @@ module Zwebrap
       end
 
       # 
+      #
+      # @param format [String, #to_s, nil]
+      # @param args [Array<Object>] see https://github.com/ffi/ffi/wiki/examples#using-varargs
+      # @return [void]
       def set_if_match(format, *args)
         raise DestroyedError unless @ptr
         self_p = @ptr
-        format = String(format)
         result = ::Zwebrap::FFI.xrap_msg_set_if_match(self_p, format, *args)
         result
       end
 
       # Get/set the status_text field
+      #
+      # @return [String]
       def status_text()
         raise DestroyedError unless @ptr
         self_p = @ptr
@@ -483,15 +623,21 @@ module Zwebrap
       end
 
       # 
+      #
+      # @param format [String, #to_s, nil]
+      # @param args [Array<Object>] see https://github.com/ffi/ffi/wiki/examples#using-varargs
+      # @return [void]
       def set_status_text(format, *args)
         raise DestroyedError unless @ptr
         self_p = @ptr
-        format = String(format)
         result = ::Zwebrap::FFI.xrap_msg_set_status_text(self_p, format, *args)
         result
       end
 
       # Self test of this class.
+      #
+      # @param verbose [Boolean]
+      # @return [void]
       def self.test(verbose)
         verbose = !(0==verbose||!verbose) # boolean
         result = ::Zwebrap::FFI.xrap_msg_test(verbose)

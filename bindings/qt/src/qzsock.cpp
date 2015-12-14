@@ -476,7 +476,7 @@ QString QZsock::zapDomain ()
 {
     char *retStr_ = zsock_zap_domain (self);
     QString rv = QString (retStr_);
-    free (retStr_);;
+    zstr_free (&retStr_);
     return rv;
 }
 
@@ -518,7 +518,7 @@ QString QZsock::plainUsername ()
 {
     char *retStr_ = zsock_plain_username (self);
     QString rv = QString (retStr_);
-    free (retStr_);;
+    zstr_free (&retStr_);
     return rv;
 }
 
@@ -536,7 +536,7 @@ QString QZsock::plainPassword ()
 {
     char *retStr_ = zsock_plain_password (self);
     QString rv = QString (retStr_);
-    free (retStr_);;
+    zstr_free (&retStr_);
     return rv;
 }
 
@@ -570,7 +570,7 @@ QString QZsock::curvePublickey ()
 {
     char *retStr_ = zsock_curve_publickey (self);
     QString rv = QString (retStr_);
-    free (retStr_);;
+    zstr_free (&retStr_);
     return rv;
 }
 
@@ -596,7 +596,7 @@ QString QZsock::curveSecretkey ()
 {
     char *retStr_ = zsock_curve_secretkey (self);
     QString rv = QString (retStr_);
-    free (retStr_);;
+    zstr_free (&retStr_);
     return rv;
 }
 
@@ -622,7 +622,7 @@ QString QZsock::curveServerkey ()
 {
     char *retStr_ = zsock_curve_serverkey (self);
     QString rv = QString (retStr_);
-    free (retStr_);;
+    zstr_free (&retStr_);
     return rv;
 }
 
@@ -680,7 +680,7 @@ QString QZsock::gssapiPrincipal ()
 {
     char *retStr_ = zsock_gssapi_principal (self);
     QString rv = QString (retStr_);
-    free (retStr_);;
+    zstr_free (&retStr_);
     return rv;
 }
 
@@ -698,7 +698,7 @@ QString QZsock::gssapiServicePrincipal ()
 {
     char *retStr_ = zsock_gssapi_service_principal (self);
     QString rv = QString (retStr_);
-    free (retStr_);;
+    zstr_free (&retStr_);
     return rv;
 }
 
@@ -852,7 +852,7 @@ QString QZsock::identity ()
 {
     char *retStr_ = zsock_identity (self);
     QString rv = QString (retStr_);
-    free (retStr_);;
+    zstr_free (&retStr_);
     return rv;
 }
 
@@ -1134,7 +1134,7 @@ QString QZsock::tcpAcceptFilter ()
 {
     char *retStr_ = zsock_tcp_accept_filter (self);
     QString rv = QString (retStr_);
-    free (retStr_);;
+    zstr_free (&retStr_);
     return rv;
 }
 
@@ -1176,7 +1176,7 @@ QString QZsock::lastEndpoint ()
 {
     char *retStr_ = zsock_last_endpoint (self);
     QString rv = QString (retStr_);
-    free (retStr_);;
+    zstr_free (&retStr_);
     return rv;
 }
 

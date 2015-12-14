@@ -7,14 +7,21 @@ module Zwebrap
   module FFI
 
     # zeb_server client implementation for both clients and handlers
+    # @note This class is 100% generated using zproject.
     class ZwrClient
+      # Raised when one tries to use an instance of {ZwrClient} after
+      # the internal pointer to the native object has been nullified.
       class DestroyedError < RuntimeError; end
 
       # Boilerplate for self pointer, initializer, and finalizer
       class << self
         alias :__new :new
       end
-      def initialize ptr, finalize=true
+      # Attaches the pointer _ptr_ to this instance and defines a finalizer for
+      # it if necessary.
+      # @param ptr [::FFI::Pointer]
+      # @param finalize [Boolean]
+      def initialize(ptr, finalize = true)
         @ptr = ptr
         if @ptr.null?
           @ptr = nil # Remove null pointers so we don't have to test for them.
@@ -23,42 +30,60 @@ module Zwebrap
           ObjectSpace.define_finalizer self, @finalizer
         end
       end
-      def self.create_finalizer_for ptr
+      # @param ptr [::FFI::Pointer]
+      # @return [Proc]
+      def self.create_finalizer_for(ptr)
         Proc.new do
           ptr_ptr = ::FFI::MemoryPointer.new :pointer
           ptr_ptr.write_pointer ptr
           ::Zwebrap::FFI.zwr_client_destroy ptr_ptr
         end
       end
+      # @return [Boolean]
       def null?
         !@ptr or @ptr.null?
       end
       # Return internal pointer
+      # @return [::FFI::Pointer]
       def __ptr
         raise DestroyedError unless @ptr
         @ptr
       end
       # So external Libraries can just pass the Object to a FFI function which expects a :pointer
       alias_method :to_ptr, :__ptr
-      # Nullify internal pointer and return pointer pointer
+      # Nullify internal pointer and return pointer pointer.
+      # @note This detaches the current instance from the native object
+      #   and thus makes it unusable.
+      # @return [::FFI::MemoryPointer] the pointer pointing to a pointer
+      #   pointing to the native object
       def __ptr_give_ref
         raise DestroyedError unless @ptr
         ptr_ptr = ::FFI::MemoryPointer.new :pointer
         ptr_ptr.write_pointer @ptr
-        ObjectSpace.undefine_finalizer self if @finalizer
-        @finalizer = nil
+        __undef_finalizer if @finalizer
         @ptr = nil
         ptr_ptr
+      end
+      # Undefines the finalizer for this object.
+      # @note Only use this if you need to and can guarantee that the native
+      #   object will be freed by other means.
+      # @return [void]
+      def __undef_finalizer
+        ObjectSpace.undefine_finalizer self
+        @finalizer = nil
       end
 
       # Create a new zwr_client, return the reference if successful, or NULL
       # if construction failed due to lack of available memory.             
+      # @return [Zwebrap::ZwrClient]
       def self.new()
         ptr = ::Zwebrap::FFI.zwr_client_new()
         __new ptr
       end
 
       # Destroy the zwr_client and free all memory used by the object.
+      #
+      # @return [void]
       def destroy()
         return unless @ptr
         self_p = __ptr_give_ref
@@ -66,16 +91,10 @@ module Zwebrap
         result
       end
 
-      # 
-      def print()
-        raise DestroyedError unless @ptr
-        self_p = @ptr
-        result = ::Zwebrap::FFI.zwr_client_print(self_p)
-        result
-      end
-
       # Return actor, when caller wants to work with multiple actors and/or
       # input sockets asynchronously.                                      
+      #
+      # @return [::FFI::Pointer]
       def actor()
         raise DestroyedError unless @ptr
         self_p = @ptr
@@ -88,6 +107,8 @@ module Zwebrap
       # we send/recv high volume message data to a second pipe, the msgpipe. In   
       # the low-volume case we can do everything over the actor pipe, if traffic  
       # is never ambiguous.                                                       
+      #
+      # @return [::FFI::Pointer]
       def msgpipe()
         raise DestroyedError unless @ptr
         self_p = @ptr
@@ -98,6 +119,8 @@ module Zwebrap
       # Return true if client is currently connected, else false. Note that the   
       # client will automatically re-connect if the server dies and restarts after
       # a successful first connection.                                            
+      #
+      # @return [Boolean]
       def connected()
         raise DestroyedError unless @ptr
         self_p = @ptr
@@ -109,11 +132,15 @@ module Zwebrap
       # forever). Constructor succeeds if connection is successful. The caller may  
       # specify its address.                                                        
       # Returns >= 0 if successful, -1 if interrupted.                              
+      #
+      # @param endpoint [String, #to_s, nil]
+      # @param timeout [Integer, #to_int, #to_i]
+      # @param address [String, #to_s, nil]
+      # @return [Integer]
       def connect(endpoint, timeout, address)
         raise DestroyedError unless @ptr
         self_p = @ptr
-        endpoint = String(endpoint)
-        address = String(address)
+        timeout = Integer(timeout)
         result = ::Zwebrap::FFI.zwr_client_connect(self_p, endpoint, timeout, address)
         result
       end
@@ -121,26 +148,37 @@ module Zwebrap
       # Offer to handle particular XRAP requests, where the route matches request's
       # resource.                                                                  
       # Returns >= 0 if successful, -1 if interrupted.                             
+      #
+      # @param method [String, #to_s, nil]
+      # @param route [String, #to_s, nil]
+      # @return [Integer]
       def set_handler(method, route)
         raise DestroyedError unless @ptr
         self_p = @ptr
-        method = String(method)
-        route = String(route)
         result = ::Zwebrap::FFI.zwr_client_set_handler(self_p, method, route)
         result
       end
 
       # No explanation                                
       # Returns >= 0 if successful, -1 if interrupted.
+      #
+      # @param timeout [Integer, #to_int, #to_i]
+      # @param content_p [::FFI::Pointer, #to_ptr]
+      # @return [Integer]
       def request(timeout, content_p)
         raise DestroyedError unless @ptr
         self_p = @ptr
+        timeout = Integer(timeout)
         result = ::Zwebrap::FFI.zwr_client_request(self_p, timeout, content_p)
         result
       end
 
       # Send XRAP DELIVER message to server, takes ownership of message
       # and destroys message when done sending it.                     
+      #
+      # @param sender [::FFI::Pointer, #to_ptr]
+      # @param content_p [::FFI::Pointer, #to_ptr]
+      # @return [Integer]
       def deliver(sender, content_p)
         raise DestroyedError unless @ptr
         self_p = @ptr
@@ -149,6 +187,8 @@ module Zwebrap
       end
 
       # Receive message from server; caller destroys message when done
+      #
+      # @return [::FFI::Pointer]
       def recv()
         raise DestroyedError unless @ptr
         self_p = @ptr
@@ -158,6 +198,8 @@ module Zwebrap
 
       # Return last received command. Can be one of these values:
       #     "XRAP DELIVER"                                       
+      #
+      # @return [String]
       def command()
         raise DestroyedError unless @ptr
         self_p = @ptr
@@ -166,6 +208,8 @@ module Zwebrap
       end
 
       # Return last received status
+      #
+      # @return [Integer]
       def status()
         raise DestroyedError unless @ptr
         self_p = @ptr
@@ -174,6 +218,8 @@ module Zwebrap
       end
 
       # Return last received reason
+      #
+      # @return [String]
       def reason()
         raise DestroyedError unless @ptr
         self_p = @ptr
@@ -182,6 +228,8 @@ module Zwebrap
       end
 
       # Return last received sender
+      #
+      # @return [::FFI::Pointer]
       def sender()
         raise DestroyedError unless @ptr
         self_p = @ptr
@@ -190,6 +238,8 @@ module Zwebrap
       end
 
       # Return last received content
+      #
+      # @return [::FFI::Pointer]
       def content()
         raise DestroyedError unless @ptr
         self_p = @ptr
@@ -198,6 +248,9 @@ module Zwebrap
       end
 
       # Self test of this class.
+      #
+      # @param verbose [Boolean]
+      # @return [void]
       def self.test(verbose)
         verbose = !(0==verbose||!verbose) # boolean
         result = ::Zwebrap::FFI.zwr_client_test(verbose)

@@ -11,47 +11,43 @@
 #include "../../native/include/org_zeromq_zwebrap_ZwrClient.h"
 
 JNIEXPORT jlong JNICALL
-Java_zwr_client__1_1new (JNIEnv *env, jclass c)
+Java_org_zeromq_zwebrap_ZwrClient__1_1new (JNIEnv *env, jclass c)
 {
+    //  Disable CZMQ signal handling; allow Java to deal with it
+    zsys_handler_set (NULL);
     jlong new_ = (jlong) zwr_client_new ();
     return new_;
 }
 
 JNIEXPORT void JNICALL
-Java_zwr_client__1_1destroy (JNIEnv *env, jclass c, jlong self_p)
+Java_org_zeromq_zwebrap_ZwrClient__1_1destroy (JNIEnv *env, jclass c, jlong self)
 {
-    zwr_client_destroy ((zwr_client_t **) &self_p);
-}
-
-JNIEXPORT void JNICALL
-Java_zwr_client__1_1print (JNIEnv *env, jclass c, jlong self)
-{
-    zwr_client_print ((zwr_client_t *) self);
+    zwr_client_destroy ((zwr_client_t **) &self);
 }
 
 JNIEXPORT jlong JNICALL
-Java_zwr_client__1_1actor (JNIEnv *env, jclass c, jlong self)
+Java_org_zeromq_zwebrap_ZwrClient__1_1actor (JNIEnv *env, jclass c, jlong self)
 {
     jlong actor_ = (jlong) zwr_client_actor ((zwr_client_t *) self);
     return actor_;
 }
 
 JNIEXPORT jlong JNICALL
-Java_zwr_client__1_1msgpipe (JNIEnv *env, jclass c, jlong self)
+Java_org_zeromq_zwebrap_ZwrClient__1_1msgpipe (JNIEnv *env, jclass c, jlong self)
 {
     jlong msgpipe_ = (jlong) zwr_client_msgpipe ((zwr_client_t *) self);
     return msgpipe_;
 }
 
 JNIEXPORT jboolean JNICALL
-Java_zwr_client__1_1connected (JNIEnv *env, jclass c, jlong self)
+Java_org_zeromq_zwebrap_ZwrClient__1_1connected (JNIEnv *env, jclass c, jlong self)
 {
     jboolean connected_ = (jboolean) zwr_client_connected ((zwr_client_t *) self);
     return connected_;
 }
 
 JNIEXPORT jint JNICALL
-Java_zwr_client__1_1connect (JNIEnv *env, jclass c, jlong self, jstring endpoint, jint timeout, jstring address)
+Java_org_zeromq_zwebrap_ZwrClient__1_1connect (JNIEnv *env, jclass c, jlong self, jstring endpoint, jint timeout, jstring address)
 {
     char *endpoint_ = (char *) (*env)->GetStringUTFChars (env, endpoint, NULL);
     char *address_ = (char *) (*env)->GetStringUTFChars (env, address, NULL);
@@ -62,7 +58,7 @@ Java_zwr_client__1_1connect (JNIEnv *env, jclass c, jlong self, jstring endpoint
 }
 
 JNIEXPORT jint JNICALL
-Java_zwr_client__1_1set_handler (JNIEnv *env, jclass c, jlong self, jstring method, jstring route)
+Java_org_zeromq_zwebrap_ZwrClient__1_1setHandler (JNIEnv *env, jclass c, jlong self, jstring method, jstring route)
 {
     char *method_ = (char *) (*env)->GetStringUTFChars (env, method, NULL);
     char *route_ = (char *) (*env)->GetStringUTFChars (env, route, NULL);
@@ -73,65 +69,65 @@ Java_zwr_client__1_1set_handler (JNIEnv *env, jclass c, jlong self, jstring meth
 }
 
 JNIEXPORT jint JNICALL
-Java_zwr_client__1_1request (JNIEnv *env, jclass c, jlong self, jint timeout, jlong content_p)
+Java_org_zeromq_zwebrap_ZwrClient__1_1request (JNIEnv *env, jclass c, jlong self, jint timeout, jlong content_p)
 {
     jint request_ = (jint) zwr_client_request ((zwr_client_t *) self, (uint32_t) timeout, (zmsg_t **) &content_p);
     return request_;
 }
 
 JNIEXPORT jint JNICALL
-Java_zwr_client__1_1deliver (JNIEnv *env, jclass c, jlong self, jlong sender, jlong content_p)
+Java_org_zeromq_zwebrap_ZwrClient__1_1deliver (JNIEnv *env, jclass c, jlong self, jlong sender, jlong content_p)
 {
     jint deliver_ = (jint) zwr_client_deliver ((zwr_client_t *) self, (zuuid_t *) sender, (zmsg_t **) &content_p);
     return deliver_;
 }
 
 JNIEXPORT jlong JNICALL
-Java_zwr_client__1_1recv (JNIEnv *env, jclass c, jlong self)
+Java_org_zeromq_zwebrap_ZwrClient__1_1recv (JNIEnv *env, jclass c, jlong self)
 {
     jlong recv_ = (jlong) zwr_client_recv ((zwr_client_t *) self);
     return recv_;
 }
 
 JNIEXPORT jstring JNICALL
-Java_zwr_client__1_1command (JNIEnv *env, jclass c, jlong self)
+Java_org_zeromq_zwebrap_ZwrClient__1_1command (JNIEnv *env, jclass c, jlong self)
 {
     char *command_ = (char *) zwr_client_command ((zwr_client_t *) self);
-    jstring string = (*env)->NewStringUTF (env, command_);
-    return string;
+    jstring return_string_ = (*env)->NewStringUTF (env, command_);
+    return return_string_;
 }
 
 JNIEXPORT jint JNICALL
-Java_zwr_client__1_1status (JNIEnv *env, jclass c, jlong self)
+Java_org_zeromq_zwebrap_ZwrClient__1_1status (JNIEnv *env, jclass c, jlong self)
 {
     jint status_ = (jint) zwr_client_status ((zwr_client_t *) self);
     return status_;
 }
 
 JNIEXPORT jstring JNICALL
-Java_zwr_client__1_1reason (JNIEnv *env, jclass c, jlong self)
+Java_org_zeromq_zwebrap_ZwrClient__1_1reason (JNIEnv *env, jclass c, jlong self)
 {
     char *reason_ = (char *) zwr_client_reason ((zwr_client_t *) self);
-    jstring string = (*env)->NewStringUTF (env, reason_);
-    return string;
+    jstring return_string_ = (*env)->NewStringUTF (env, reason_);
+    return return_string_;
 }
 
 JNIEXPORT jlong JNICALL
-Java_zwr_client__1_1sender (JNIEnv *env, jclass c, jlong self)
+Java_org_zeromq_zwebrap_ZwrClient__1_1sender (JNIEnv *env, jclass c, jlong self)
 {
     jlong sender_ = (jlong) zwr_client_sender ((zwr_client_t *) self);
     return sender_;
 }
 
 JNIEXPORT jlong JNICALL
-Java_zwr_client__1_1content (JNIEnv *env, jclass c, jlong self)
+Java_org_zeromq_zwebrap_ZwrClient__1_1content (JNIEnv *env, jclass c, jlong self)
 {
     jlong content_ = (jlong) zwr_client_content ((zwr_client_t *) self);
     return content_;
 }
 
 JNIEXPORT void JNICALL
-Java_zwr_client__1_1test (JNIEnv *env, jclass c, jboolean verbose)
+Java_org_zeromq_zwebrap_ZwrClient__1_1test (JNIEnv *env, jclass c, jboolean verbose)
 {
     zwr_client_test ((bool) verbose);
 }

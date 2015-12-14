@@ -16,62 +16,21 @@ QZebHandler::QZebHandler (zeb_handler_t *self, QObject *qObjParent) : QObject (q
 
 
 ///
-//  Create a new zeb_handler
-QZebHandler::QZebHandler (const QString &endpoint, QObject *qObjParent) : QObject (qObjParent)
-{
-    this->self = zeb_handler_new (endpoint.toUtf8().data());
-}
-
-///
-//  Destroy the zeb_handler
-QZebHandler::~QZebHandler ()
-{
-    zeb_handler_destroy (&self);
-}
-
-///
 //  Add a new offer this handler will handle. Returns 0 if successful,
 //  otherwise -1.                                                     
-int QZebHandler::addOffer (int method, const QString &uri)
+int QZebHandler::addOffer (QZactor *self, int method, const QString &uri)
 {
-    int rv = zeb_handler_add_offer (self, method, uri.toUtf8().data());
+    int rv = zeb_handler_add_offer (self->self, method, uri.toUtf8().data());
     return rv;
 }
 
 ///
 //  Add a new accept type that this handler can deliver. May be a regular
 //  expression. Returns 0 if successfull, otherwise -1.                  
-int QZebHandler::addAccept (const QString &accept)
+int QZebHandler::addAccept (QZactor *self, const QString &accept)
 {
-    int rv = zeb_handler_add_accept (self, accept.toUtf8().data());
+    int rv = zeb_handler_add_accept (self->self, accept.toUtf8().data());
     return rv;
-}
-
-///
-//  Set a callback handler to handle incoming requests. Returns the response
-//  to be send back to the client.                                          
-void QZebHandler::setHandleRequestFn (zeb_handler_handle_request_fn *handleRequestFn)
-{
-    zeb_handler_set_handle_request_fn (self, handleRequestFn);
-    
-}
-
-///
-//  Set a callback handler to check if provided etag matches the current one.
-//  Returns true if etags match, otherwise false.                            
-void QZebHandler::setCheckEtagFn (zeb_handler_check_etag_fn *checkEtagFn)
-{
-    zeb_handler_set_check_etag_fn (self, checkEtagFn);
-    
-}
-
-///
-//  Set a callback handler to check if provided last_modified timestamp matches
-//  the current one. Returns true if timestamp match, otherwise false.         
-void QZebHandler::setCheckLastModifiedFn (zeb_handler_check_last_modified_fn *lastModifiedFn)
-{
-    zeb_handler_set_check_last_modified_fn (self, lastModifiedFn);
-    
 }
 
 ///
