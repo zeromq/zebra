@@ -10,16 +10,16 @@
     <ClCompile Include="..\..\..\..\src\zeb_handler.c">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\zwr_request.c">
+    <ClCompile Include="..\..\..\..\src\zeb_request.c">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\zwr_response.c">
+    <ClCompile Include="..\..\..\..\src\zeb_response.c">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\zwr_connection.c">
+    <ClCompile Include="..\..\..\..\src\zeb_connection.c">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\zwr_microhttpd.c">
+    <ClCompile Include="..\..\..\..\src\zeb_microhttpd.c">
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\src\xrap_msg.c">
@@ -28,10 +28,10 @@
     <ClCompile Include="..\..\..\..\src\xrap_traffic.c">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\zwr_server.c">
+    <ClCompile Include="..\..\..\..\src\zeb_server.c">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\zwr_client.c">
+    <ClCompile Include="..\..\..\..\src\zeb_client.c">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
@@ -42,10 +42,10 @@
     <ClInclude Include="..\..\..\..\include\zwebrap.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\src\zwr_server_engine.inc">
+    <ClInclude Include="..\..\..\..\src\zeb_server_engine.inc">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\src\zwr_client_engine.inc">
+    <ClInclude Include="..\..\..\..\src\zeb_client_engine.inc">
       <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>

@@ -230,7 +230,7 @@
           <Tool Name="VCCLCompilerTool" CompileAs="2" />
         </FileConfiguration>
       </File>
-      <File RelativePath="..\..\..\..\src\zwr_request.c">
+      <File RelativePath="..\..\..\..\src\zeb_request.c">
         <FileConfiguration Name="Release|Win32">
           <Tool Name="VCCLCompilerTool" CompileAs="2" />
         </FileConfiguration>
@@ -262,7 +262,7 @@
           <Tool Name="VCCLCompilerTool" CompileAs="2" />
         </FileConfiguration>
       </File>
-      <File RelativePath="..\..\..\..\src\zwr_response.c">
+      <File RelativePath="..\..\..\..\src\zeb_response.c">
         <FileConfiguration Name="Release|Win32">
           <Tool Name="VCCLCompilerTool" CompileAs="2" />
         </FileConfiguration>
@@ -294,7 +294,7 @@
           <Tool Name="VCCLCompilerTool" CompileAs="2" />
         </FileConfiguration>
       </File>
-      <File RelativePath="..\..\..\..\src\zwr_connection.c">
+      <File RelativePath="..\..\..\..\src\zeb_connection.c">
         <FileConfiguration Name="Release|Win32">
           <Tool Name="VCCLCompilerTool" CompileAs="2" />
         </FileConfiguration>
@@ -326,7 +326,7 @@
           <Tool Name="VCCLCompilerTool" CompileAs="2" />
         </FileConfiguration>
       </File>
-      <File RelativePath="..\..\..\..\src\zwr_microhttpd.c">
+      <File RelativePath="..\..\..\..\src\zeb_microhttpd.c">
         <FileConfiguration Name="Release|Win32">
           <Tool Name="VCCLCompilerTool" CompileAs="2" />
         </FileConfiguration>
@@ -422,7 +422,7 @@
           <Tool Name="VCCLCompilerTool" CompileAs="2" />
         </FileConfiguration>
       </File>
-      <File RelativePath="..\..\..\..\src\zwr_server.c">
+      <File RelativePath="..\..\..\..\src\zeb_server.c">
         <FileConfiguration Name="Release|Win32">
           <Tool Name="VCCLCompilerTool" CompileAs="2" />
         </FileConfiguration>
@@ -454,7 +454,7 @@
           <Tool Name="VCCLCompilerTool" CompileAs="2" />
         </FileConfiguration>
       </File>
-      <File RelativePath="..\..\..\..\src\zwr_client.c">
+      <File RelativePath="..\..\..\..\src\zeb_client.c">
         <FileConfiguration Name="Release|Win32">
           <Tool Name="VCCLCompilerTool" CompileAs="2" />
         </FileConfiguration>
@@ -490,18 +490,18 @@
     <Filter Name="Header Files">
       <File RelativePath="..\..\..\..\builds\msvc\platform.h" />
       <File RelativePath="..\..\..\..\include\zeb_handler.h" />
-      <File RelativePath="..\..\..\..\src\zwr_request.h" />
-      <File RelativePath="..\..\..\..\src\zwr_response.h" />
-      <File RelativePath="..\..\..\..\src\zwr_connection.h" />
-      <File RelativePath="..\..\..\..\include\zwr_microhttpd.h" />
+      <File RelativePath="..\..\..\..\src\zeb_request.h" />
+      <File RelativePath="..\..\..\..\src\zeb_response.h" />
+      <File RelativePath="..\..\..\..\src\zeb_connection.h" />
+      <File RelativePath="..\..\..\..\include\zeb_microhttpd.h" />
       <File RelativePath="..\..\..\..\include\xrap_msg.h" />
       <File RelativePath="..\..\..\..\include\xrap_traffic.h" />
-      <File RelativePath="..\..\..\..\include\zwr_server.h" />
-      <File RelativePath="..\..\..\..\include\zwr_client.h" />
+      <File RelativePath="..\..\..\..\include\zeb_server.h" />
+      <File RelativePath="..\..\..\..\include\zeb_client.h" />
       <File RelativePath="..\..\..\..\include\zwebrap_library.h" />
       <File RelativePath="..\..\..\..\include\zwebrap.h" />
-      <File RelativePath="..\..\..\..\src\zwr_server_engine.inc" />
-      <File RelativePath="..\..\..\..\src\zwr_client_engine.inc" />
+      <File RelativePath="..\..\..\..\src\zeb_server_engine.inc" />
+      <File RelativePath="..\..\..\..\src\zeb_client_engine.inc" />
     </Filter>
   </Files>
   <Globals />

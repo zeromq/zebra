@@ -17,8 +17,8 @@
 @end
 */
 
-#include "../include/zwebrap.h"
-#include "zwebrap_classes.h"
+#include "../include/zebra.h"
+#include "zebra_classes.h"
 
 //  Structure of the actor
 
@@ -28,7 +28,7 @@ typedef struct {
     bool terminated;
     bool verbose;
     //  Declare properties
-    zwr_client_t *client;       //  Client that communicates with the zwr_server
+    zeb_client_t *client;       //  Client that communicates with the zeb_server
     ztrie_t *offers;            //  Holds the offers the handler handles
     zlistx_t *accepts;          //  Response formats this handler can deliver
 } s_handler_t;
@@ -86,8 +86,8 @@ s_handler_new (zsock_t *pipe, char *endpoint)
     self->terminated = false;
     self->verbose = false;
     //  Initialize properties
-    self->client = zwr_client_new ();
-    int rc = zwr_client_connect (self->client, endpoint, 1000, "zeb_handler");
+    self->client = zeb_client_new ();
+    int rc = zeb_client_connect (self->client, endpoint, 1000, "zeb_handler");
     assert (rc == 0);
     self->offers = ztrie_new ('/');
     self->accepts = zlistx_new ();
@@ -118,7 +118,7 @@ s_handler_destroy (s_handler_t **self_p)
 
         zpoller_destroy (&self->poller);
         // Free class properties
-        zwr_client_destroy (&self->client);
+        zeb_client_destroy (&self->client);
         ztrie_destroy (&self->offers);
         zlistx_destroy (&self->accepts);
 
@@ -148,7 +148,7 @@ s_handler_add_offer (s_handler_t *self)
     zstr_free (&joined_uri);
 
     if (rc == 0)
-        rc = zwr_client_set_handler (self->client, s_xrap_command (method) + 1, uri);
+        rc = zeb_client_set_handler (self->client, s_xrap_command (method) + 1, uri);
     return rc == -1? 1: rc;
 }
 
@@ -165,10 +165,12 @@ s_handler_add_accept (s_handler_t *self)
     char *accept = zstr_recv (self->pipe);
     assert (accept);
     zrex_t *rex = zrex_new (accept);
+    assert (rex);
+
     zstr_free (&accept);
 
     //  Invalid expression
-    if (!rex)
+    if (!zrex_valid (rex))
         return 1;
 
     zlistx_add_end (self->accepts, rex);
@@ -183,7 +185,7 @@ static void
 s_handler_recv_client (s_handler_t *self)
 {
     assert (self);
-    zmsg_t *request = zwr_client_recv (self->client);
+    zmsg_t *request = zeb_client_recv (self->client);
     xrap_msg_t *xrequest = xrap_msg_decode (&request);
 
     //  Check if method is valid
@@ -194,7 +196,7 @@ s_handler_recv_client (s_handler_t *self)
         xrap_msg_set_status_code (xresponse, XRAP_TRAFFIC_METHOD_NOT_ALLOWED);
         xrap_msg_set_status_text (xresponse, "Valid request methods are POST, GET, PUT and DELETE.");
         zmsg_t *response = xrap_msg_encode (&xresponse);
-        zwr_client_deliver (self->client, zwr_client_sender (self->client), &response);
+        zeb_client_deliver (self->client, zeb_client_sender (self->client), &response);
         goto cleanup;
     }
 
@@ -213,7 +215,7 @@ s_handler_recv_client (s_handler_t *self)
             xrap_msg_set_status_code (xresponse, XRAP_TRAFFIC_NOT_ACCEPTABLE);
             xrap_msg_set_status_text (xresponse, "Ressource accept format is not valid!");
             zmsg_t *response = xrap_msg_encode (&xresponse);
-            zwr_client_deliver (self->client, zwr_client_sender (self->client), &response);
+            zeb_client_deliver (self->client, zeb_client_sender (self->client), &response);
             goto cleanup;
         }
     }
@@ -242,7 +244,7 @@ s_handler_recv_client (s_handler_t *self)
                     xrap_msg_t *xresponse = xrap_msg_new (XRAP_MSG_GET_EMPTY);
                     xrap_msg_set_status_code (xresponse, 304);
                     zmsg_t *response = xrap_msg_encode (&xresponse);
-                    zwr_client_deliver (self->client, zwr_client_sender (self->client), &response);
+                    zeb_client_deliver (self->client, zeb_client_sender (self->client), &response);
                     goto cleanup;
                 }
             }
@@ -270,7 +272,7 @@ s_handler_recv_client (s_handler_t *self)
                     xrap_msg_set_status_code (xresponse, XRAP_TRAFFIC_PRECONDITION_FAILED);
                     xrap_msg_set_status_text (xresponse, "Resource has been modified by someone else.");
                     zmsg_t *response = xrap_msg_encode (&xresponse);
-                    zwr_client_deliver (self->client, zwr_client_sender (self->client), &response);
+                    zeb_client_deliver (self->client, zeb_client_sender (self->client), &response);
                     goto cleanup;
                 }
             }
@@ -282,12 +284,12 @@ s_handler_recv_client (s_handler_t *self)
         zsock_send (self->pipe, "sm", "HANDLE REQUEST", request);
         zmsg_destroy (&request);
         zmsg_t *response = zmsg_recv (self->pipe);
-        zwr_client_deliver (self->client, zwr_client_sender (self->client), &response);
+        zeb_client_deliver (self->client, zeb_client_sender (self->client), &response);
     }
 
 cleanup:
     xrap_msg_destroy (&xrequest);
-    zuuid_t *sender = zwr_client_sender (self->client);
+    zuuid_t *sender = zeb_client_sender (self->client);
     zuuid_destroy (&sender);
 }
 
@@ -339,14 +341,14 @@ zeb_handler (zsock_t *pipe, void *args)
     //  Signal actor successfully initiated
     zsock_signal (self->pipe, 0);
 
-    zpoller_add (self->poller, zwr_client_msgpipe (self->client));
+    zpoller_add (self->poller, zeb_client_msgpipe (self->client));
 
     while (!self->terminated) {
         zsock_t *which = (zsock_t *) zpoller_wait (self->poller, 0);
         if (which == self->pipe)
             s_handler_recv_api (self);
         else
-        if (which == zwr_client_msgpipe (self->client))
+        if (which == zeb_client_msgpipe (self->client))
             s_handler_recv_client (self);
     }
 
@@ -402,16 +404,16 @@ zeb_handler_test (bool verbose)
     //  Simple create/destroy test
 
     //  Start a server to test against, and bind to endpoint
-    zactor_t *server = zactor_new (zwr_server, "zwr_client_test");
+    zactor_t *server = zactor_new (zeb_server, "zeb_client_test");
     if (verbose)
         zstr_send (server, "VERBOSE");
-    zstr_sendx (server, "LOAD", "src/zwr_client.cfg", NULL);
+    zstr_sendx (server, "LOAD", "src/zeb_client.cfg", NULL);
 
     //  Create a client and connect it to the server
-    zwr_client_t *client = zwr_client_new ();
-    int rc = zwr_client_connect (client, "tcp://127.0.0.1:9999", 1000, "client");
+    zeb_client_t *client = zeb_client_new ();
+    int rc = zeb_client_connect (client, "tcp://127.0.0.1:9999", 1000, "client");
     assert (rc == 0);
-    assert (zwr_client_connected (client) == true);
+    assert (zeb_client_connected (client) == true);
 
     //  Create a handler
     zactor_t *handler = zactor_new (zeb_handler, (void *) "tcp://127.0.0.1:9999");
@@ -439,7 +441,7 @@ zeb_handler_test (bool verbose)
     xrap_msg_set_resource (xmsg, "%s", "/dummy");
     xrap_msg_set_content_type (xmsg, "application/xml");
     zmsg_t *msg = xrap_msg_encode (&xmsg);
-    rc = zwr_client_request (client, 0, &msg);
+    rc = zeb_client_request (client, 0, &msg);
     assert (rc == 0);
 
     //  Receive request and Echo response
@@ -450,29 +452,29 @@ zeb_handler_test (bool verbose)
     zmsg_send (&msg, handler);
 
     //  Receive Response (is echo)
-    msg = zwr_client_recv (client);
+    msg = zeb_client_recv (client);
     xmsg = xrap_msg_decode (&msg);
     assert (xrap_msg_id (xmsg) == XRAP_MSG_GET);
     assert (streq (xrap_msg_resource (xmsg), "/dummy"));
     assert (streq (xrap_msg_content_type (xmsg), "application/xml"));
     xrap_msg_destroy (&xmsg);
-    zuuid_t *sender = zwr_client_sender (client);
+    zuuid_t *sender = zeb_client_sender (client);
     zuuid_destroy (&sender);
 
     //  Send Request without ACCEPT
     xmsg = xrap_msg_new (XRAP_MSG_GET);
     xrap_msg_set_resource (xmsg, "%s", "/dummy");
     msg = xrap_msg_encode (&xmsg);
-    rc = zwr_client_request (client, 0, &msg);
+    rc = zeb_client_request (client, 0, &msg);
     assert (rc == 0);
 
     //  Receive Request without ACCEPT
-    msg = zwr_client_recv (client);
+    msg = zeb_client_recv (client);
     xmsg = xrap_msg_decode (&msg);
     assert (xrap_msg_id (xmsg) == XRAP_MSG_ERROR);
     assert (xrap_msg_status_code (xmsg) == XRAP_TRAFFIC_NOT_ACCEPTABLE);
     xrap_msg_destroy (&xmsg);
-    sender = zwr_client_sender (client);
+    sender = zeb_client_sender (client);
     zuuid_destroy (&sender);
 
     //  Send Request with conditionals (not changed)
@@ -482,7 +484,7 @@ zeb_handler_test (bool verbose)
     xrap_msg_set_if_none_match (xmsg, "MATCH");
     xrap_msg_set_if_modified_since (xmsg, 10);
     msg = xrap_msg_encode (&xmsg);
-    rc = zwr_client_request (client, 0, &msg);
+    rc = zeb_client_request (client, 0, &msg);
     assert (rc == 0);
 
     //  Check etag (match)
@@ -502,11 +504,11 @@ zeb_handler_test (bool verbose)
     zsock_signal (handler, 0);
 
     //  Receive Request with conditionals
-    msg = zwr_client_recv (client);
+    msg = zeb_client_recv (client);
     xmsg = xrap_msg_decode (&msg);
     assert (xrap_msg_id (xmsg) == XRAP_MSG_GET_EMPTY);
     xrap_msg_destroy (&xmsg);
-    sender = zwr_client_sender (client);
+    sender = zeb_client_sender (client);
     zuuid_destroy (&sender);
 
     //  Send Request with conditionals (changed)
@@ -516,7 +518,7 @@ zeb_handler_test (bool verbose)
     xrap_msg_set_if_none_match (xmsg, "NONE MATCH");
     xrap_msg_set_if_modified_since (xmsg, 20);
     msg = xrap_msg_encode (&xmsg);
-    rc = zwr_client_request (client, 0, &msg);
+    rc = zeb_client_request (client, 0, &msg);
     assert (rc == 0);
 
     //  Check etag (none match)
@@ -541,13 +543,13 @@ zeb_handler_test (bool verbose)
     zmsg_send (&msg, handler);
 
     //  Receive response with conditionals
-    msg = zwr_client_recv (client);
+    msg = zeb_client_recv (client);
     xmsg = xrap_msg_decode (&msg);
     assert (xrap_msg_id (xmsg) == XRAP_MSG_GET);
     assert (streq (xrap_msg_resource (xmsg), "/dummy"));
     assert (streq (xrap_msg_content_type (xmsg), "application/json"));
     xrap_msg_destroy (&xmsg);
-    sender = zwr_client_sender (client);
+    sender = zeb_client_sender (client);
     zuuid_destroy (&sender);
 
     //  ================================
@@ -559,7 +561,7 @@ zeb_handler_test (bool verbose)
     xrap_msg_set_content_type (xmsg, "application/xml");
     xrap_msg_set_content_body (xmsg, "application/xml");
     msg = xrap_msg_encode (&xmsg);
-    rc = zwr_client_request (client, 0, &msg);
+    rc = zeb_client_request (client, 0, &msg);
     assert (rc == 0);
 
     //  Receive request and Echo response
@@ -569,14 +571,14 @@ zeb_handler_test (bool verbose)
     zmsg_send (&msg, handler);
 
     //  Receive response (is echo)
-    msg = zwr_client_recv (client);
+    msg = zeb_client_recv (client);
     xmsg = xrap_msg_decode (&msg);
     assert (xrap_msg_id (xmsg) == XRAP_MSG_PUT);
     assert (streq (xrap_msg_resource (xmsg), "/dummy"));
     assert (streq (xrap_msg_content_type (xmsg), "application/xml"));
     assert (streq (xrap_msg_content_body (xmsg), "application/xml"));
     xrap_msg_destroy (&xmsg);
-    sender = zwr_client_sender (client);
+    sender = zeb_client_sender (client);
     zuuid_destroy (&sender);
 
     //  Send Request with conditionals (update, both)
@@ -586,7 +588,7 @@ zeb_handler_test (bool verbose)
     xrap_msg_set_if_match (xmsg, "MATCH");
     xrap_msg_set_if_unmodified_since (xmsg, 10);
     msg = xrap_msg_encode (&xmsg);
-    rc = zwr_client_request (client, 0, &msg);
+    rc = zeb_client_request (client, 0, &msg);
     assert (rc == 0);
 
     //  Check etag (match)
@@ -610,13 +612,13 @@ zeb_handler_test (bool verbose)
     zmsg_send (&msg, handler);
 
     //  Receive response with conditionals (update, both)
-    msg = zwr_client_recv (client);
+    msg = zeb_client_recv (client);
     xmsg = xrap_msg_decode (&msg);
     assert (xrap_msg_id (xmsg) == XRAP_MSG_PUT);
     assert (streq (xrap_msg_resource (xmsg), "/dummy"));
     assert (streq (xrap_msg_content_type (xmsg), "application/json"));
     xrap_msg_destroy (&xmsg);
-    sender = zwr_client_sender (client);
+    sender = zeb_client_sender (client);
     zuuid_destroy (&sender);
 
     //  Send Request with conditionals (update, etag)
@@ -625,7 +627,7 @@ zeb_handler_test (bool verbose)
     xrap_msg_set_content_type (xmsg, "application/json");
     xrap_msg_set_if_match (xmsg, "MATCH");
     msg = xrap_msg_encode (&xmsg);
-    rc = zwr_client_request (client, 0, &msg);
+    rc = zeb_client_request (client, 0, &msg);
     assert (rc == 0);
 
     //  Check etag (match)
@@ -643,11 +645,11 @@ zeb_handler_test (bool verbose)
     zmsg_send (&msg, handler);
 
     //  Receive response with conditionals (update, etag)
-    msg = zwr_client_recv (client);
+    msg = zeb_client_recv (client);
     xmsg = xrap_msg_decode (&msg);
     assert (xrap_msg_id (xmsg) == XRAP_MSG_PUT);
     xrap_msg_destroy (&xmsg);
-    sender = zwr_client_sender (client);
+    sender = zeb_client_sender (client);
     zuuid_destroy (&sender);
 
     //  Send Request with conditionals (update, last_modified)
@@ -656,7 +658,7 @@ zeb_handler_test (bool verbose)
     xrap_msg_set_content_type (xmsg, "application/json");
     xrap_msg_set_if_unmodified_since (xmsg, 10);
     msg = xrap_msg_encode (&xmsg);
-    rc = zwr_client_request (client, 0, &msg);
+    rc = zeb_client_request (client, 0, &msg);
     assert (rc == 0);
 
     //  Check last modified (not modified)
@@ -672,11 +674,11 @@ zeb_handler_test (bool verbose)
     zmsg_send (&msg, handler);
 
     //  Receive response with conditionals (update, last_modified)
-    msg = zwr_client_recv (client);
+    msg = zeb_client_recv (client);
     xmsg = xrap_msg_decode (&msg);
     assert (xrap_msg_id (xmsg) == XRAP_MSG_PUT);
     xrap_msg_destroy (&xmsg);
-    sender = zwr_client_sender (client);
+    sender = zeb_client_sender (client);
     zuuid_destroy (&sender);
 
     //  Send Request with conditionals (no update)
@@ -686,7 +688,7 @@ zeb_handler_test (bool verbose)
     xrap_msg_set_if_match (xmsg, "NONE MATCH");
     xrap_msg_set_if_unmodified_since (xmsg, 20);
     msg = xrap_msg_encode (&xmsg);
-    rc = zwr_client_request (client, 0, &msg);
+    rc = zeb_client_request (client, 0, &msg);
     assert (rc == 0);
 
     //  Check etag (none match)
@@ -705,12 +707,12 @@ zeb_handler_test (bool verbose)
     zsock_signal (handler, 1);
 
     //  Receive Request with conditionals (no update)
-    msg = zwr_client_recv (client);
+    msg = zeb_client_recv (client);
     xmsg = xrap_msg_decode (&msg);
     assert (xrap_msg_id (xmsg) == XRAP_MSG_ERROR);
     assert (xrap_msg_status_code (xmsg) == XRAP_TRAFFIC_PRECONDITION_FAILED);
     xrap_msg_destroy (&xmsg);
-    sender = zwr_client_sender (client);
+    sender = zeb_client_sender (client);
     zuuid_destroy (&sender);
 
     //  ================================
@@ -719,10 +721,10 @@ zeb_handler_test (bool verbose)
     //  Send Request
     xmsg = xrap_msg_new (XRAP_MSG_GET_EMPTY);
     msg = xrap_msg_encode (&xmsg);
-    rc = zwr_client_request (client, 0, &msg);
+    rc = zeb_client_request (client, 0, &msg);
     assert (rc == XRAP_TRAFFIC_NOT_FOUND);
 
-    zwr_client_destroy (&client);
+    zeb_client_destroy (&client);
     zactor_destroy (&handler);
 
     //  Done, shut down

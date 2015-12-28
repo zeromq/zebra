@@ -15,12 +15,12 @@ LOCAL_MODULE := zmq
 LOCAL_SRC_FILES := libzmq.so
 include $(PREBUILT_SHARED_LIBRARY)
 
-#   Build zwebrap
+#   Build zebra
 
 include $(CLEAR_VARS)
-LOCAL_MODULE := zwebrap
+LOCAL_MODULE := zebra
 LOCAL_C_INCLUDES := ../../include $(LIBZMQ)/include
-LOCAL_SRC_FILES := zeb_handler.c zwr_request.c zwr_response.c zwr_connection.c zwr_microhttpd.c xrap_msg.c xrap_traffic.c zwr_server.c zwr_client.c
+LOCAL_SRC_FILES := zeb_handler.c zeb_request.c zeb_response.c zeb_connection.c zeb_microhttpd.c xrap_msg.c xrap_traffic.c zeb_server.c zeb_client.c
 LOCAL_SHARED_LIBRARIES := zmq
 include $(BUILD_SHARED_LIBRARY)
 

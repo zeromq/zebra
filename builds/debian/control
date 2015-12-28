@@ -1,5 +1,5 @@
 #
-#    zwebrap - Translates REST HTTP-Request into the XRAP protocol.
+#    zebra - Translates REST HTTP-Request into the XRAP protocol.
 #
 #    Copyright (c) the Contributors as noted in the AUTHORS file.       
 #    This file is part of ZWEBRAP.                                      
@@ -8,8 +8,7 @@
 #    License, v. 2.0. If a copy of the MPL was not distributed with this
 #    file, You can obtain one at http://mozilla.org/MPL/2.0/.           
 
-
-Source:         zwebrap
+Source:         zebra
 Section:        net
 Priority:       optional
 Maintainer:     John Doe <John.Doe@example.com>
@@ -24,15 +23,17 @@ Build-Depends: bison, debhelper (>= 8),
     libczmq-dev,
     libmicrohttpd-dev,
     libcurl-dev,
-    dh-autoreconf
+    libsodium-dev,
+    dh-autoreconf,
+    systemd
 
-Package: libzwebrap0
+Package: libzebra0
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Description: zwebrap
- This package contains shared library for zwebrap: translates rest http-request into the xrap protocol.
+Description: zebra
+ This package contains shared library for zebra: translates rest http-request into the xrap protocol.
 
-Package: zwebrap-dev
+Package: zebra-dev
 Architecture: all
 Section: libdevel
 Depends:
@@ -40,18 +41,19 @@ Depends:
     libczmq-dev,
     libmicrohttpd-dev,
     libcurl-dev,
-    libzwebrap0 (= ${binary:Version})
-Description: development files for zwebrap
- This package contains development files for zwebrap: translates rest http-request into the xrap protocol.
+    libsodium-dev,
+    libzebra0 (= ${binary:Version})
+Description: development files for zebra
+ This package contains development files for zebra: translates rest http-request into the xrap protocol.
 
 
-Package: zwebrap-dbg
+Package: zebra-dbg
 Architecture: any
 Section: debug
 Priority: extra
 Depends:
-    libzwebrap0 (= ${binary:Version}),
+    libzebra0 (= ${binary:Version}),
     ${misc:Depends}
-Description: debugging symbols for zwebrap
- This package contains the debugging symbols for zwebrap : translates rest http-request into the xrap protocol..
+Description: debugging symbols for zebra
+ This package contains the debugging symbols for zebra : translates rest http-request into the xrap protocol..
 

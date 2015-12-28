@@ -8,19 +8,19 @@ CC=gcc
 PREFIX=c:/mingw/msys/1.0/local
 INCDIR=-I$(PREFIX)/include -I.
 LIBDIR=-L$(PREFIX)/lib
-CFLAGS=-Wall -Os -g -DLIBZWEBRAP_EXPORTS $(INCDIR)
+CFLAGS=-Wall -Os -g -DLIBZEBRA_EXPORTS $(INCDIR)
 
-OBJS = zeb_handler.o zwr_request.o zwr_response.o zwr_connection.o zwr_microhttpd.o xrap_msg.o xrap_traffic.o zwr_server.o zwr_client.o
+OBJS = zeb_handler.o zeb_request.o zeb_response.o zeb_connection.o zeb_microhttpd.o xrap_msg.o xrap_traffic.o zeb_server.o zeb_client.o
 %.o: ../../src/%.c
 	$(CC) -c -o $@ $< $(CFLAGS)
 
-all: libzwebrap.dll zwebrap_selftest.exe
+all: libzebra.dll zebra_selftest.exe
 
-libzwebrap.dll: $(OBJS)
+libzebra.dll: $(OBJS)
 	$(CC) -shared -o $@ $(OBJS) -Wl,--out-implib,$@.a $(LIBDIR) -lzmq -lws2_32 -liphlpapi -lrpcrt4
 
 # the test functions are not exported into the DLL
-zwebrap_selftest.exe: zwebrap_selftest.o $(OBJS)
+zebra_selftest.exe: zebra_selftest.o $(OBJS)
 	$(CC) -o $@ $^ $(LIBDIR) -lzmq -lws2_32 -liphlpapi -lrpcrt4
 
 clean:

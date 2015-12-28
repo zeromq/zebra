@@ -1,0 +1,197 @@
+<class
+    name = "zeb_client"
+    title = "zeb_server client implementation for both clients and handlers"
+    script = "zproto_client_c"
+    protocol_class = "xrap_traffic"
+    package_dir = "../include"
+    project_header = "zwebrap_classes.h"
+    export_macro = "ZEBRA_EXPORT"
+    >
+    This is a client implementation of the ZWebRap Protocol
+    <include filename = "../license.xml" />
+
+    <state name = "start">
+        <event name = "connect" next = "connecting">
+            <action name = "connect to server endpoint" />
+            <action name = "set client address" />
+            <action name = "use connect timeout" />
+            <action name = "send" message = "CONNECTION OPEN" />
+        </event>
+        <event name = "bad endpoint">
+            <action name = "signal bad endpoint" />
+            <action name = "terminate" />
+        </event>
+        <event name = "destructor">
+            <action name = "signal success" />
+        </event>
+    </state>
+
+    <state name = "connecting" inherit = "defaults">
+        <event name = "OK" next = "connected">
+            <action name = "signal success" />
+            <action name = "client is connected" />
+        </event>
+        <event name = "expired" next = "start">
+            <action name = "signal server not present" />
+        </event>
+    </state>
+
+    <state name = "connected" inherit = "defaults">
+        <event name = "set handler" next = "confirming">
+            <action name = "prepare xrap offer command" />
+            <action name = "send" message = "XRAP OFFER" />
+        </event>
+        <event name = "request" next = "confirming">
+            <action name = "prepare xrap send command" />
+            <action name = "send" message = "XRAP SEND" />
+        </event>
+        <event name = "destructor" next = "disconnecting">
+            <action name = "send" message = "CONNECTION CLOSE" />
+        </event>
+        <event name = "XRAP DELIVER">
+            <action name = "pass xrap message to app" />
+        </event>
+    </state>
+
+    <state name = "confirming" inherit = "defaults">
+        <event name = "OK" next = "connected">
+            <action name = "signal success" />
+        </event>
+        <event name = "FAIL" next = "connected">
+            <action name = "signal failure" />
+        </event>
+        <event name = "ERROR">
+            <action name = "signal failure" />
+            <action name = "terminate" />
+        </event>
+    </state>
+
+    <!-- After client calls destructor -->
+    <state name = "disconnecting" inherit = "defaults">
+        <event name = "OK">
+            <action name = "signal success" />
+            <action name = "terminate" />
+        </event>
+        <event name = "expired">
+            <action name = "signal failure" />
+            <action name = "terminate" />
+        </event>
+    </state>
+
+    <!-- After server sends ERROR for our PING -->
+    <state name = "reconnecting" inherit = "defaults">
+        <event name = "OK">
+            <action name = "client is connected" />
+            <action name = "get first replay command" />
+        </event>
+        <event name = "ERROR">
+            <!-- If we sent multiple PINGs, ignore further ERRORs -->
+        </event>
+        <!-- Replay commands, looping in same state -->
+        <event name = "set handler">
+            <action name = "send" message = "XRAP OFFER" />
+            <action name = "get next replay command" />
+        </event>
+        <event name = "replay ready" next = "connected">
+        </event>
+    </state>
+
+    <!-- Server is gone, wait for it to return -->
+    <state name = "disconnected" inherit = "defaults">
+        <event name = "heartbeat">
+            <!-- Do not keep sending PONGs when disconnected -->
+        </event>
+        <event name = "destructor">
+            <action name = "signal success" />
+            <action name = "terminate" />
+        </event>
+    </state>
+
+    <state name = "defaults">
+        <!-- Hearbeating logic in client -->
+        <event name = "heartbeat">
+            <action name = "send" message = "CONNECTION PING" />
+        </event>
+        <event name = "CONNECTION PONG" next = "connected">
+            <action name = "client is connected" />
+        </event>
+        <event name = "expired" next = "disconnected">
+            <action name = "server has gone offline" />
+        </event>
+        <event name = "ERROR" next = "have error">
+            <action name = "check status code" />
+        </event>
+        <event name = "*">
+            <!-- Discard any other incoming events -->
+        </event>
+    </state>
+
+    <state name = "have error">
+        <event name = "command invalid" next = "reconnecting">
+            <action name = "use connect timeout" />
+            <action name = "send" message = "CONNECTION OPEN" />
+        </event>
+        <event name = "other">
+            <action name = "signal unhandled error" />
+            <action name = "terminate" />
+        </event>
+    </state>
+
+    <!-- API methods -->
+    <method name = "connect" return = "status">
+    Connect to server endpoint, with specified timeout in msecs (zero means
+    wait forever). Constructor succeeds if connection is successful. The caller
+    may specify its address.
+        <field name = "endpoint" type = "string" />
+        <field name = "timeout" type = "number" size = "4" />
+        <field name = "address" type = "string" />
+        <accept reply = "SUCCESS" />
+        <accept reply = "FAILURE" />
+    </method>
+
+    <method name = "destructor" return = "status">
+    Disconnect from server. Waits for a short timeout for confirmation from
+    the server, then disconnects anyhow.
+        <accept reply = "SUCCESS" />
+        <accept reply = "FAILURE" />
+    </method>
+
+    <reply name = "SUCCESS">
+        <field name = "status" type = "integer" />
+    </reply>
+
+    <reply name = "FAILURE">
+        <field name = "status" type = "integer" />
+        <field name = "reason" type = "string" />
+    </reply>
+
+    <method name = "set handler" return = "status">
+        Offer to handle particular XRAP requests, where the route matches request's
+        resource.
+        <field name = "method" type = "string" />
+        <field name = "route" type = "string" />
+        <accept reply = "SUCCESS" />
+        <accept reply = "FAILURE" />
+    </method>
+
+    <method name = "request" return = "status">
+        <field name = "timeout" type = "number" size = "4" />
+        <field name = "content" type = "msg" />
+        <accept reply = "SUCCESS" />
+        <accept reply = "FAILURE" />
+    </method>
+
+    <!-- This defines the asynchronous send interface -->
+    <send>
+        <message name = "XRAP DELIVER" method = "deliver" />
+    </send>
+
+    <!-- This defines the asynchronous recv interface -->
+    <recv>
+        <message name = "XRAP DELIVER" />
+    </recv>
+
+    <!-- Include custom hand-written methods -->
+    <!--<custom filename = "zeb_client_custom.xml" language = "C" />-->
+</class>
+

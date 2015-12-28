@@ -14,9 +14,10 @@ AM_CPPFLAGS = \
     ${czmq_CFLAGS} \
     ${libmicrohttpd_CFLAGS} \
     ${libcurl_CFLAGS} \
+    ${libsodium_CFLAGS} \
     -I$(srcdir)/include
 
-project_libs = ${libzmq_LIBS} ${czmq_LIBS} ${libmicrohttpd_LIBS} ${libcurl_LIBS}
+project_libs = ${libzmq_LIBS} ${czmq_LIBS} ${libmicrohttpd_LIBS} ${libcurl_LIBS} ${libsodium_LIBS}
 
 SUBDIRS = doc
 DIST_SUBDIRS = doc
@@ -28,12 +29,12 @@ noinst_LTLIBRARIES =
 TESTS =
 
 EXTRA_DIST = \
-    src/zwr_server_engine.inc \
-    src/zwr_client_engine.inc \
-    src/zwr_request.h \
-    src/zwr_response.h \
-    src/zwr_connection.h \
-    src/zwebrap_classes.h \
+    src/zeb_server_engine.inc \
+    src/zeb_client_engine.inc \
+    src/zeb_request.h \
+    src/zeb_response.h \
+    src/zeb_connection.h \
+    src/zebra_classes.h \
     LICENSE \
     README.txt \
     README.md \

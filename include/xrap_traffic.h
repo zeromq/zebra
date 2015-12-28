@@ -123,97 +123,97 @@ typedef struct _xrap_traffic_t xrap_traffic_t;
 
 //  @interface
 //  Create a new empty xrap_traffic
-ZWEBRAP_EXPORT xrap_traffic_t *
+ZEBRA_EXPORT xrap_traffic_t *
     xrap_traffic_new (void);
 
 //  Destroy a xrap_traffic instance
-ZWEBRAP_EXPORT void
+ZEBRA_EXPORT void
     xrap_traffic_destroy (xrap_traffic_t **self_p);
 
 //  Receive a xrap_traffic from the socket. Returns 0 if OK, -1 if
 //  there was an error. Blocks if there is no message waiting.
-ZWEBRAP_EXPORT int
+ZEBRA_EXPORT int
     xrap_traffic_recv (xrap_traffic_t *self, zsock_t *input);
 
 //  Send the xrap_traffic to the output socket, does not destroy it
-ZWEBRAP_EXPORT int
+ZEBRA_EXPORT int
     xrap_traffic_send (xrap_traffic_t *self, zsock_t *output);
 
 //  Print contents of message to stdout
-ZWEBRAP_EXPORT void
+ZEBRA_EXPORT void
     xrap_traffic_print (xrap_traffic_t *self);
 
 //  Get/set the message routing id
-ZWEBRAP_EXPORT zframe_t *
+ZEBRA_EXPORT zframe_t *
     xrap_traffic_routing_id (xrap_traffic_t *self);
-ZWEBRAP_EXPORT void
+ZEBRA_EXPORT void
     xrap_traffic_set_routing_id (xrap_traffic_t *self, zframe_t *routing_id);
 
 //  Get the xrap_traffic id and printable command
-ZWEBRAP_EXPORT int
+ZEBRA_EXPORT int
     xrap_traffic_id (xrap_traffic_t *self);
-ZWEBRAP_EXPORT void
+ZEBRA_EXPORT void
     xrap_traffic_set_id (xrap_traffic_t *self, int id);
-ZWEBRAP_EXPORT const char *
+ZEBRA_EXPORT const char *
     xrap_traffic_command (xrap_traffic_t *self);
 
 //  Get/set the address field
-ZWEBRAP_EXPORT const char *
+ZEBRA_EXPORT const char *
     xrap_traffic_address (xrap_traffic_t *self);
-ZWEBRAP_EXPORT void
+ZEBRA_EXPORT void
     xrap_traffic_set_address (xrap_traffic_t *self, const char *value);
 
 //  Get/set the timeout field
-ZWEBRAP_EXPORT uint32_t
+ZEBRA_EXPORT uint32_t
     xrap_traffic_timeout (xrap_traffic_t *self);
-ZWEBRAP_EXPORT void
+ZEBRA_EXPORT void
     xrap_traffic_set_timeout (xrap_traffic_t *self, uint32_t timeout);
 
 //  Get a copy of the content field
-ZWEBRAP_EXPORT zmsg_t *
+ZEBRA_EXPORT zmsg_t *
     xrap_traffic_content (xrap_traffic_t *self);
 //  Get the content field and transfer ownership to caller
-ZWEBRAP_EXPORT zmsg_t *
+ZEBRA_EXPORT zmsg_t *
     xrap_traffic_get_content (xrap_traffic_t *self);
 //  Set the content field, transferring ownership from caller
-ZWEBRAP_EXPORT void
+ZEBRA_EXPORT void
     xrap_traffic_set_content (xrap_traffic_t *self, zmsg_t **msg_p);
 
 //  Get/set the route field
-ZWEBRAP_EXPORT const char *
+ZEBRA_EXPORT const char *
     xrap_traffic_route (xrap_traffic_t *self);
-ZWEBRAP_EXPORT void
+ZEBRA_EXPORT void
     xrap_traffic_set_route (xrap_traffic_t *self, const char *value);
 
 //  Get/set the method field
-ZWEBRAP_EXPORT const char *
+ZEBRA_EXPORT const char *
     xrap_traffic_method (xrap_traffic_t *self);
-ZWEBRAP_EXPORT void
+ZEBRA_EXPORT void
     xrap_traffic_set_method (xrap_traffic_t *self, const char *value);
 
 //  Get/set the sender field
-ZWEBRAP_EXPORT zuuid_t *
+ZEBRA_EXPORT zuuid_t *
     xrap_traffic_sender (xrap_traffic_t *self);
-ZWEBRAP_EXPORT void
+ZEBRA_EXPORT void
     xrap_traffic_set_sender (xrap_traffic_t *self, zuuid_t *uuid);
 //  Get the sender field and transfer ownership to caller
-ZWEBRAP_EXPORT zuuid_t *
+ZEBRA_EXPORT zuuid_t *
     xrap_traffic_get_sender (xrap_traffic_t *self);
 
 //  Get/set the status_code field
-ZWEBRAP_EXPORT uint16_t
+ZEBRA_EXPORT uint16_t
     xrap_traffic_status_code (xrap_traffic_t *self);
-ZWEBRAP_EXPORT void
+ZEBRA_EXPORT void
     xrap_traffic_set_status_code (xrap_traffic_t *self, uint16_t status_code);
 
 //  Get/set the status_reason field
-ZWEBRAP_EXPORT const char *
+ZEBRA_EXPORT const char *
     xrap_traffic_status_reason (xrap_traffic_t *self);
-ZWEBRAP_EXPORT void
+ZEBRA_EXPORT void
     xrap_traffic_set_status_reason (xrap_traffic_t *self, const char *value);
 
 //  Self test of this class
-ZWEBRAP_EXPORT void
+ZEBRA_EXPORT void
     xrap_traffic_test (bool verbose);
 //  @end
 

@@ -1,0 +1,94 @@
+<class
+    name = "zeb_server"
+    title = "ZWebRap Server"
+    script = "zproto_server_c"
+    protocol_class = "xrap_traffic"
+    package_dir = "../include"
+    project_header = "zwebrap_classes.h"
+    export_macro = "ZEBRA_EXPORT"
+    >
+    This is a server implementation of the WEB XRAP gateway
+    <include filename = "../license.xml" />
+
+    <state name = "start" inherit = "defaults">
+        <event name = "CONNECTION OPEN" next = "connected">
+            <action name = "register new client" />
+            <action name = "send" message = "OK" />
+        </event>
+        <event name = "*">
+            <action name = "signal command invalid" />
+            <action name = "send" message = "ERROR" />
+        </event>
+    </state>
+
+    <state name = "connected" inherit = "defaults">
+        <event name = "XRAP OFFER">
+            <action name = "store xrap offer" />
+            <!-- Can be either OK or FAIL -->
+            <action name = "send response" />
+            <action name = "dispatch the xrap request" />
+        </event>
+        <event name = "XRAP SEND">
+            <action name = "write message to xrap handler" />
+            <!-- Can be either OK or FAIL -->
+            <action name = "send response" />
+        </event>
+        <event name = "XRAP DELIVER">
+            <action name = "write message to xrap client" />
+        </event>
+        <event name = "CONNECTION PING">
+            <action name = "send" message = "CONNECTION PONG" />
+        </event>
+        <!-- Client request has been accepted -->
+        <event name = "ok">
+            <action name = "send" message = "OK" />
+        </event>
+        <!-- Client tried to do something which failed -->
+        <event name = "fail">
+            <action name = "send" message = "FAIL" />
+        </event>
+    </state>
+
+    <state name = "defaults">
+        <event name = "CONNECTION CLOSE" next = "settling">
+            <action name = "send" message = "OK" />
+            <action name = "deregister the client" />
+            <action name = "allow time to settle" />
+        </event>
+        <event name = "xrap message" next = "connected">
+            <action name = "get message to deliver" />
+            <action name = "send" message = "XRAP DELIVER" />
+        </event>
+        <!-- This built-in event hits on a client timeout -->
+        <event name = "expired" next = "settling">
+            <action name = "deregister the client" />
+            <action name = "allow time to settle" />
+        </event>
+        <!-- Client tried to do something we don't allow yet -->
+        <event name = "exception" next = "settling">
+            <action name = "send" message = "ERROR" />
+            <action name = "deregister the client" />
+            <action name = "allow time to settle" />
+        </event>
+        <!-- All other protocol messages are invalid -->
+        <event name = "*" next = "settling">
+            <action name = "signal command invalid" />
+            <action name = "send" message = "ERROR" />
+            <action name = "deregister the client" />
+            <action name = "allow time to settle" />
+        </event>
+    </state>
+
+    <state name = "settling">
+        <event name = "settled">
+            <action name = "terminate" />
+        </event>
+        <event name = "CONNECTION OPEN" next = "connected">
+            <action name = "register new client" />
+            <action name = "send" message = "OK" />
+        </event>
+        <event name = "*">
+            <!-- Ignore any other commands -->
+        </event>
+    </state>
+</class>

@@ -7,11 +7,11 @@
 # Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.61)
 #
-# The version number is extracted from include/zwebrap.h using
+# The version number is extracted from include/zebra.h using
 # the version.sh script. Hence, it should be updated there.
 # The version in git should reflect the *next* version planned.
 #
-AC_INIT([zwebrap],[m4_esyscmd([./version.sh zwebrap.h])],[zeromq-dev@lists.zeromq.org])
+AC_INIT([zebra],[m4_esyscmd([./version.sh zebra.h])],[zeromq-dev@lists.zeromq.org])
 
 AC_CONFIG_AUX_DIR(config)
 AC_CONFIG_MACRO_DIR(config)
@@ -24,11 +24,11 @@ PV_MAJOR=`echo $PACKAGE_VERSION | cut -d . -f 1`
 PV_MINOR=`echo $PACKAGE_VERSION | cut -d . -f 2`
 PV_PATCH=`echo $PACKAGE_VERSION | cut -d . -f 3`
 AC_DEFINE_UNQUOTED([PACKAGE_VERSION_MAJOR],[$PV_MAJOR],
-    [ZWEBRAP major version])
+    [ZEBRA major version])
 AC_DEFINE_UNQUOTED([PACKAGE_VERSION_MINOR],[$PV_MINOR],
-    [ZWEBRAP minor version])
+    [ZEBRA minor version])
 AC_DEFINE_UNQUOTED([PACKAGE_VERSION_PATCH],[$PV_PATCH],
-    [ZWEBRAP patchlevel])
+    [ZEBRA patchlevel])
 # This lets us use PACKAGE_VERSION in Makefiles
 AC_SUBST(PACKAGE_VERSION)
 
@@ -39,12 +39,12 @@ AC_SUBST(PACKAGE_VERSION)
 # know exactly what you're doing and have read and understand
 # http://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
 #
-# libzwebrap -version-info
-LTVER="0:1:0"
+# libzebra -version-info
+LTVER="0:2:0"
 AC_SUBST(LTVER)
 
 # Capture c flags
-ZWEBRAP_ORIG_CFLAGS="${CFLAGS:-none}"
+ZEBRA_ORIG_CFLAGS="${CFLAGS:-none}"
 
 # Checks for programs
 AC_PROG_CC
@@ -59,13 +59,13 @@ PKG_PROG_PKG_CONFIG
 # Code coverage
 AC_ARG_WITH(gcov, [AS_HELP_STRING([--with-gcov=yes/no],
                   [With GCC Code Coverage reporting.])],
-                  [ZWEBRAP_GCOV="$withval"])
+                  [ZEBRA_GCOV="$withval"])
 
-if test "x${ZWEBRAP_GCOV}" == "xyes"; then
+if test "x${ZEBRA_GCOV}" == "xyes"; then
     CFLAGS="-O0 -g -fprofile-arcs -ftest-coverage"
 
-    if test "x${ZWEBRAP_ORIG_CFLAGS}" != "xnone"; then
-        CFLAGS="${CFLAGS} ${ZWEBRAP_ORIG_CFLAGS}"
+    if test "x${ZEBRA_ORIG_CFLAGS}" != "xnone"; then
+        CFLAGS="${CFLAGS} ${ZEBRA_ORIG_CFLAGS}"
     fi
 fi
 
@@ -75,11 +75,41 @@ PREVIOUS_LIBS="${LIBS}"
 
 was_libzmq_check_lib_detected=no
 
-PKG_CHECK_MODULES([libzmq], [libzmq >= 2.2.0],
+PKG_CHECK_MODULES([libzmq], [libzmq >= 0.0.0],
     [
     ],
     [
-        AC_MSG_ERROR([Cannot find required package for libzmq. Note, pkg-config is required due to specified version >= 2.2.0])
+        AC_ARG_WITH([libzmq],
+            [
+                AS_HELP_STRING([--with-libzmq],
+                [Specify libzmq prefix])
+            ],
+            [search_libzmq="yes"],
+            [])
+
+        libzmq_synthetic_cflags=""
+        libzmq_synthetic_libs="-lzmq"
+
+        if test "x$search_libzmq" = "xyes"; then
+            if test -r "${with_libzmq}/include/zmq.h"; then
+                libzmq_synthetic_cflags="-I${with_libzmq}/include"
+                libzmq_synthetic_libs="-L${with_libzmq}/lib -lzmq"
+            else
+                AC_MSG_ERROR([${with_libzmq}/include/zmq.h not found. Please check libzmq prefix])
+            fi
+        fi
+
+        AC_CHECK_LIB([libzmq], [zmq_init],
+            [
+                CFLAGS="${libzmq_synthetic_cflags} ${CFLAGS}"
+                LDFLAGS="${libzmq_synthetic_libs} ${LDFLAGS}"
+                LIBS="${libzmq_synthetic_libs} ${LIBS}"
+
+                AC_SUBST([libzmq_CFLAGS],[${libzmq_synthetic_cflags}])
+                AC_SUBST([libzmq_LIBS],[${libzmq_synthetic_libs}])
+                was_libzmq_check_lib_detected=yes
+            ],
+            [AC_MSG_ERROR([cannot link with -lzmq, install libzmq.])])
     ])
 
 if test "x$was_libzmq_check_lib_detected" = "xno"; then
@@ -94,7 +124,7 @@ PKG_CHECK_MODULES([czmq], [libczmq >= 3.0.0],
     [
     ],
     [
-        AC_MSG_ERROR([Cannot find required package for libczmq. Note, pkg-config is required due to specified version >= 3.0.0])
+        AC_MSG_ERROR([Cannot find libczmq 3.0.0 or higher])
     ])
 
 if test "x$was_czmq_check_lib_detected" = "xno"; then
@@ -163,39 +193,54 @@ if test "x$was_libcurl_check_lib_detected" = "xno"; then
 fi
 
 
+was_libsodium_check_lib_detected=no
+
+PKG_CHECK_MODULES([libsodium], [libsodium >= 1.0.0],
+    [
+        AC_DEFINE(HAVE_LIBSODIUM, 1, [The libsodium library is to be used.])
+    ],
+    [
+    ])
+
+if test "x$was_libsodium_check_lib_detected" = "xno"; then
+    CFLAGS="${libsodium_CFLAGS} ${CFLAGS}"
+    LIBS="${libsodium_LIBS} ${LIBS}"
+fi
+
+
 CFLAGS="${PREVIOUS_CFLAGS}"
 LIBS="${PREVIOUS_LIBS}"
 
 # Platform specific checks
-zwebrap_on_mingw32="no"
-zwebrap_on_cygwin="no"
-zwebrap_on_android="no"
+zebra_on_mingw32="no"
+zebra_on_cygwin="no"
+zebra_on_android="no"
 
 # Host specific checks
 AC_CANONICAL_HOST
 
 # Determine whether or not documentation should be built and installed.
-zwebrap_build_doc="yes"
-zwebrap_install_man="yes"
+zebra_build_doc="yes"
+zebra_install_man="yes"
 
 # Check for asciidoc and xmlto and don't build the docs if these are not installed.
-AC_CHECK_PROG(zwebrap_have_asciidoc, asciidoc, yes, no)
-AC_CHECK_PROG(zwebrap_have_xmlto, xmlto, yes, no)
-if test "x$zwebrap_have_asciidoc" = "xno" -o "x$zwebrap_have_xmlto" = "xno"; then
-    zwebrap_build_doc="no"
+AC_CHECK_PROG(zebra_have_asciidoc, asciidoc, yes, no)
+AC_CHECK_PROG(zebra_have_xmlto, xmlto, yes, no)
+if test "x$zebra_have_asciidoc" = "xno" -o "x$zebra_have_xmlto" = "xno"; then
+    zebra_build_doc="no"
     # Tarballs built with 'make dist' ship with prebuilt documentation.
-    if ! test -f doc/zwebrap.7; then
-        zwebrap_install_man="no"
-        AC_MSG_WARN([You are building an unreleased version of ZWEBRAP and asciidoc or xmlto are not installed.])
+    if ! test -f doc/zebra.7; then
+        zebra_install_man="no"
+        AC_MSG_WARN([You are building an unreleased version of ZEBRA and asciidoc or xmlto are not installed.])
         AC_MSG_WARN([Documentation will not be built and manual pages will not be installed.])
     fi
 fi
 AC_MSG_CHECKING([whether to build documentation])
-AC_MSG_RESULT([$zwebrap_build_doc])
+AC_MSG_RESULT([$zebra_build_doc])
 AC_MSG_CHECKING([whether to install manpages])
-AC_MSG_RESULT([$zwebrap_install_man])
+AC_MSG_RESULT([$zebra_install_man])
 
-# Set some default features required by libzwebrap code.
+# Set some default features required by libzebra code.
 CPPFLAGS="-D_REENTRANT -D_THREAD_SAFE $CPPFLAGS"
 
 # OS-specific tests
@@ -203,64 +248,64 @@ case "${host_os}" in
     *linux*)
         # Define on Linux to enable all library features
         CPPFLAGS="-D_GNU_SOURCE -DLINUX $CPPFLAGS"
-        AC_DEFINE(ZWEBRAP_HAVE_LINUX, 1, [Have Linux OS])
+        AC_DEFINE(ZEBRA_HAVE_LINUX, 1, [Have Linux OS])
 
         case "${host_os}" in
             *android*)
-                AC_DEFINE(ZWEBRAP_HAVE_ANDROID, 1, [Have Android OS])
-                zwebrap_on_android="yes"
+                AC_DEFINE(ZEBRA_HAVE_ANDROID, 1, [Have Android OS])
+                zebra_on_android="yes"
             ;;
         esac
         ;;
     *solaris*)
         # Define on Solaris to enable all library features
         CPPFLAGS="-D_PTHREADS $CPPFLAGS"
-        AC_DEFINE(ZWEBRAP_HAVE_SOLARIS, 1, [Have Solaris OS])
+        AC_DEFINE(ZEBRA_HAVE_SOLARIS, 1, [Have Solaris OS])
         CFLAGS="${CFLAGS} -lsocket -lssp"
         ;;
     *freebsd*)
         # Define on FreeBSD to enable all library features
         CPPFLAGS="-D__BSD_VISIBLE $CPPFLAGS"
-        AC_DEFINE(ZWEBRAP_HAVE_FREEBSD, 1, [Have FreeBSD OS])
+        AC_DEFINE(ZEBRA_HAVE_FREEBSD, 1, [Have FreeBSD OS])
         ;;
     *darwin*)
         # Define on Darwin to enable all library features
         CPPFLAGS="-D_DARWIN_C_SOURCE $CPPFLAGS"
-        AC_DEFINE(ZWEBRAP_HAVE_OSX, 1, [Have DarwinOSX OS])
+        AC_DEFINE(ZEBRA_HAVE_OSX, 1, [Have DarwinOSX OS])
         ;;
     *netbsd*)
         # Define on NetBSD to enable all library features
         CPPFLAGS="-D_NETBSD_SOURCE $CPPFLAGS"
-        AC_DEFINE(ZWEBRAP_HAVE_NETBSD, 1, [Have NetBSD OS])
+        AC_DEFINE(ZEBRA_HAVE_NETBSD, 1, [Have NetBSD OS])
         ;;
     *openbsd*)
         # Define on OpenBSD to enable all library features
         CPPFLAGS="-D_BSD_SOURCE $CPPFLAGS"
-        AC_DEFINE(ZWEBRAP_HAVE_OPENBSD, 1, [Have OpenBSD OS])
+        AC_DEFINE(ZEBRA_HAVE_OPENBSD, 1, [Have OpenBSD OS])
         ;;
     *nto-qnx*)
-        AC_DEFINE(ZWEBRAP_HAVE_QNXNTO, 1, [Have QNX Neutrino OS])
+        AC_DEFINE(ZEBRA_HAVE_QNXNTO, 1, [Have QNX Neutrino OS])
         ;;
     *aix*)
-        AC_DEFINE(ZWEBRAP_HAVE_AIX, 1, [Have AIX OS])
+        AC_DEFINE(ZEBRA_HAVE_AIX, 1, [Have AIX OS])
         ;;
     *hpux*)
         # Define on HP-UX to enable all library features
         CPPFLAGS="-D_POSIX_C_SOURCE=200112L"
-        AC_DEFINE(ZWEBRAP_HAVE_HPUX, 1, [Have HPUX OS])
+        AC_DEFINE(ZEBRA_HAVE_HPUX, 1, [Have HPUX OS])
         ;;
     *mingw32*)
-        AC_DEFINE(ZWEBRAP_HAVE_WINDOWS, 1, [Have Windows OS])
-        AC_DEFINE(ZWEBRAP_HAVE_MINGW32, 1, [Have MinGW32])
+        AC_DEFINE(ZEBRA_HAVE_WINDOWS, 1, [Have Windows OS])
+        AC_DEFINE(ZEBRA_HAVE_MINGW32, 1, [Have MinGW32])
         AC_CHECK_HEADERS(windows.h)
-        zwebrap_on_mingw32="yes"
-        zwebrap_install_man="no"
+        zebra_on_mingw32="yes"
+        zebra_install_man="no"
         ;;
     *cygwin*)
         # Define on Cygwin to enable all library features
         CPPFLAGS="-D_GNU_SOURCE $CPPFLAGS"
-        AC_DEFINE(ZWEBRAP_HAVE_CYGWIN, 1, [Have Cygwin])
-        zwebrap_on_cygwin="yes"
+        AC_DEFINE(ZEBRA_HAVE_CYGWIN, 1, [Have Cygwin])
+        zebra_on_cygwin="yes"
         ;;
     *)
         AC_MSG_ERROR([unsupported system: ${host_os}.])
@@ -297,11 +342,21 @@ if test "x$GCC" = "xyes"; then
 fi
 
 AM_CONDITIONAL(ENABLE_SHARED, test "x$enable_shared" = "xyes")
-AM_CONDITIONAL(ON_MINGW, test "x$zwebrap_on_mingw32" = "xyes")
-AM_CONDITIONAL(ON_CYGWIN, test "x$zwebrap_on_cygwin" = "xyes")
-AM_CONDITIONAL(ON_ANDROID, test "x$zwebrap_on_android" = "xyes")
-AM_CONDITIONAL(INSTALL_MAN, test "x$zwebrap_install_man" = "xyes")
-AM_CONDITIONAL(BUILD_DOC, test "x$zwebrap_build_doc" = "xyes")
+AM_CONDITIONAL(ON_MINGW, test "x$zebra_on_mingw32" = "xyes")
+AM_CONDITIONAL(ON_CYGWIN, test "x$zebra_on_cygwin" = "xyes")
+AM_CONDITIONAL(ON_ANDROID, test "x$zebra_on_android" = "xyes")
+AM_CONDITIONAL(INSTALL_MAN, test "x$zebra_install_man" = "xyes")
+AM_CONDITIONAL(BUILD_DOC, test "x$zebra_build_doc" = "xyes")
+
+# Check for zebra_selftest intent
+AC_ARG_WITH([zebra_selftest],
+    AS_HELP_STRING([--with-zebra_selftest],
+        [Compile the zebra_selftest program [default=yes].]),
+    [with_zebra_selftest=$withval],
+    [with_zebra_selftest=yes])
+
+AM_CONDITIONAL([WITH_ZEBRA_SELFTEST], [test x$with_zebra_selftest != xno])
+AM_COND_IF([WITH_ZEBRA_SELFTEST], [AC_MSG_NOTICE([WITH_ZEBRA_SELFTEST defined])])
 
 # Checks for library functions.
 AC_TYPE_SIGNAL
@@ -332,7 +387,7 @@ AM_COND_IF([WITH_SYSTEMD],
 # Specify output files
 AC_CONFIG_FILES([Makefile
                  doc/Makefile
-                 src/libzwebrap.pc
+                 src/libzebra.pc
                  ])
 
 AM_COND_IF([WITH_SYSTEMD],

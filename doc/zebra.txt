@@ -1,0 +1,25 @@
+Name(7)
+=======
+
+
+NAME
+----
+zebra - Translates REST HTTP-Request into the XRAP protocol.
+
+
+SYNOPSIS
+--------
+----
+#include <zebra.h>
+
+cc ['flags'] 'files' -lzebra ['libraries']
+----
+
+
+DESCRIPTION
+-----------
+
+Classes
+~~~~~~~
+
+Something.
