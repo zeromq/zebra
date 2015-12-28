@@ -79,23 +79,23 @@
   <ItemGroup>
     <ClInclude Include="..\..\..\..\include\zwebrap_library.h" />
     <ClInclude Include="..\..\..\..\include\zwebrap.h" />
-    <ClInclude Include="..\..\..\..\src\zwr_server_engine.inc" />
-    <ClInclude Include="..\..\..\..\src\zwr_client_engine.inc" />
+    <ClInclude Include="..\..\..\..\src\zeb_server_engine.inc" />
+    <ClInclude Include="..\..\..\..\src\zeb_client_engine.inc" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\src\zeb_handler.c">
       <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\zwr_request.c">
+    <ClCompile Include="..\..\..\..\src\zeb_request.c">
       <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\zwr_response.c">
+    <ClCompile Include="..\..\..\..\src\zeb_response.c">
       <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\zwr_connection.c">
+    <ClCompile Include="..\..\..\..\src\zeb_connection.c">
       <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\zwr_microhttpd.c">
+    <ClCompile Include="..\..\..\..\src\zeb_microhttpd.c">
       <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
     <ClCompile Include="..\..\..\..\src\xrap_msg.c">
@@ -104,10 +104,10 @@
     <ClCompile Include="..\..\..\..\src\xrap_traffic.c">
       <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\zwr_server.c">
+    <ClCompile Include="..\..\..\..\src\zeb_server.c">
       <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\zwr_client.c">
+    <ClCompile Include="..\..\..\..\src\zeb_client.c">
       <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
   </ItemGroup>

@@ -7,9 +7,9 @@
 #ifndef Q_ZMSG_H
 #define Q_ZMSG_H
 
-#include "qzwebrap.h"
+#include "qzebra.h"
 
-class QT_ZWEBRAP_EXPORT QZmsg : public QObject
+class QT_ZEBRA_EXPORT QZmsg : public QObject
 {
     Q_OBJECT
 public:

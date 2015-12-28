@@ -7,9 +7,9 @@
 #ifndef Q_ZFRAME_H
 #define Q_ZFRAME_H
 
-#include "qzwebrap.h"
+#include "qzebra.h"
 
-class QT_ZWEBRAP_EXPORT QZframe : public QObject
+class QT_ZEBRA_EXPORT QZframe : public QObject
 {
     Q_OBJECT
 public:

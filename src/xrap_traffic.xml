@@ -5,7 +5,7 @@
     package_dir = "../include"
     project_header = "../include/zwebrap.h"
     signature = "9"
-    export_macro = "ZWEBRAP_EXPORT"
+    export_macro = "ZEBRA_EXPORT"
     >
     This is a codec for the Malamute Protocol (RFC tbd)
     <include filename = "../license.xml" />

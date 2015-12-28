@@ -1,6 +1,6 @@
 
-<A name="toc1-3" title="zwebrap - REST/HTTP to XRAP gateway." />
-# zwebrap - REST/HTTP to XRAP gateway.
+<A name="toc1-3" title="zebra - REST/HTTP to XRAP gateway." />
+# zebra - REST/HTTP to XRAP gateway.
 
 [![Build Status](https://travis-ci.org/zeromq/zwebrap.svg)](https://travis-ci.org/zeromq/zwebrap)
 
@@ -14,7 +14,7 @@
 
 **<a href="#toc2-47">Ownership and License</a>**
 
-**<a href="#toc2-58">Using zwebrap</a>**
+**<a href="#toc2-58">Using zebra</a>**
 
 **<a href="#toc3-61">Requirements</a>**
 
@@ -27,9 +27,9 @@
 
 **<a href="#toc3-136">Usage</a>**
 &emsp;<a href="#toc4-141">zeb_handler - Handler for XRAP requests</a>
-&emsp;<a href="#toc4-543">zwr_microhttpd - Simple HTTP web server</a>
-&emsp;<a href="#toc4-740">zwr_server - Request/response dispatcher.</a>
-&emsp;<a href="#toc4-915">zwr_client - Dispatcher client</a>
+&emsp;<a href="#toc4-543">zeb_microhttpd - Simple HTTP web server</a>
+&emsp;<a href="#toc4-740">zeb_server - Request/response dispatcher.</a>
+&emsp;<a href="#toc4-915">zeb_client - Dispatcher client</a>
 
 **<a href="#toc3-1094">Hints to Contributors</a>**
 
@@ -41,10 +41,10 @@
 <A name="toc3-14" title="Scope and Goals" />
 ### Scope and Goals
 
-zwebrap is designed to take HTTP requests for the common HTTP methods GET, POST, PUT and DELETE and convert them into the [XRAP](http://rfc.zeromq.org/spec:40) format. The converted messages will be passed to the request handlers which compose a response in the XRAP format which will be converted back into HTTP. To allow handler to come and go a they please, they need to register at a dispatcher which will forward XRAP messages both ways.
+zebra is designed to take HTTP requests for the common HTTP methods GET, POST, PUT and DELETE and convert them into the [XRAP](http://rfc.zeromq.org/spec:40) format. The converted messages will be passed to the request handlers which compose a response in the XRAP format which will be converted back into HTTP. To allow handler to come and go a they please, they need to register at a dispatcher which will forward XRAP messages both ways.
 
 <center>
-<img src="https://github.com/zeromq/zwebrap/raw/master/images/README_1.png" alt="1">
+<img src="https://github.com/zeromq/zebra/raw/master/images/README_1.png" alt="1">
 </center>
 
 <A name="toc2-47" title="Ownership and License" />
@@ -52,14 +52,14 @@ zwebrap is designed to take HTTP requests for the common HTTP methods GET, POST,
 
 The contributors are listed in AUTHORS. This project uses the MPL v2 license, see LICENSE.
 
-zwebrap uses the [C4.1 (Collective Code Construction Contract)](http://rfc.zeromq.org/spec:22) process for contributions.
+zebra uses the [C4.1 (Collective Code Construction Contract)](http://rfc.zeromq.org/spec:22) process for contributions.
 
-zwebrap uses the [CLASS (C Language Style for Scalabilty)](http://rfc.zeromq.org/spec:21) guide for code style.
+zebra uses the [CLASS (C Language Style for Scalabilty)](http://rfc.zeromq.org/spec:21) guide for code style.
 
-To report an issue, use the [zwebrap issue tracker](https://github.com/zeromq/zwebrap/issues) at github.com.
+To report an issue, use the [zebra issue tracker](https://github.com/zeromq/zebra/issues) at github.com.
 
-<A name="toc2-58" title="Using zwebrap" />
-## Using zwebrap
+<A name="toc2-58" title="Using zebra" />
+## Using zebra
 
 <A name="toc3-61" title="Requirements" />
 ### Requirements
@@ -72,7 +72,7 @@ To report an issue, use the [zwebrap issue tracker](https://github.com/zeromq/zw
 <A name="toc3-69" title="Building and Installing" />
 ### Building and Installing
 
-Here's how to build zwebrap, including libmicrohttpd, libzmq and czmq:
+Here's how to build zebra, including libmicrohttpd, libzmq and czmq:
 
     wget http://ftpmirror.gnu.org/libmicrohttpd/libmicrohttpd-0.9.38.tar.gz
     tar -xvf libmicrohttpd-0.9.38.tar.gz
@@ -98,8 +98,8 @@ Here's how to build zwebrap, including libmicrohttpd, libzmq and czmq:
     sudo ldconfig
     cd ..
 
-    git clone git://github.com/zeromq/zwebrap.git
-    cd zwebrap
+    git clone git://github.com/zeromq/zebra.git
+    cd zebra
     ./autogen.sh
     ./configure && make check
     sudo make install
@@ -117,7 +117,7 @@ All HTTP requests MUST include a valid User-Agent header. Requests with no User-
 <A name="toc4-114" title="Rate Limiting" />
 #### Rate Limiting
 
-To allow to compensate hardware limitations or to mitigate DOS attacks zwebrap has a built in rate limiting which allows to limit the number of request within an time interval.
+To allow to compensate hardware limitations or to mitigate DOS attacks zebra has a built in rate limiting which allows to limit the number of request within an time interval.
 
 You can check the returned HTTP headers of any HTTP request to see your current rate limit status:
 
@@ -134,12 +134,12 @@ Once you go over the rate limit you will receive an 403 Forbidden error.
 <A name="toc4-131" title="Conditional requests" />
 #### Conditional requests
 
-XRAP allows responses to return an ETag header as well as a Last-Modified header. You can use the values of these headers to make subsequent requests to those resources using the If-None-Match and If-Modified-Since headers, respectively. If the resource has not changed, the handler might return a 304 Not Modified. Also note: making a conditional request and receiving a 304 response does not count against the Rate Limit which zwebrap takes automatically care of.
+XRAP allows responses to return an ETag header as well as a Last-Modified header. You can use the values of these headers to make subsequent requests to those resources using the If-None-Match and If-Modified-Since headers, respectively. If the resource has not changed, the handler might return a 304 Not Modified. Also note: making a conditional request and receiving a 304 response does not count against the Rate Limit which zebra takes automatically care of.
 
 <A name="toc3-136" title="Usage" />
 ### Usage
 
-This is the API provided by zwebrap v0.x, in alphabetical order.
+This is the API provided by zebra v0.x, in alphabetical order.
 
 <A name="toc4-141" title="zeb_handler - Handler for XRAP requests" />
 #### zeb_handler - Handler for XRAP requests
@@ -195,21 +195,21 @@ This is the class interface:
     //                                                                          
     //  This is the handler actor which runs in its own thread and polls its two
     //  sockets to process incoming messages.                                   
-    ZWEBRAP_EXPORT void
+    ZEBRA_EXPORT void
         zeb_handler (zsock_t *pipe, void *args);
     
     //  Add a new offer this handler will handle. Returns 0 if successful,
     //  otherwise -1.                                                     
-    ZWEBRAP_EXPORT int
+    ZEBRA_EXPORT int
         zeb_handler_add_offer (zactor_t *self, int method, const char *uri);
     
     //  Add a new accept type that this handler can deliver. May be a regular
     //  expression. Returns 0 if successfull, otherwise -1.                  
-    ZWEBRAP_EXPORT int
+    ZEBRA_EXPORT int
         zeb_handler_add_accept (zactor_t *self, const char *accept);
     
     //  Self test of this class.
-    ZWEBRAP_EXPORT void
+    ZEBRA_EXPORT void
         zeb_handler_test (bool verbose);
 
 This is the class self test code:
@@ -217,16 +217,16 @@ This is the class self test code:
     //  Simple create/destroy test
     
     //  Start a server to test against, and bind to endpoint
-    zactor_t *server = zactor_new (zwr_server, "zwr_client_test");
+    zactor_t *server = zactor_new (zeb_server, "zeb_client_test");
     if (verbose)
         zstr_send (server, "VERBOSE");
-    zstr_sendx (server, "LOAD", "src/zwr_client.cfg", NULL);
+    zstr_sendx (server, "LOAD", "src/zeb_client.cfg", NULL);
     
     //  Create a client and connect it to the server
-    zwr_client_t *client = zwr_client_new ();
-    int rc = zwr_client_connect (client, "tcp://127.0.0.1:9999", 1000, "client");
+    zeb_client_t *client = zeb_client_new ();
+    int rc = zeb_client_connect (client, "tcp://127.0.0.1:9999", 1000, "client");
     assert (rc == 0);
-    assert (zwr_client_connected (client) == true);
+    assert (zeb_client_connected (client) == true);
     
     //  Create a handler
     zactor_t *handler = zactor_new (zeb_handler, (void *) "tcp://127.0.0.1:9999");
@@ -254,7 +254,7 @@ This is the class self test code:
     xrap_msg_set_resource (xmsg, "%s", "/dummy");
     xrap_msg_set_content_type (xmsg, "application/xml");
     zmsg_t *msg = xrap_msg_encode (&xmsg);
-    rc = zwr_client_request (client, 0, &msg);
+    rc = zeb_client_request (client, 0, &msg);
     assert (rc == 0);
     
     //  Receive request and Echo response
@@ -265,29 +265,29 @@ This is the class self test code:
     zmsg_send (&msg, handler);
     
     //  Receive Response (is echo)
-    msg = zwr_client_recv (client);
+    msg = zeb_client_recv (client);
     xmsg = xrap_msg_decode (&msg);
     assert (xrap_msg_id (xmsg) == XRAP_MSG_GET);
     assert (streq (xrap_msg_resource (xmsg), "/dummy"));
     assert (streq (xrap_msg_content_type (xmsg), "application/xml"));
     xrap_msg_destroy (&xmsg);
-    zuuid_t *sender = zwr_client_sender (client);
+    zuuid_t *sender = zeb_client_sender (client);
     zuuid_destroy (&sender);
     
     //  Send Request without ACCEPT
     xmsg = xrap_msg_new (XRAP_MSG_GET);
     xrap_msg_set_resource (xmsg, "%s", "/dummy");
     msg = xrap_msg_encode (&xmsg);
-    rc = zwr_client_request (client, 0, &msg);
+    rc = zeb_client_request (client, 0, &msg);
     assert (rc == 0);
     
     //  Receive Request without ACCEPT
-    msg = zwr_client_recv (client);
+    msg = zeb_client_recv (client);
     xmsg = xrap_msg_decode (&msg);
     assert (xrap_msg_id (xmsg) == XRAP_MSG_ERROR);
     assert (xrap_msg_status_code (xmsg) == XRAP_TRAFFIC_NOT_ACCEPTABLE);
     xrap_msg_destroy (&xmsg);
-    sender = zwr_client_sender (client);
+    sender = zeb_client_sender (client);
     zuuid_destroy (&sender);
     
     //  Send Request with conditionals (not changed)
@@ -297,7 +297,7 @@ This is the class self test code:
     xrap_msg_set_if_none_match (xmsg, "MATCH");
     xrap_msg_set_if_modified_since (xmsg, 10);
     msg = xrap_msg_encode (&xmsg);
-    rc = zwr_client_request (client, 0, &msg);
+    rc = zeb_client_request (client, 0, &msg);
     assert (rc == 0);
     
     //  Check etag (match)
@@ -317,11 +317,11 @@ This is the class self test code:
     zsock_signal (handler, 0);
     
     //  Receive Request with conditionals
-    msg = zwr_client_recv (client);
+    msg = zeb_client_recv (client);
     xmsg = xrap_msg_decode (&msg);
     assert (xrap_msg_id (xmsg) == XRAP_MSG_GET_EMPTY);
     xrap_msg_destroy (&xmsg);
-    sender = zwr_client_sender (client);
+    sender = zeb_client_sender (client);
     zuuid_destroy (&sender);
     
     //  Send Request with conditionals (changed)
@@ -331,7 +331,7 @@ This is the class self test code:
     xrap_msg_set_if_none_match (xmsg, "NONE MATCH");
     xrap_msg_set_if_modified_since (xmsg, 20);
     msg = xrap_msg_encode (&xmsg);
-    rc = zwr_client_request (client, 0, &msg);
+    rc = zeb_client_request (client, 0, &msg);
     assert (rc == 0);
     
     //  Check etag (none match)
@@ -356,13 +356,13 @@ This is the class self test code:
     zmsg_send (&msg, handler);
     
     //  Receive response with conditionals
-    msg = zwr_client_recv (client);
+    msg = zeb_client_recv (client);
     xmsg = xrap_msg_decode (&msg);
     assert (xrap_msg_id (xmsg) == XRAP_MSG_GET);
     assert (streq (xrap_msg_resource (xmsg), "/dummy"));
     assert (streq (xrap_msg_content_type (xmsg), "application/json"));
     xrap_msg_destroy (&xmsg);
-    sender = zwr_client_sender (client);
+    sender = zeb_client_sender (client);
     zuuid_destroy (&sender);
     
     //  ================================
@@ -374,7 +374,7 @@ This is the class self test code:
     xrap_msg_set_content_type (xmsg, "application/xml");
     xrap_msg_set_content_body (xmsg, "application/xml");
     msg = xrap_msg_encode (&xmsg);
-    rc = zwr_client_request (client, 0, &msg);
+    rc = zeb_client_request (client, 0, &msg);
     assert (rc == 0);
     
     //  Receive request and Echo response
@@ -384,14 +384,14 @@ This is the class self test code:
     zmsg_send (&msg, handler);
     
     //  Receive response (is echo)
-    msg = zwr_client_recv (client);
+    msg = zeb_client_recv (client);
     xmsg = xrap_msg_decode (&msg);
     assert (xrap_msg_id (xmsg) == XRAP_MSG_PUT);
     assert (streq (xrap_msg_resource (xmsg), "/dummy"));
     assert (streq (xrap_msg_content_type (xmsg), "application/xml"));
     assert (streq (xrap_msg_content_body (xmsg), "application/xml"));
     xrap_msg_destroy (&xmsg);
-    sender = zwr_client_sender (client);
+    sender = zeb_client_sender (client);
     zuuid_destroy (&sender);
     
     //  Send Request with conditionals (update, both)
@@ -401,7 +401,7 @@ This is the class self test code:
     xrap_msg_set_if_match (xmsg, "MATCH");
     xrap_msg_set_if_unmodified_since (xmsg, 10);
     msg = xrap_msg_encode (&xmsg);
-    rc = zwr_client_request (client, 0, &msg);
+    rc = zeb_client_request (client, 0, &msg);
     assert (rc == 0);
     
     //  Check etag (match)
@@ -425,13 +425,13 @@ This is the class self test code:
     zmsg_send (&msg, handler);
     
     //  Receive response with conditionals (update, both)
-    msg = zwr_client_recv (client);
+    msg = zeb_client_recv (client);
     xmsg = xrap_msg_decode (&msg);
     assert (xrap_msg_id (xmsg) == XRAP_MSG_PUT);
     assert (streq (xrap_msg_resource (xmsg), "/dummy"));
     assert (streq (xrap_msg_content_type (xmsg), "application/json"));
     xrap_msg_destroy (&xmsg);
-    sender = zwr_client_sender (client);
+    sender = zeb_client_sender (client);
     zuuid_destroy (&sender);
     
     //  Send Request with conditionals (update, etag)
@@ -440,7 +440,7 @@ This is the class self test code:
     xrap_msg_set_content_type (xmsg, "application/json");
     xrap_msg_set_if_match (xmsg, "MATCH");
     msg = xrap_msg_encode (&xmsg);
-    rc = zwr_client_request (client, 0, &msg);
+    rc = zeb_client_request (client, 0, &msg);
     assert (rc == 0);
     
     //  Check etag (match)
@@ -458,11 +458,11 @@ This is the class self test code:
     zmsg_send (&msg, handler);
     
     //  Receive response with conditionals (update, etag)
-    msg = zwr_client_recv (client);
+    msg = zeb_client_recv (client);
     xmsg = xrap_msg_decode (&msg);
     assert (xrap_msg_id (xmsg) == XRAP_MSG_PUT);
     xrap_msg_destroy (&xmsg);
-    sender = zwr_client_sender (client);
+    sender = zeb_client_sender (client);
     zuuid_destroy (&sender);
     
     //  Send Request with conditionals (update, last_modified)
@@ -471,7 +471,7 @@ This is the class self test code:
     xrap_msg_set_content_type (xmsg, "application/json");
     xrap_msg_set_if_unmodified_since (xmsg, 10);
     msg = xrap_msg_encode (&xmsg);
-    rc = zwr_client_request (client, 0, &msg);
+    rc = zeb_client_request (client, 0, &msg);
     assert (rc == 0);
     
     //  Check last modified (not modified)
@@ -487,11 +487,11 @@ This is the class self test code:
     zmsg_send (&msg, handler);
     
     //  Receive response with conditionals (update, last_modified)
-    msg = zwr_client_recv (client);
+    msg = zeb_client_recv (client);
     xmsg = xrap_msg_decode (&msg);
     assert (xrap_msg_id (xmsg) == XRAP_MSG_PUT);
     xrap_msg_destroy (&xmsg);
-    sender = zwr_client_sender (client);
+    sender = zeb_client_sender (client);
     zuuid_destroy (&sender);
     
     //  Send Request with conditionals (no update)
@@ -501,7 +501,7 @@ This is the class self test code:
     xrap_msg_set_if_match (xmsg, "NONE MATCH");
     xrap_msg_set_if_unmodified_since (xmsg, 20);
     msg = xrap_msg_encode (&xmsg);
-    rc = zwr_client_request (client, 0, &msg);
+    rc = zeb_client_request (client, 0, &msg);
     assert (rc == 0);
     
     //  Check etag (none match)
@@ -520,12 +520,12 @@ This is the class self test code:
     zsock_signal (handler, 1);
     
     //  Receive Request with conditionals (no update)
-    msg = zwr_client_recv (client);
+    msg = zeb_client_recv (client);
     xmsg = xrap_msg_decode (&msg);
     assert (xrap_msg_id (xmsg) == XRAP_MSG_ERROR);
     assert (xrap_msg_status_code (xmsg) == XRAP_TRAFFIC_PRECONDITION_FAILED);
     xrap_msg_destroy (&xmsg);
-    sender = zwr_client_sender (client);
+    sender = zeb_client_sender (client);
     zuuid_destroy (&sender);
     
     //  ================================
@@ -534,32 +534,32 @@ This is the class self test code:
     //  Send Request
     xmsg = xrap_msg_new (XRAP_MSG_GET_EMPTY);
     msg = xrap_msg_encode (&xmsg);
-    rc = zwr_client_request (client, 0, &msg);
+    rc = zeb_client_request (client, 0, &msg);
     assert (rc == XRAP_TRAFFIC_NOT_FOUND);
     
-    zwr_client_destroy (&client);
+    zeb_client_destroy (&client);
     zactor_destroy (&handler);
     
     //  Done, shut down
     zactor_destroy (&server);
 
-<A name="toc4-543" title="zwr_microhttpd - Simple HTTP web server" />
-#### zwr_microhttpd - Simple HTTP web server
+<A name="toc4-543" title="zeb_microhttpd - Simple HTTP web server" />
+#### zeb_microhttpd - Simple HTTP web server
 
 Simple HTTP webserver implementation using the libmicrohttpd library.
 Incomming HTTP request are converted to XRAP and send to the dispatcher.
 Responses from the dispatcher are converted back into HTTP.
 
-Please add @discuss section in ../src/zwr_microhttpd.c.
+Please add @discuss section in ../src/zeb_microhttpd.c.
 
 This is the class interface:
 
-    //  Create new zwr_microhttpd actor instance. It will start a HTTP webserver
+    //  Create new zeb_microhttpd actor instance. It will start a HTTP webserver
     //  and convert incomming request from HTTP to XRAP.
     //
-    //      zactor_t *microhttpd = zactor_new (zwr_microhttpd, NULL);
+    //      zactor_t *microhttpd = zactor_new (zeb_microhttpd, NULL);
     //
-    //  Destroy zwr_microhttpd instance.
+    //  Destroy zeb_microhttpd instance.
     //
     //      zactor_destroy (&microhttpd);
     //
@@ -568,12 +568,12 @@ This is the class interface:
     //      zstr_send (microhttpd, "VERBOSE");
     //      zsock_wait (microhttpd);
     //
-    //  Start zwr_microhttpd actor.
+    //  Start zeb_microhttpd actor.
     //
     //      zstr_sendx (microhttpd, "START", NULL);
     //      zsock_wait (microhttpd);
     //
-    //  Stop zwr_microhttpd actor.
+    //  Stop zeb_microhttpd actor.
     //
     //      zstr_sendx (microhttpd, "STOP", NULL);
     //      zsock_wait (microhttpd);
@@ -603,8 +603,8 @@ This is the class interface:
     //  All settings can be configured by using a configuration file in the czmq
     //  cfg format.
     //
-    //  ------------------------ zwr_microhttpd.cfg -------------------------------
-    //  | 1 | zwr_microhttpd
+    //  ------------------------ zeb_microhttpd.cfg -------------------------------
+    //  | 1 | zeb_microhttpd
     //  | 2 |     endpoint = tcp://192.168.178.1:7777  # Dispatcher endpoint
     //  | 3 |     port = 8888                          # Webserver port
     //  | 4 |     verbose = 0
@@ -615,60 +615,60 @@ This is the class interface:
     //
     //       zstr_sendx (microhttpd, "LOAD", filename, NULL);
     //
-    //  This is the zwr_microhttpd constructor as a zactor_fn;
-    ZWEBRAP_EXPORT void
-        zwr_microhttpd_actor (zsock_t *pipe, void *args);
+    //  This is the zeb_microhttpd constructor as a zactor_fn;
+    ZEBRA_EXPORT void
+        zeb_microhttpd_actor (zsock_t *pipe, void *args);
     
     //  Self test of this actor
-    ZWEBRAP_EXPORT void
-        zwr_microhttpd_test (bool verbose);
+    ZEBRA_EXPORT void
+        zeb_microhttpd_test (bool verbose);
 
 This is the class self test code:
 
     //  Simple create/destroy test
-    zactor_t *zwr_microhttpd = zactor_new (zwr_microhttpd_actor, NULL);
+    zactor_t *zeb_microhttpd = zactor_new (zeb_microhttpd_actor, NULL);
     
-    zstr_send (zwr_microhttpd, "START");
-    rc = zsock_wait (zwr_microhttpd);             //  Wait until actor started
+    zstr_send (zeb_microhttpd, "START");
+    rc = zsock_wait (zeb_microhttpd);             //  Wait until actor started
     assert (rc == 0);
     
-    zstr_sendx (zwr_microhttpd, "PORT", "8081", NULL);
-    rc = zsock_wait (zwr_microhttpd);             //  Wait until port is configured
+    zstr_sendx (zeb_microhttpd, "PORT", "8081", NULL);
+    rc = zsock_wait (zeb_microhttpd);             //  Wait until port is configured
     assert (rc == 0);
     
-    zstr_sendx (zwr_microhttpd, "RATELIMIT", "3", "10000", NULL);
-    rc = zsock_wait (zwr_microhttpd);             //  Wait until port is configured
+    zstr_sendx (zeb_microhttpd, "RATELIMIT", "3", "10000", NULL);
+    rc = zsock_wait (zeb_microhttpd);             //  Wait until port is configured
     assert (rc == 0);
     
-    zstr_sendx (zwr_microhttpd, "ENDPOINT", "inproc://http_dispatcher", NULL);
-    rc = zsock_wait (zwr_microhttpd);             //  Wait until endpoint configured
+    zstr_sendx (zeb_microhttpd, "ENDPOINT", "inproc://http_dispatcher", NULL);
+    rc = zsock_wait (zeb_microhttpd);             //  Wait until endpoint configured
     assert (rc == 0);
     
-    zactor_t *dispatcher = zactor_new (zwr_server, "dispatcher");
+    zactor_t *dispatcher = zactor_new (zeb_server, "dispatcher");
     
     if (verbose)
         zstr_send (dispatcher, "VERBOSE");
     zstr_sendx (dispatcher, "BIND", "inproc://http_dispatcher", NULL);
     
     //  Create handler
-    zwr_client_t *handler = zwr_client_new ();
+    zeb_client_t *handler = zeb_client_new ();
     assert (handler);
     
     //  Connect handler to server
-    rc = zwr_client_connect (handler, "inproc://http_dispatcher",  1000, "handler");
+    rc = zeb_client_connect (handler, "inproc://http_dispatcher",  1000, "handler");
     assert (rc == 0);
-    assert (zwr_client_connected (handler) == true);
+    assert (zeb_client_connected (handler) == true);
     
     //  Provide GET Offering
-    rc = zwr_client_set_handler (handler, "GET", "/foo/{[^/]}");
+    rc = zeb_client_set_handler (handler, "GET", "/foo/{[^/]}");
     assert (rc == 0);
     
     //  Send GET Request
-    zwr_curl_client_t *curl = zwr_curl_client_new ();
-    zwr_curl_client_send_get (curl, "http://localhost:8081/foo/bar?page=10");
+    zeb_curl_client_t *curl = zeb_curl_client_new ();
+    zeb_curl_client_send_get (curl, "http://localhost:8081/foo/bar?page=10");
     
     //  Receive Request
-    zmsg_t *request = zwr_client_recv (handler);
+    zmsg_t *request = zeb_client_recv (handler);
     assert (request);
     xrap_msg_t *xrap_msg = xrap_msg_decode (&request);
     assert (xrap_msg_id (xrap_msg) == XRAP_MSG_GET);
@@ -681,31 +681,31 @@ This is the class self test code:
     xrap_msg_set_content_type (xrap_msg, "text/hello");
     xrap_msg_set_content_body (xrap_msg, "Hello World!");
     zmsg_t *response = xrap_msg_encode (&xrap_msg);
-    zwr_client_deliver (handler, zwr_client_sender (handler), &response);
-    zuuid_t *sender = zwr_client_sender (handler);
+    zeb_client_deliver (handler, zeb_client_sender (handler), &response);
+    zuuid_t *sender = zeb_client_sender (handler);
     zuuid_destroy (&sender);
     
     //  Receive GET Response
-    zwr_curl_client_verify_response (curl, 200, "Hello World!");
-    zwr_curl_client_destroy (&curl);
+    zeb_curl_client_verify_response (curl, 200, "Hello World!");
+    zeb_curl_client_destroy (&curl);
     
     //  Send GET Request 2
-    curl = zwr_curl_client_new ();
-    zwr_curl_client_send_get (curl, "http://localhost:8081/foo/bar/baz");
+    curl = zeb_curl_client_new ();
+    zeb_curl_client_send_get (curl, "http://localhost:8081/foo/bar/baz");
     
     //  Receive GET Response 2
-    zwr_curl_client_verify_response (curl, 404, PAGE_NOT_FOUND);
-    zwr_curl_client_destroy (&curl);
+    zeb_curl_client_verify_response (curl, 404, PAGE_NOT_FOUND);
+    zeb_curl_client_destroy (&curl);
     
     //  Provide POST Offering
-    rc = zwr_client_set_handler (handler, "POST", "/foo/{[^/]}");
+    rc = zeb_client_set_handler (handler, "POST", "/foo/{[^/]}");
     assert (rc == 0);
     
-    curl = zwr_curl_client_new ();
-    zwr_curl_client_send_post (curl, "http://localhost:8081/foo/bar", "abc");
+    curl = zeb_curl_client_new ();
+    zeb_curl_client_send_post (curl, "http://localhost:8081/foo/bar", "abc");
     
     //  Receive Request
-    request = zwr_client_recv (handler);
+    request = zeb_client_recv (handler);
     assert (request);
     xrap_msg = xrap_msg_decode (&request);
     assert (xrap_msg_id (xrap_msg) == XRAP_MSG_POST);
@@ -721,96 +721,96 @@ This is the class self test code:
     xrap_msg_set_content_type (xrap_msg, "text/hello");
     xrap_msg_set_content_body (xrap_msg, "Hello World!");
     response = xrap_msg_encode (&xrap_msg);
-    zwr_client_deliver (handler, zwr_client_sender (handler), &response);
-    sender = zwr_client_sender (handler);
+    zeb_client_deliver (handler, zeb_client_sender (handler), &response);
+    sender = zeb_client_sender (handler);
     zuuid_destroy (&sender);
     
     //  Give response time to arrive
     usleep (250);
     
-    zwr_curl_client_verify_response (curl, 201, "Hello World!");
-    zwr_curl_client_destroy (&curl);
+    zeb_curl_client_verify_response (curl, 201, "Hello World!");
+    zeb_curl_client_destroy (&curl);
     
-    zwr_client_destroy (&handler);
+    zeb_client_destroy (&handler);
     zactor_destroy (&dispatcher);
     
-    zstr_send (zwr_microhttpd, "STOP");
-    rc = zsock_wait (zwr_microhttpd);             //  Wait until actor stopped
+    zstr_send (zeb_microhttpd, "STOP");
+    rc = zsock_wait (zeb_microhttpd);             //  Wait until actor stopped
     assert (rc == 0);
     
-    zactor_destroy (&zwr_microhttpd);
+    zactor_destroy (&zeb_microhttpd);
 
-<A name="toc4-740" title="zwr_server - Request/response dispatcher." />
-#### zwr_server - Request/response dispatcher.
+<A name="toc4-740" title="zeb_server - Request/response dispatcher." />
+#### zeb_server - Request/response dispatcher.
 
-The zwr_server implements the zproto server. It acts as dispatcher for XRAP
+The zeb_server implements the zproto server. It acts as dispatcher for XRAP
 requests from clients to handlers and it redirects responses from handlers to
 clients.
 
-Please add @discuss section in ../src/zwr_server.c.
+Please add @discuss section in ../src/zeb_server.c.
 
 This is the class interface:
 
-    //  To work with zwr_server, use the CZMQ zactor API:
+    //  To work with zeb_server, use the CZMQ zactor API:
     //
-    //  Create new zwr_server instance, passing logging prefix:
+    //  Create new zeb_server instance, passing logging prefix:
     //
-    //      zactor_t *zwr_server = zactor_new (zwr_server, "myname");
+    //      zactor_t *zeb_server = zactor_new (zeb_server, "myname");
     //
-    //  Destroy zwr_server instance
+    //  Destroy zeb_server instance
     //
-    //      zactor_destroy (&zwr_server);
+    //      zactor_destroy (&zeb_server);
     //
     //  Enable verbose logging of commands and activity:
     //
-    //      zstr_send (zwr_server, "VERBOSE");
+    //      zstr_send (zeb_server, "VERBOSE");
     //
-    //  Bind zwr_server to specified endpoint. TCP endpoints may specify
+    //  Bind zeb_server to specified endpoint. TCP endpoints may specify
     //  the port number as "*" to aquire an ephemeral port:
     //
-    //      zstr_sendx (zwr_server, "BIND", endpoint, NULL);
+    //      zstr_sendx (zeb_server, "BIND", endpoint, NULL);
     //
     //  Return assigned port number, specifically when BIND was done using an
     //  an ephemeral port:
     //
-    //      zstr_sendx (zwr_server, "PORT", NULL);
+    //      zstr_sendx (zeb_server, "PORT", NULL);
     //      char *command, *port_str;
-    //      zstr_recvx (zwr_server, &command, &port_str, NULL);
+    //      zstr_recvx (zeb_server, &command, &port_str, NULL);
     //      assert (streq (command, "PORT"));
     //
     //  Specify configuration file to load, overwriting any previous loaded
     //  configuration file or options:
     //
-    //      zstr_sendx (zwr_server, "LOAD", filename, NULL);
+    //      zstr_sendx (zeb_server, "LOAD", filename, NULL);
     //
     //  Set configuration path value:
     //
-    //      zstr_sendx (zwr_server, "SET", path, value, NULL);
+    //      zstr_sendx (zeb_server, "SET", path, value, NULL);
     //
     //  Save configuration data to config file on disk:
     //
-    //      zstr_sendx (zwr_server, "SAVE", filename, NULL);
+    //      zstr_sendx (zeb_server, "SAVE", filename, NULL);
     //
-    //  Send zmsg_t instance to zwr_server:
+    //  Send zmsg_t instance to zeb_server:
     //
-    //      zactor_send (zwr_server, &msg);
+    //      zactor_send (zeb_server, &msg);
     //
-    //  Receive zmsg_t instance from zwr_server:
+    //  Receive zmsg_t instance from zeb_server:
     //
-    //      zmsg_t *msg = zactor_recv (zwr_server);
+    //      zmsg_t *msg = zactor_recv (zeb_server);
     //
-    //  This is the zwr_server constructor as a zactor_fn:
+    //  This is the zeb_server constructor as a zactor_fn:
     //
-    ZWEBRAP_EXPORT void
-        zwr_server (zsock_t *pipe, void *args);
+    ZEBRA_EXPORT void
+        zeb_server (zsock_t *pipe, void *args);
     
     //  Self test of this class
-    ZWEBRAP_EXPORT void
-        zwr_server_test (bool verbose);
+    ZEBRA_EXPORT void
+        zeb_server_test (bool verbose);
 
 This is the class self test code:
 
-    zactor_t *server = zactor_new (zwr_server, "dispatcher");
+    zactor_t *server = zactor_new (zeb_server, "dispatcher");
     if (verbose)
         zstr_send (server, "VERBOSE");
     zstr_sendx (server, "BIND", "tcp://127.0.0.1:9999", NULL);
@@ -915,145 +915,145 @@ This is the class self test code:
     zsock_destroy (&worker);
     zactor_destroy (&server);
 
-<A name="toc4-915" title="zwr_client - Dispatcher client" />
-#### zwr_client - Dispatcher client
+<A name="toc4-915" title="zeb_client - Dispatcher client" />
+#### zeb_client - Dispatcher client
 
 Client implementation to communicate with the dispatcher. This
-implementation is used by both clients (i.e. zwr_microhttpd) and the
+implementation is used by both clients (i.e. zeb_microhttpd) and the
 handlers.
 
-Please add @discuss section in ../src/zwr_client.c.
+Please add @discuss section in ../src/zeb_client.c.
 
 This is the class interface:
 
-    //  Create a new zwr_client, return the reference if successful, or NULL
+    //  Create a new zeb_client, return the reference if successful, or NULL
     //  if construction failed due to lack of available memory.
-    ZWEBRAP_EXPORT zwr_client_t *
-        zwr_client_new (void);
+    ZEBRA_EXPORT zeb_client_t *
+        zeb_client_new (void);
     
-    //  Destroy the zwr_client and free all memory used by the object.
-    ZWEBRAP_EXPORT void
-        zwr_client_destroy (zwr_client_t **self_p);
+    //  Destroy the zeb_client and free all memory used by the object.
+    ZEBRA_EXPORT void
+        zeb_client_destroy (zeb_client_t **self_p);
     
     //  Return actor, when caller wants to work with multiple actors and/or
     //  input sockets asynchronously.
-    ZWEBRAP_EXPORT zactor_t *
-        zwr_client_actor (zwr_client_t *self);
+    ZEBRA_EXPORT zactor_t *
+        zeb_client_actor (zeb_client_t *self);
     
     //  Return message pipe for asynchronous message I/O. In the high-volume case,
     //  we send methods and get replies to the actor, in a synchronous manner, and
     //  we send/recv high volume message data to a second pipe, the msgpipe. In
     //  the low-volume case we can do everything over the actor pipe, if traffic
     //  is never ambiguous.
-    ZWEBRAP_EXPORT zsock_t *
-        zwr_client_msgpipe (zwr_client_t *self);
+    ZEBRA_EXPORT zsock_t *
+        zeb_client_msgpipe (zeb_client_t *self);
     
     //  Return true if client is currently connected, else false. Note that the
     //  client will automatically re-connect if the server dies and restarts after
     //  a successful first connection.
-    ZWEBRAP_EXPORT bool
-        zwr_client_connected (zwr_client_t *self);
+    ZEBRA_EXPORT bool
+        zeb_client_connected (zeb_client_t *self);
     
     //  Connect to server endpoint, with specified timeout in msecs (zero means wait    
     //  forever). Constructor succeeds if connection is successful. The caller may      
     //  specify its address.                                                            
     //  Returns >= 0 if successful, -1 if interrupted.
-    ZWEBRAP_EXPORT int 
-        zwr_client_connect (zwr_client_t *self, const char *endpoint, uint32_t timeout, const char *address);
+    ZEBRA_EXPORT int 
+        zeb_client_connect (zeb_client_t *self, const char *endpoint, uint32_t timeout, const char *address);
     
     //  Offer to handle particular XRAP requests, where the route matches request's     
     //  resource.                                                                       
     //  Returns >= 0 if successful, -1 if interrupted.
-    ZWEBRAP_EXPORT int 
-        zwr_client_set_handler (zwr_client_t *self, const char *method, const char *route);
+    ZEBRA_EXPORT int 
+        zeb_client_set_handler (zeb_client_t *self, const char *method, const char *route);
     
     //  No explanation                                                                  
     //  Returns >= 0 if successful, -1 if interrupted.
-    ZWEBRAP_EXPORT int 
-        zwr_client_request (zwr_client_t *self, uint32_t timeout, zmsg_t **content_p);
+    ZEBRA_EXPORT int 
+        zeb_client_request (zeb_client_t *self, uint32_t timeout, zmsg_t **content_p);
     
     //  Send XRAP DELIVER message to server, takes ownership of message
     //  and destroys message when done sending it.
-    ZWEBRAP_EXPORT int
-        zwr_client_deliver (zwr_client_t *self, zuuid_t *sender, zmsg_t **content_p);
+    ZEBRA_EXPORT int
+        zeb_client_deliver (zeb_client_t *self, zuuid_t *sender, zmsg_t **content_p);
     
     //  Receive message from server; caller destroys message when done
-    ZWEBRAP_EXPORT zmsg_t *
-        zwr_client_recv (zwr_client_t *self);
+    ZEBRA_EXPORT zmsg_t *
+        zeb_client_recv (zeb_client_t *self);
     
     //  Return last received command. Can be one of these values:
     //      "XRAP DELIVER"
-    ZWEBRAP_EXPORT const char *
-        zwr_client_command (zwr_client_t *self);
+    ZEBRA_EXPORT const char *
+        zeb_client_command (zeb_client_t *self);
     
     //  Return last received status
-    ZWEBRAP_EXPORT int 
-        zwr_client_status (zwr_client_t *self);
+    ZEBRA_EXPORT int 
+        zeb_client_status (zeb_client_t *self);
     
     //  Return last received reason
-    ZWEBRAP_EXPORT const char *
-        zwr_client_reason (zwr_client_t *self);
+    ZEBRA_EXPORT const char *
+        zeb_client_reason (zeb_client_t *self);
     
     //  Return last received sender
-    ZWEBRAP_EXPORT zuuid_t *
-        zwr_client_sender (zwr_client_t *self);
+    ZEBRA_EXPORT zuuid_t *
+        zeb_client_sender (zeb_client_t *self);
     
     //  Return last received content
-    ZWEBRAP_EXPORT zmsg_t *
-        zwr_client_content (zwr_client_t *self);
+    ZEBRA_EXPORT zmsg_t *
+        zeb_client_content (zeb_client_t *self);
     
     //  Self test of this class
-    ZWEBRAP_EXPORT void
-        zwr_client_test (bool verbose);
+    ZEBRA_EXPORT void
+        zeb_client_test (bool verbose);
     
-    //  To enable verbose tracing (animation) of zwr_client instances, set
+    //  To enable verbose tracing (animation) of zeb_client instances, set
     //  this to true. This lets you trace from and including construction.
-    ZWEBRAP_EXPORT extern volatile int
-        zwr_client_verbose;
+    ZEBRA_EXPORT extern volatile int
+        zeb_client_verbose;
 
 This is the class self test code:
 
-    zwr_client_verbose = verbose;
+    zeb_client_verbose = verbose;
     
     //  Start a server to test against, and bind to endpoint
-    zactor_t *server = zactor_new (zwr_server, "zwr_client_test");
+    zactor_t *server = zactor_new (zeb_server, "zeb_client_test");
     if (verbose)
         zstr_send (server, "VERBOSE");
-    zstr_sendx (server, "LOAD", "src/zwr_client.cfg", NULL);
+    zstr_sendx (server, "LOAD", "src/zeb_client.cfg", NULL);
     
     //  Create clients for testing
-    zwr_client_t *client = zwr_client_new ();
-    zwr_client_t *handler = zwr_client_new ();
+    zeb_client_t *client = zeb_client_new ();
+    zeb_client_t *handler = zeb_client_new ();
     assert (client);
     assert (handler);
     
     //  Connect clients to server
-    int rc = zwr_client_connect (client, "tcp://127.0.0.1:9999", 1000, "client");
+    int rc = zeb_client_connect (client, "tcp://127.0.0.1:9999", 1000, "client");
     assert (rc == 0);
-    assert (zwr_client_connected (client) == true);
+    assert (zeb_client_connected (client) == true);
     
-    rc = zwr_client_connect (handler, "tcp://127.0.0.1:9999", 1000, "handler");
+    rc = zeb_client_connect (handler, "tcp://127.0.0.1:9999", 1000, "handler");
     assert (rc == 0);
-    assert (zwr_client_connected (handler) == true);
+    assert (zeb_client_connected (handler) == true);
     
     //  Provide Rubbish Offering
-    rc = zwr_client_set_handler (handler, "GET", "///");
+    rc = zeb_client_set_handler (handler, "GET", "///");
     assert (rc != 0);
-    assert (zwr_client_status (handler) == XRAP_TRAFFIC_CONFLICT);
+    assert (zeb_client_status (handler) == XRAP_TRAFFIC_CONFLICT);
     
     //  Provide Offering
-    rc = zwr_client_set_handler (handler, "GET", "/foo/{[^/]}");
+    rc = zeb_client_set_handler (handler, "GET", "/foo/{[^/]}");
     assert (rc == 0);
     
     //  Send Request
     xrap_msg_t *xmsg = xrap_msg_new (XRAP_MSG_GET);
     xrap_msg_set_resource (xmsg, "%s", "/foo/bar");
     zmsg_t *msg = xrap_msg_encode (&xmsg);
-    rc = zwr_client_request (client, 0, &msg);
+    rc = zeb_client_request (client, 0, &msg);
     assert (rc == 0);
     
     //  Receive Request
-    msg = zwr_client_recv (handler);
+    msg = zeb_client_recv (handler);
     xmsg = xrap_msg_decode (&msg);
     assert (xrap_msg_id (xmsg) == XRAP_MSG_GET);
     assert (streq ("/foo/bar", xrap_msg_resource (xmsg)));
@@ -1065,30 +1065,30 @@ This is the class self test code:
     xrap_msg_set_content_type (xmsg, "text/hello");
     xrap_msg_set_content_body (xmsg, "Hello World!");
     msg = xrap_msg_encode (&xmsg);
-    zwr_client_deliver (handler, handler->sender, &msg);
-    zuuid_t *sender = zwr_client_sender (handler);
+    zeb_client_deliver (handler, handler->sender, &msg);
+    zuuid_t *sender = zeb_client_sender (handler);
     zuuid_destroy (&sender);
     
     //  Receive Response
-    msg = zwr_client_recv (client);
+    msg = zeb_client_recv (client);
     xmsg = xrap_msg_decode (&msg);
     assert (xrap_msg_id (xmsg) == XRAP_MSG_GET_OK);
     assert (xrap_msg_status_code (xmsg) == 200);
     assert (streq ("text/hello", xrap_msg_content_type (xmsg)));
     assert (streq ("Hello World!", xrap_msg_content_body (xmsg)));
     xrap_msg_destroy (&xmsg);
-    sender = zwr_client_sender (client);
+    sender = zeb_client_sender (client);
     zuuid_destroy (&sender);
     
     //  Send Request 2
     xmsg = xrap_msg_new (XRAP_MSG_GET);
     xrap_msg_set_resource (xmsg, "%s", "/fou/baz");
     msg = xrap_msg_encode (&xmsg);
-    rc = zwr_client_request (client, 0, &msg);
+    rc = zeb_client_request (client, 0, &msg);
     assert (rc == XRAP_TRAFFIC_NOT_FOUND);
     
-    zwr_client_destroy (&client);
-    zwr_client_destroy (&handler);
+    zeb_client_destroy (&client);
+    zeb_client_destroy (&handler);
     
     //  Done, shut down
     zactor_destroy (&server);
@@ -1101,7 +1101,7 @@ Read the CLASS style guide please, and write your code to make it indistinguisha
 
 Do read your code after you write it and ask, "Can I make this simpler?" We do use a nice minimalist and yet readable style. Learn it, adopt it, use it.
 
-Before opening a pull request read our [contribution guidelines](https://github.com/zeromq/zwebrap/blob/master/CONTRIBUTING.md). Thanks!
+Before opening a pull request read our [contribution guidelines](https://github.com/zeromq/zebra/blob/master/CONTRIBUTING.md). Thanks!
 
 <A name="toc3-1103" title="This Document" />
 ### This Document

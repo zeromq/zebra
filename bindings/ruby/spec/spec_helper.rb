@@ -1,5 +1,5 @@
 
-require 'zwebrap/ffi'
+require 'zebra/ffi'
 
 RSpec.configure do |c|
   # Enable 'should' syntax

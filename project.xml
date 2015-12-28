@@ -7,16 +7,14 @@
         * mingw32
         * cygwin
         * vs2008
-        * vs2010
-        * vs2012
-        * vs2013
+        * vs2010+
 
     Classes are automatically added to all build environments. Further as you
     add new classes to your project you can generate skeleton header and source
     files according to http://rfc.zeromq.org/spec:21.
 -->
 <project
-    name = "zwebrap"
+    name = "zebra"
     description = "Translates REST HTTP-Request into the XRAP protocol."
     script = "zproject.gsl"
     email = "zeromq-dev@lists.zeromq.org"
@@ -32,7 +30,7 @@
         Current version of your project.
         This will be used to package your distribution
     -->
-    <version major = "0" minor = "1" patch = "0" />
+    <version major = "0" minor = "2" patch = "0" />
 
     <!--
         Specify which other projects this depends on.
@@ -44,6 +42,7 @@
     <use project = "libmicrohttpd" prefix = "microhttpd"
          repository = "http://ftp.gnu.org/gnu/libmicrohttpd/" test = "MHD_start_daemon" />
     <use project = "libcurl" min_major= "7" min_minor = "7" min_patch = "0" optional = "1" implied = "1" />
+    <use project = "libsodium" min_major= "1" min_minor = "0" min_patch = "0" optional = "1" implied = "1" />
 
     <!-- Header Files
          name := The name the header file to include without file ending
@@ -56,10 +55,10 @@
         use private = "1" for internal classes
     -->
     <class name = "zeb_handler">Handler for XRAP requests</class>
-    <class name = "zwr_request" private = "1">Representation of a HTTP request.</class>
-    <class name = "zwr_response" private = "1">Representation of a HTTP response.</class>
-    <class name = "zwr_connection" private = "1">Wrapper for zwr_request and zwr_response.</class>
-    <class name = "zwr_microhttpd">HTTP web server backend using libmicrohttpd.</class>
+    <class name = "zeb_request" private = "1">Representation of a HTTP request.</class>
+    <class name = "zeb_response" private = "1">Representation of a HTTP response.</class>
+    <class name = "zeb_connection" private = "1">Wrapper for zeb_request and zeb_response.</class>
+    <class name = "zeb_microhttpd">HTTP web server backend using libmicrohttpd.</class>
 
     <!--
         Models that we build using GSL.
@@ -67,12 +66,12 @@
     -->
     <model name = "xrap_msg" />
     <model name = "xrap_traffic" />
-    <model name = "zwr_server" />
-    <model name = "zwr_client" />
+    <model name = "zeb_server" />
+    <model name = "zeb_client" />
     <class name = "xrap_msg">XRAP data protocol</class>
     <class name = "xrap_traffic">XRAP exchange protocol</class>
-    <class name = "zwr_server" >XRAP message dispatcher</class>
-    <class name = "zwr_client" >Client to interact with zwr_server</class>
+    <class name = "zeb_server" >XRAP message dispatcher</class>
+    <class name = "zeb_client" >Client to interact with zeb_server</class>
     <!--
         If a model should be generated using a specific gsl script,
         this can be set through the script attribute:
@@ -88,8 +87,8 @@
     <!-- Other source files that we need to package
     <extra name = "some_resource" />
     -->
-    <extra name = "zwr_server_engine.inc" />
-    <extra name = "zwr_client_engine.inc" />
+    <extra name = "zeb_server_engine.inc" />
+    <extra name = "zeb_client_engine.inc" />
 
     <!--
         Stuff that needs to be installed:

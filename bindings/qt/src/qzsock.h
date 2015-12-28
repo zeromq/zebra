@@ -7,9 +7,9 @@
 #ifndef Q_ZSOCK_H
 #define Q_ZSOCK_H
 
-#include "qzwebrap.h"
+#include "qzebra.h"
 
-class QT_ZWEBRAP_EXPORT QZsock : public QObject
+class QT_ZEBRA_EXPORT QZsock : public QObject
 {
     Q_OBJECT
 public:

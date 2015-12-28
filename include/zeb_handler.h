@@ -65,21 +65,21 @@ extern "C" {
 //                                                                          
 //  This is the handler actor which runs in its own thread and polls its two
 //  sockets to process incoming messages.                                   
-ZWEBRAP_EXPORT void
+ZEBRA_EXPORT void
     zeb_handler (zsock_t *pipe, void *args);
 
 //  Add a new offer this handler will handle. Returns 0 if successful,
 //  otherwise -1.                                                     
-ZWEBRAP_EXPORT int
+ZEBRA_EXPORT int
     zeb_handler_add_offer (zactor_t *self, int method, const char *uri);
 
 //  Add a new accept type that this handler can deliver. May be a regular
 //  expression. Returns 0 if successfull, otherwise -1.                  
-ZWEBRAP_EXPORT int
+ZEBRA_EXPORT int
     zeb_handler_add_accept (zactor_t *self, const char *accept);
 
 //  Self test of this class.
-ZWEBRAP_EXPORT void
+ZEBRA_EXPORT void
     zeb_handler_test (bool verbose);
 //  @end
 

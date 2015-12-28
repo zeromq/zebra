@@ -10,8 +10,8 @@
 
 #include <QtQml>
 
-#include <zwebrap.h>
-#include "qml_zwebrap_plugin.h"
+#include <zebra.h>
+#include "qml_zebra_plugin.h"
 
 
 class QmlXrapMsg : public QObject

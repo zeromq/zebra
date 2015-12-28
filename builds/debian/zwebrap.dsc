@@ -1,6 +1,6 @@
 Format:         1.0
 Source:         zwebrap
-Version:        0.1.0-1
+Version:        0.2.0-1
 Binary:         libzwebrap0, zwebrap-dev
 Architecture:   any all
 Maintainer:     John Doe <John.Doe@example.com>

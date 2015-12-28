@@ -5,7 +5,7 @@
 ################################################################################
 */
 
-#include "qzwebrap.h"
+#include "qzebra.h"
 
 ///
 //  Copy-construct to return the proper wrapped c types

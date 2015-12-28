@@ -2,10 +2,14 @@
 # -*- makefile -*-
 
 override_dh_strip:
-	dh_strip --dbg-package=zwebrap-dbg
+	dh_strip --dbg-package=zebra-dbg
 
 override_dh_auto_test:
 	echo "Skipped for now"
+
+override_dh_auto_configure:
+	dh_auto_configure -- --with-systemd
+
 %:
 	dh $@ --with=autoreconf
 

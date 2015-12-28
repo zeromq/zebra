@@ -4,9 +4,9 @@
 #  Please refer to the README for information about making permanent changes.  #
 ################################################################################
 ```
-# qml_zwebrap
+# qml_zebra
 
-QML bindings for creating UI applications using the "zwebrap" C library.
+QML bindings for creating UI applications using the "zebra" C library.
 
 ## Setting up a Build Environment
 
@@ -25,7 +25,7 @@ please file an issue or pull request so that others might be saved some complexi
 If you are building for Android, you can skip this step, as the necessary 
 dependencies are automatically pulled down and built by the `vendor/build` 
 scripts. If you are developing and testing on your desktop, you will need 
-a local installation of the zwebrap library to link against and include.
+a local installation of the zebra library to link against and include.
 
 ### Ruby
 
@@ -110,10 +110,10 @@ rake test
 ```
 
 Use this command when developing and testing the library. A copy of the 
-zwebrap library is installed locally where Qt can find it for 
+zebra library is installed locally where Qt can find it for 
 running desktop applications that use the library, and tests are run.
 
-You will need to have the zwebrap C library built and installed on your machine.
+You will need to have the zebra C library built and installed on your machine.
 
 ### Install Locally for Android
 ```
@@ -125,27 +125,27 @@ it later for bundling into an application you are deploying to Android.
 The build will repeat for each android kit you have configured in the Qt 
 Creator IDE so that the installed library is available for all kits.
 
-In order to build for android, the qml_zwebrap needs access to 
-a qt-android build of the zwebrap library and all its dependencies. 
+In order to build for android, the qml_zebra needs access to 
+an Android build of the zebra library and all its dependencies. 
 This can be done one of two ways:
 
-1. Clone the zwebrap library and all its dependencies from source 
+1. Clone the zebra library and all its dependencies from source 
 into the same folder. If all project repos are side-by-side in the same 
 "workspace" folder (as is typical for many users' workflows), they can 
 detect eachother automatically and build in a chain when you run 
-`rake android` in the qml_zwebrap folder.
-2. Manually export the `ZWEBRAP_ROOT` environment variable as the path 
-to the zwebrap source code root. Do the same for any other projects 
+`rake android` in the qml_zebra folder.
+2. Manually export the `ZEBRA_ROOT` environment variable as the path 
+to the zebra source code root. Do the same for any other projects 
 that you are prompted for when you run `rake android`. When all environment 
 variables are resolved, they will build in a chain.
 
 For all of the zeromq libraries in the dependencies, the source code will 
 be copied to a temporary directory for building, but installed to the 
-`$(XXX_ROOT)/builds/qt-android/prefix/$(TOOLCHAIN_NAME)` directory within 
+`$(XXX_ROOT)/builds/android/prefix/$(TOOLCHAIN_NAME)` directory within 
 the original source tree. If you need to run builds for individual projects, 
-use the `$(XXX_ROOT)/builds/qt-android/prefix/build.sh` command. The build 
+use the `$(XXX_ROOT)/builds/android/prefix/build.sh` command. The build 
 script will skip itself if it was already installed to 
-`$(XXX_ROOT)/builds/qt-android/prefix/$(TOOLCHAIN_NAME)`, so at times you 
+`$(XXX_ROOT)/builds/android/prefix/$(TOOLCHAIN_NAME)`, so at times you 
 may need to delete that directory to trigger a clean build.
 
 ```

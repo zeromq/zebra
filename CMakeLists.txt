@@ -7,26 +7,25 @@
 # Project setup
 ########################################################################
 cmake_minimum_required(VERSION 2.8)
-project(zwebrap)
+project(zebra)
 enable_language(C)
 enable_testing()
 
 set(SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
-set(BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}")
 
 ########################################################################
 # determine version
 ########################################################################
 foreach(which MAJOR MINOR PATCH)
-    file(STRINGS "${SOURCE_DIR}/include/zwebrap_library.h" ZWEBRAP_VERSION_STRING REGEX "#define ZWEBRAP_VERSION_${which}")
-    string(REGEX MATCH "#define ZWEBRAP_VERSION_${which} ([0-9_]+)" ZWEBRAP_REGEX_MATCH "${ZWEBRAP_VERSION_STRING}")
-    if (NOT ZWEBRAP_REGEX_MATCH)
-        message(FATAL_ERROR "failed to parse ZWEBRAP_VERSION_${which} from zwebrap.h")
+    file(STRINGS "${SOURCE_DIR}/include/zebra_library.h" ZEBRA_VERSION_STRING REGEX "#define ZEBRA_VERSION_${which}")
+    string(REGEX MATCH "#define ZEBRA_VERSION_${which} ([0-9_]+)" ZEBRA_REGEX_MATCH "${ZEBRA_VERSION_STRING}")
+    if (NOT ZEBRA_REGEX_MATCH)
+        message(FATAL_ERROR "failed to parse ZEBRA_VERSION_${which} from zebra.h")
     endif()
-    set(ZWEBRAP_${which}_VERSION ${CMAKE_MATCH_1})
+    set(ZEBRA_${which}_VERSION ${CMAKE_MATCH_1})
 endforeach(which)
 
-set(ZWEBRAP_VERSION ${ZWEBRAP_MAJOR_VERSION}.${ZWEBRAP_MINOR_VERSION}.${ZWEBRAP_PATCH_VERSION})
+set(ZEBRA_VERSION ${ZEBRA_MAJOR_VERSION}.${ZEBRA_MINOR_VERSION}.${ZEBRA_PATCH_VERSION})
 
 ########################################################################
 # platform.h
@@ -45,7 +44,7 @@ if (NOT HAVE_NET_IF_H)
     CHECK_INCLUDE_FILE("net/if.h" HAVE_NET_IF_H)
 endif()
 
-file(WRITE "${BINARY_DIR}/platform.h.in" "
+file(WRITE "${SOURCE_DIR}/src/platform.h.in" "
 #cmakedefine HAVE_LINUX_WIRELESS_H
 #cmakedefine HAVE_NET_IF_H
 #cmakedefine HAVE_NET_IF_MEDIA_H
@@ -53,7 +52,7 @@ file(WRITE "${BINARY_DIR}/platform.h.in" "
 #cmakedefine HAVE_FREEIFADDRS
 ")
 
-configure_file("${BINARY_DIR}/platform.h.in" "${BINARY_DIR}/platform.h")
+configure_file("${SOURCE_DIR}/src/platform.h.in" "${SOURCE_DIR}/src/platform.h")
 
 #The MSVC C compiler is too out of date,
 #so the sources have to be compiled as c++
@@ -120,50 +119,61 @@ add_definitions(-DHAVE_LIBCURL)
 ENDIF (LIBCURL_FOUND)
 
 ########################################################################
+# LIBSODIUM dependency
+########################################################################
+find_package(Libsodium)
+IF (LIBSODIUM_FOUND)
+include_directories(${LIBSODIUM_INCLUDE_DIRS})
+list(APPEND MORE_LIBRARIES ${LIBSODIUM_LIBRARIES})
+add_definitions(-DHAVE_LIBSODIUM)
+ENDIF (LIBSODIUM_FOUND)
+
+########################################################################
 # includes
 ########################################################################
-set (zwebrap_headers
-    include/zwebrap_library.h
-    include/zwebrap.h
+set (zebra_headers
+    include/zebra_library.h
+    include/zebra.h
     include/zeb_handler.h
-    src/zwr_request.h
-    src/zwr_response.h
-    src/zwr_connection.h
-    include/zwr_microhttpd.h
+    include/zeb_microhttpd.h
     include/xrap_msg.h
     include/xrap_traffic.h
-    include/zwr_server.h
-    include/zwr_client.h
-    src/zwr_server_engine.inc
-    src/zwr_client_engine.inc
+    include/zeb_server.h
+    include/zeb_client.h
+    src/zeb_request.h
+    src/zeb_response.h
+    src/zeb_connection.h
+    src/zeb_server_engine.inc
+    src/zeb_client_engine.inc
 )
-source_group ("Header Files" FILES ${zwebrap_headers})
-install(FILES ${zwebrap_headers} DESTINATION include)
+source_group ("Header Files" FILES ${zebra_headers})
+install(FILES ${zebra_headers} DESTINATION include)
 
 ########################################################################
 # library
 ########################################################################
-include_directories("${BINARY_DIR}" "${SOURCE_DIR}/include")
-set (zwebrap_sources
+include_directories("${SOURCE_DIR}/src" "${SOURCE_DIR}/include")
+set (zebra_sources
     src/zeb_handler.c
-    src/zwr_request.c
-    src/zwr_response.c
-    src/zwr_connection.c
-    src/zwr_microhttpd.c
+    src/zeb_request.c
+    src/zeb_response.c
+    src/zeb_connection.c
+    src/zeb_microhttpd.c
     src/xrap_msg.c
     src/xrap_traffic.c
-    src/zwr_server.c
-    src/zwr_client.c
+    src/zeb_server.c
+    src/zeb_client.c
 )
-source_group ("Source Files" FILES ${zwebrap_sources})
+source_group ("Source Files" FILES ${zebra_sources})
 if (NOT DEFINED BUILD_SHARED_LIBS)
     SET(BUILD_SHARED_LIBS ON)
 endif()
-add_library(zwebrap ${zwebrap_sources})
-set_target_properties(zwebrap PROPERTIES DEFINE_SYMBOL "LIBZWEBRAP_EXPORTS")
-target_link_libraries(zwebrap ${ZEROMQ_LIBRARIES} ${MORE_LIBRARIES})
+add_library(zebra ${zebra_sources})
+set_target_properties(zebra PROPERTIES DEFINE_SYMBOL "LIBZEBRA_EXPORTS")
+set_target_properties(zebra PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${SOURCE_DIR}/src")
+target_link_libraries(zebra ${ZEROMQ_LIBRARIES} ${MORE_LIBRARIES})
 
-install(TARGETS zwebrap
+install(TARGETS zebra
     LIBRARY DESTINATION "lib${LIB_SUFFIX}" # .so file
     ARCHIVE DESTINATION "lib${LIB_SUFFIX}" # .lib file
     RUNTIME DESTINATION bin              # .dll file
@@ -172,53 +182,58 @@ install(TARGETS zwebrap
 ########################################################################
 # pkgconfig
 ########################################################################
-set(VERSION "${ZWEBRAP_VERSION}")
+set(VERSION "${ZEBRA_VERSION}")
 set(prefix "${CMAKE_INSTALL_PREFIX}")
 set(exec_prefix "\${prefix}")
 set(libdir "\${prefix}/lib${LIB_SUFFIX}")
 set(includedir "\${prefix}/include")
 configure_file(
-    "${SOURCE_DIR}/src/libzwebrap.pc.in"
-    "${BINARY_DIR}/libzwebrap.pc"
+    "${SOURCE_DIR}/src/libzebra.pc.in"
+    "${SOURCE_DIR}/src/libzebra.pc"
 @ONLY)
 
 install(
-    FILES "${BINARY_DIR}/libzwebrap.pc"
+    FILES "${SOURCE_DIR}/src/libzebra.pc"
     DESTINATION "lib${LIB_SUFFIX}/pkgconfig"
 )
 
 ########################################################################
+# executables
+########################################################################
+add_executable(zebra_selftest "${SOURCE_DIR}/src/zebra_selftest.c")
+target_link_libraries(zebra_selftest zebra ${ZEROMQ_LIBRARIES})
+set_target_properties(zebra_selftest PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${SOURCE_DIR}/src")
+
+########################################################################
 # tests
 ########################################################################
-add_executable(zwebrap_selftest "${SOURCE_DIR}/src/zwebrap_selftest.c")
-target_link_libraries(zwebrap_selftest zwebrap ${ZEROMQ_LIBRARIES})
-
 set(CLASSTEST_TIMEOUT 5 CACHE STRING "Timeout of the selftest of a class")
 set(TOTAL_TIMEOUT 20 CACHE STRING "Timout of the total testsuite")
 
 set(TEST_CLASSES
   zeb_handler_test
-  zwr_request_test
-  zwr_response_test
-  zwr_connection_test
-  zwr_microhttpd_test
+  zeb_request_test
+  zeb_response_test
+  zeb_connection_test
+  zeb_microhttpd_test
   xrap msg_test
   xrap_traffic_test
-  zwr_server_test
-  zwr_client_test
+  zeb_server_test
+  zeb_client_test
 )
 
 foreach(TEST_CLASS ${TEST_CLASSES})
-  add_test(NAME ${TEST_CLASS} COMMAND zwebrap_selftest -e -v --test ${TEST_CLASS})
+  add_test(NAME ${TEST_CLASS} COMMAND zebra_selftest -e -v --test ${TEST_CLASS})
   set_tests_properties(${TEST_CLASS} PROPERTIES TIMEOUT ${CLASSTEST_TIMEOUT})
 endforeach(TEST_CLASS)
 
-add_test(zwebrap_selftest zwebrap_selftest)
-set_tests_properties(zwebrap_selftest PROPERTIES TIMEOUT ${TOTAL_TIMEOUT})
+add_test(zebra_selftest zebra_selftest)
+set_tests_properties(zebra_selftest PROPERTIES TIMEOUT ${TOTAL_TIMEOUT})
+
 ########################################################################
 # summary
 ########################################################################
-message(STATUS "version: ${ZWEBRAP_VERSION}")
+message(STATUS "version: ${ZEBRA_VERSION}")
 message(STATUS "install: ${CMAKE_INSTALL_PREFIX}")
 
 ################################################################################

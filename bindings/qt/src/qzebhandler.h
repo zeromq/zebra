@@ -7,9 +7,9 @@
 #ifndef Q_ZEB_HANDLER_H
 #define Q_ZEB_HANDLER_H
 
-#include "qzwebrap.h"
+#include "qzebra.h"
 
-class QT_ZWEBRAP_EXPORT QZebHandler : public QObject
+class QT_ZEBRA_EXPORT QZebHandler : public QObject
 {
     Q_OBJECT
 public:

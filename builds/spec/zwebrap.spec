@@ -10,7 +10,7 @@
 #
 
 Name:           zwebrap
-Version:        0.1.0
+Version:        0.2.0
 Release:        1
 Summary:        translates rest http-request into the xrap protocol.
 License:        MIT
