@@ -5,7 +5,7 @@
 QT += core
 QT -= gui
 
-include(../src/qzwebrap.pri)
+include(../src/qzebra.pri)
 
 CONFIG   += console
 CONFIG   -= app_bundle

@@ -5,7 +5,7 @@
 ################################################################################
 */
 #include <QDebug>
-#include "qzwebrap.h"
+#include "qzebra.h"
 
 int main(int argc, char **argv)
 {
@@ -15,16 +15,14 @@ int main(int argc, char **argv)
     else
         verbose = false;
 
-    qDebug() << "Running qzwebrap selftests...\n";
+    qDebug() << "Running qzebra selftests...\n";
 
     QZebHandler::test (verbose);
     QXrapMsg::test (verbose);
-    QZwrClient::test (verbose);
     QZactor::test (verbose);
     QZmsg::test (verbose);
     QZhash::test (verbose);
     QZsock::test (verbose);
-    QZuuid::test (verbose);
     QZframe::test (verbose);
     QZlist::test (verbose);
 

@@ -7,9 +7,9 @@
 #ifndef Q_ZHASH_H
 #define Q_ZHASH_H
 
-#include "qzwebrap.h"
+#include "qzebra.h"
 
-class QT_ZWEBRAP_EXPORT QZhash : public QObject
+class QT_ZEBRA_EXPORT QZhash : public QObject
 {
     Q_OBJECT
 public:

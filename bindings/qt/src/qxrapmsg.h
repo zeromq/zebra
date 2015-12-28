@@ -7,9 +7,9 @@
 #ifndef Q_XRAP_MSG_H
 #define Q_XRAP_MSG_H
 
-#include "qzwebrap.h"
+#include "qzebra.h"
 
-class QT_ZWEBRAP_EXPORT QXrapMsg : public QObject
+class QT_ZEBRA_EXPORT QXrapMsg : public QObject
 {
     Q_OBJECT
 public:

@@ -3,15 +3,15 @@
 #  Please refer to the README for information about making permanent changes.  #
 ################################################################################
 TEMPLATE = lib
-VERSION = 0.1.0
-CONFIG += qt dll qzwebrap-buildlib
+VERSION = 0.2.0
+CONFIG += qt dll qzebra-buildlib
 mac:CONFIG += absolute_library_soname
 win32|mac:!wince*:!win32-msvc:!macx-xcode:CONFIG += debug_and_release build_all
 
-include(../src/qzwebrap.pri)
+include(../src/qzebra.pri)
 
-TARGET = $$QZWEBRAP_LIBNAME
-DESTDIR = $$QZWEBRAP_LIBDIR
+TARGET = $$QZEBRA_LIBNAME
+DESTDIR = $$QZEBRA_LIBDIR
 
 !packagesExist (libzmq): error ("cannot link with -lzmq, install libzmq.")
 !packagesExist (libczmq): error ("cannot link with -lczmq, install libczmq.")
@@ -21,11 +21,11 @@ LIBS += \
     -lzmq \
     -lczmq \
     -lmicrohttpd \
-    -lzwebrap
+    -lzebra
 
 win32 {
     DLLDESTDIR = $$[QT_INSTALL_BINS]
-    QMAKE_DISTCLEAN += $$[QT_INSTALL_BINS]\$${QZWEBRAP_LIBNAME}.dll
+    QMAKE_DISTCLEAN += $$[QT_INSTALL_BINS]\$${QZEBRA_LIBNAME}.dll
 }
 unix {
     isEmpty(PREFIX): PREFIX = /usr/local

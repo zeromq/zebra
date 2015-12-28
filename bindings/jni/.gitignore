@@ -5,4 +5,4 @@ cmake_install.cmake
 build/
 src/native
 gradle-app.setting
-libzwebrapjni.so
+libzebrajni.so

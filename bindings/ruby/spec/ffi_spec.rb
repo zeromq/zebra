@@ -5,7 +5,7 @@
 
 require 'spec_helper'
 
-describe ::Zwebrap::FFI do
+describe ::Zebra::FFI do
   it { should be }
 end
 

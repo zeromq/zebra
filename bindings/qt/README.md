@@ -4,24 +4,24 @@
 #  Please refer to the README for information about making permanent changes.  #
 ################################################################################
 ```
-# qzwebrap
+# qzebra
 
 ## Overview
 
-qzwebrap is a Qt wrapper for zwebrap. It's possible to
+qzebra is a Qt wrapper for zebra. It's possible to
 statically or dynamically link against it as well as use it as internal or external
 library.
 
 ## Internal library
 
 You can use the Qt wrapper as internal library by including the
-`qzwebrap.pri` file. Here is a minimal example app:
+`qzebra.pri` file. Here is a minimal example app:
 
 ```make
 QT += core
 QT -= gui
 
-include(<path to pri file>/qzwebrap.pri)
+include(<path to pri file>/qzebra.pri)
 
 CONFIG   += console
 CONFIG   -= app_bundle
@@ -32,14 +32,14 @@ SOURCES += main.cpp
 ```
 
 To link statically against the wrapper you need to change the
-`QZWEBRAP_LIBRARY` variable in `config.pri` to `no`.
+`QZEBRA_LIBRARY` variable in `config.pri` to `no`.
 
 To link dynamically against the wrapper you need to change the
-`QZWEBRAP_LIBRARY` variable in `config.pri` to `yes`.
+`QZEBRA_LIBRARY` variable in `config.pri` to `yes`.
 
 ## External library
 
-To install qzwebrap as a shared library do the following:
+To install qzebra as a shared library do the following:
 
 ```sh
 qmake

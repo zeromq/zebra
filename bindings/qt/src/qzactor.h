@@ -7,9 +7,9 @@
 #ifndef Q_ZACTOR_H
 #define Q_ZACTOR_H
 
-#include "qzwebrap.h"
+#include "qzebra.h"
 
-class QT_ZWEBRAP_EXPORT QZactor : public QObject
+class QT_ZEBRA_EXPORT QZactor : public QObject
 {
     Q_OBJECT
 public:
