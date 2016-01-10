@@ -2,7 +2,7 @@
 <A name="toc1-3" title="zebra - REST/HTTP to XRAP gateway." />
 # zebra - REST/HTTP to XRAP gateway.
 
-[![Build Status](https://travis-ci.org/zeromq/zwebrap.svg)](https://travis-ci.org/zeromq/zwebrap)
+[![Build Status](https://travis-ci.org/zeromq/zebra.svg)](https://travis-ci.org/zeromq/zebra)
 
 <A name="toc2-6" title="Contents" />
 ## Contents
