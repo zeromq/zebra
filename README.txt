@@ -3,7 +3,7 @@
 
 # zebra - REST/HTTP to XRAP gateway.
 
-[![Build Status](https://travis-ci.org/zeromq/zwebrap.svg)](https://travis-ci.org/zeromq/zwebrap)
+[![Build Status](https://travis-ci.org/zeromq/zebra.svg)](https://travis-ci.org/zeromq/zebra)
 
 ## Contents
 
