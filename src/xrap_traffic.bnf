@@ -1,4 +1,4 @@
-The following ABNF grammar defines the The ZWebRap Protocol:
+The following ABNF grammar defines the zebra protocol:
 
     ZWEBRAP = open ( traffic / heartbeat ) close
 

@@ -1,9 +1,9 @@
 <class
     name = "xrap_traffic"
-    title = "The ZWebRap Protocol"
+    title = "zebra protocol"
     script = "zproto_codec_c"
     package_dir = "../include"
-    project_header = "../include/zwebrap.h"
+    project_header = "../include/zebra.h"
     signature = "9"
     export_macro = "ZEBRA_EXPORT"
     >
