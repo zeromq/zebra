@@ -17,15 +17,31 @@ set(SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
 # determine version
 ########################################################################
 foreach(which MAJOR MINOR PATCH)
-    file(STRINGS "${SOURCE_DIR}/include/zebra_library.h" ZEBRA_VERSION_STRING REGEX "#define ZEBRA_VERSION_${which}")
-    string(REGEX MATCH "#define ZEBRA_VERSION_${which} ([0-9_]+)" ZEBRA_REGEX_MATCH "${ZEBRA_VERSION_STRING}")
+    file(
+        STRINGS
+        "${SOURCE_DIR}/include/zebra_library.h"
+        ZEBRA_VERSION_STRING REGEX
+        "#define ZEBRA_VERSION_${which}"
+    )
+    string(
+        REGEX MATCH
+        "#define ZEBRA_VERSION_${which} ([0-9_]+)"
+        ZEBRA_REGEX_MATCH
+        "${ZEBRA_VERSION_STRING}"
+    )
     if (NOT ZEBRA_REGEX_MATCH)
-        message(FATAL_ERROR "failed to parse ZEBRA_VERSION_${which} from zebra.h")
+        message(
+            FATAL_ERROR
+            "failed to parse ZEBRA_VERSION_${which} from zebra.h"
+        )
     endif()
     set(ZEBRA_${which}_VERSION ${CMAKE_MATCH_1})
 endforeach(which)
 
-set(ZEBRA_VERSION ${ZEBRA_MAJOR_VERSION}.${ZEBRA_MINOR_VERSION}.${ZEBRA_PATCH_VERSION})
+set(
+    ZEBRA_VERSION
+    ${ZEBRA_MAJOR_VERSION}.${ZEBRA_MINOR_VERSION}.${ZEBRA_PATCH_VERSION}
+)
 
 ########################################################################
 # platform.h
@@ -59,7 +75,10 @@ configure_file("${SOURCE_DIR}/src/platform.h.in" "${SOURCE_DIR}/src/platform.h")
 if (MSVC)
     enable_language(CXX)
     file(GLOB sources "${SOURCE_DIR}/src/*.c")
-    set_source_files_properties(${sources} PROPERTIES LANGUAGE CXX)
+    set_source_files_properties(
+        ${sources}
+        PROPERTIES LANGUAGE CXX
+    )
     set(MORE_LIBRARIES ws2_32 Rpcrt4 Iphlpapi)
 endif()
 
@@ -80,10 +99,10 @@ list(APPEND CMAKE_MODULE_PATH "${SOURCE_DIR}")
 ########################################################################
 find_package(ZeroMQ REQUIRED)
 IF (ZEROMQ_FOUND)
-include_directories(${ZEROMQ_INCLUDE_DIRS})
-list(APPEND MORE_LIBRARIES ${ZEROMQ_LIBRARIES})
+    include_directories(${ZEROMQ_INCLUDE_DIRS})
+    list(APPEND MORE_LIBRARIES ${ZEROMQ_LIBRARIES})
 ELSE (ZEROMQ_FOUND)
-message( FATAL_ERROR "ZeroMQ not found." )
+    message( FATAL_ERROR "ZeroMQ not found." )
 ENDIF (ZEROMQ_FOUND)
 
 ########################################################################
@@ -91,10 +110,10 @@ ENDIF (ZEROMQ_FOUND)
 ########################################################################
 find_package(CZMQ REQUIRED)
 IF (CZMQ_FOUND)
-include_directories(${CZMQ_INCLUDE_DIRS})
-list(APPEND MORE_LIBRARIES ${CZMQ_LIBRARIES})
+    include_directories(${CZMQ_INCLUDE_DIRS})
+    list(APPEND MORE_LIBRARIES ${CZMQ_LIBRARIES})
 ELSE (CZMQ_FOUND)
-message( FATAL_ERROR "CZMQ not found." )
+    message( FATAL_ERROR "CZMQ not found." )
 ENDIF (CZMQ_FOUND)
 
 ########################################################################
@@ -102,10 +121,10 @@ ENDIF (CZMQ_FOUND)
 ########################################################################
 find_package(Libmicrohttpd REQUIRED)
 IF (LIBMICROHTTPD_FOUND)
-include_directories(${LIBMICROHTTPD_INCLUDE_DIRS})
-list(APPEND MORE_LIBRARIES ${LIBMICROHTTPD_LIBRARIES})
+    include_directories(${LIBMICROHTTPD_INCLUDE_DIRS})
+    list(APPEND MORE_LIBRARIES ${LIBMICROHTTPD_LIBRARIES})
 ELSE (LIBMICROHTTPD_FOUND)
-message( FATAL_ERROR "Libmicrohttpd not found." )
+    message( FATAL_ERROR "Libmicrohttpd not found." )
 ENDIF (LIBMICROHTTPD_FOUND)
 
 ########################################################################
@@ -113,9 +132,9 @@ ENDIF (LIBMICROHTTPD_FOUND)
 ########################################################################
 find_package(Libcurl)
 IF (LIBCURL_FOUND)
-include_directories(${LIBCURL_INCLUDE_DIRS})
-list(APPEND MORE_LIBRARIES ${LIBCURL_LIBRARIES})
-add_definitions(-DHAVE_LIBCURL)
+    include_directories(${LIBCURL_INCLUDE_DIRS})
+    list(APPEND MORE_LIBRARIES ${LIBCURL_LIBRARIES})
+    add_definitions(-DHAVE_LIBCURL)
 ENDIF (LIBCURL_FOUND)
 
 ########################################################################
@@ -123,9 +142,9 @@ ENDIF (LIBCURL_FOUND)
 ########################################################################
 find_package(Libsodium)
 IF (LIBSODIUM_FOUND)
-include_directories(${LIBSODIUM_INCLUDE_DIRS})
-list(APPEND MORE_LIBRARIES ${LIBSODIUM_LIBRARIES})
-add_definitions(-DHAVE_LIBSODIUM)
+    include_directories(${LIBSODIUM_INCLUDE_DIRS})
+    list(APPEND MORE_LIBRARIES ${LIBSODIUM_LIBRARIES})
+    add_definitions(-DHAVE_LIBSODIUM)
 ENDIF (LIBSODIUM_FOUND)
 
 ########################################################################
@@ -164,14 +183,20 @@ set (zebra_sources
     src/zeb_server.c
     src/zeb_client.c
 )
-source_group ("Source Files" FILES ${zebra_sources})
+source_group("Source Files" FILES ${zebra_sources})
 if (NOT DEFINED BUILD_SHARED_LIBS)
     SET(BUILD_SHARED_LIBS ON)
 endif()
 add_library(zebra ${zebra_sources})
-set_target_properties(zebra PROPERTIES DEFINE_SYMBOL "LIBZEBRA_EXPORTS")
-set_target_properties(zebra PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${SOURCE_DIR}/src")
-target_link_libraries(zebra ${ZEROMQ_LIBRARIES} ${MORE_LIBRARIES})
+set_target_properties(zebra
+    PROPERTIES DEFINE_SYMBOL "LIBZEBRA_EXPORTS"
+)
+set_target_properties(zebra
+    PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${SOURCE_DIR}/src"
+)
+target_link_libraries(zebra
+    ${ZEROMQ_LIBRARIES} ${MORE_LIBRARIES}
+)
 
 install(TARGETS zebra
     LIBRARY DESTINATION "lib${LIB_SUFFIX}" # .so file
@@ -200,9 +225,23 @@ install(
 ########################################################################
 # executables
 ########################################################################
-add_executable(zebra_selftest "${SOURCE_DIR}/src/zebra_selftest.c")
-target_link_libraries(zebra_selftest zebra ${ZEROMQ_LIBRARIES})
-set_target_properties(zebra_selftest PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${SOURCE_DIR}/src")
+add_executable(
+    zebra_selftest
+    "${SOURCE_DIR}/src/zebra_selftest.c"
+)
+target_link_libraries(
+    zebra_selftest
+    zebra
+    ${ZEROMQ_LIBRARIES}
+    ${CZMQ_LIBRARIES}
+    ${LIBMICROHTTPD_LIBRARIES}
+    ${LIBCURL_LIBRARIES}
+    ${LIBSODIUM_LIBRARIES}
+)
+set_target_properties(
+    zebra_selftest
+    PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${SOURCE_DIR}/src"
+)
 
 ########################################################################
 # tests
@@ -211,24 +250,28 @@ set(CLASSTEST_TIMEOUT 5 CACHE STRING "Timeout of the selftest of a class")
 set(TOTAL_TIMEOUT 20 CACHE STRING "Timout of the total testsuite")
 
 set(TEST_CLASSES
-  zeb_handler_test
-  zeb_request_test
-  zeb_response_test
-  zeb_connection_test
-  zeb_microhttpd_test
-  xrap msg_test
-  xrap_traffic_test
-  zeb_server_test
-  zeb_client_test
+    zeb_handler
+    zeb_request
+    zeb_response
+    zeb_connection
+    zeb_microhttpd
+    xrap_msg
+    xrap_traffic
+    zeb_server
+    zeb_client
 )
 
 foreach(TEST_CLASS ${TEST_CLASSES})
-  add_test(NAME ${TEST_CLASS} COMMAND zebra_selftest -e -v --test ${TEST_CLASS})
-  set_tests_properties(${TEST_CLASS} PROPERTIES TIMEOUT ${CLASSTEST_TIMEOUT})
+    add_test(
+        NAME ${TEST_CLASS}
+        COMMAND zebra_selftest --continue --verbose --test ${TEST_CLASS}
+    )
+    set_tests_properties(
+        ${TEST_CLASS}
+        PROPERTIES TIMEOUT ${CLASSTEST_TIMEOUT}
+    )
 endforeach(TEST_CLASS)
 
-add_test(zebra_selftest zebra_selftest)
-set_tests_properties(zebra_selftest PROPERTIES TIMEOUT ${TOTAL_TIMEOUT})
 
 ########################################################################
 # summary

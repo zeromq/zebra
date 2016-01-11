@@ -20,69 +20,24 @@
 
 #include "zebra_classes.h"
 
-//  -------------------------------------------------------------------------
-//  Prototype of test function
-//
-
-typedef void (*testfn_t) (bool);
-
-//  -------------------------------------------------------------------------
-//  Mapping of test class and test function.
-//
-
-typedef struct
-{
+typedef struct {
     const char *testname;
-    testfn_t test;
+    void (*test) (bool);
 } test_item_t;
 
-//  -------------------------------------------------------------------------
-//  Declaration of all tests
-//
-
-#define DECLARE_TEST(TEST) {#TEST, TEST}
-
-test_item_t all_tests [] = {
-    DECLARE_TEST(zeb_handler_test),
-    DECLARE_TEST(zeb_request_test),
-    DECLARE_TEST(zeb_response_test),
-    DECLARE_TEST(zeb_connection_test),
-    DECLARE_TEST(zeb_microhttpd_test),
-    DECLARE_TEST(xrap_msg_test),
-    DECLARE_TEST(xrap_traffic_test),
-    DECLARE_TEST(zeb_server_test),
-    DECLARE_TEST(zeb_client_test),
-    {0, 0} // Null terminator
+static test_item_t
+all_tests [] = {
+    { "zeb_handler", zeb_handler_test },
+    { "zeb_request", zeb_request_test },
+    { "zeb_response", zeb_response_test },
+    { "zeb_connection", zeb_connection_test },
+    { "zeb_microhttpd", zeb_microhttpd_test },
+    { "xrap_msg", xrap_msg_test },
+    { "xrap_traffic", xrap_traffic_test },
+    { "zeb_server", zeb_server_test },
+    { "zeb_client", zeb_client_test },
+    {0, 0}          //  Sentinel
 };
-
-//  -------------------------------------------------------------------------
-//  Return the number of available tests.
-//
-
-static inline unsigned
-test_get_number (void)
-{
-    unsigned count = 0;
-    test_item_t *item;
-    for (item = all_tests; item->test; item++)
-        count++;
-    return count;
-}
-
-//  -------------------------------------------------------------------------
-//  Print names of all available tests to stdout.
-//
-
-static inline void
-test_print_list (void)
-{
-    unsigned count = 0;
-    test_item_t *item;
-    for (item = all_tests; item->test; item++) {
-        count++;
-        printf ("%u:%s\n", count, item->testname);
-    }
-}
 
 //  -------------------------------------------------------------------------
 //  Test whether a test is available.
@@ -104,7 +59,7 @@ test_available (const char *testname)
 //  Run all tests.
 //
 
-static inline void
+static void
 test_runall (bool verbose)
 {
     test_item_t *item;
@@ -122,20 +77,43 @@ main (int argc, char **argv)
     test_item_t *test = 0;
     int argn;
     for (argn = 1; argn < argc; argn++) {
-        if (streq (argv [argn], "-v"))
+        if (streq (argv [argn], "--help")
+        ||  streq (argv [argn], "-h")) {
+            puts ("zebra_selftest.c [options] ...");
+            puts ("  --verbose / -v         verbose test output");
+            puts ("  --number / -n          report number of tests");
+            puts ("  --list / -l            list all tests");
+            puts ("  --test / -t [name]     run only test 'name'");
+            puts ("  --continue / -c        continue on exception (on Windows)");
+            return 0;
+        }
+        if (streq (argv [argn], "--verbose")
+        ||  streq (argv [argn], "-v"))
             verbose = true;
         else
-        if (streq (argv [argn], "--nb")) {
-            printf("%d\n", test_get_number ());
+        if (streq (argv [argn], "--number")
+        ||  streq (argv [argn], "-n")) {
+            puts ("9");
             return 0;
         }
         else
-        if (streq (argv [argn], "--list")) {
-            test_print_list ();
+        if (streq (argv [argn], "--list")
+        ||  streq (argv [argn], "-l")) {
+            puts ("Available tests:");
+            puts ("    zeb_handler");
+            puts ("    zeb_request");
+            puts ("    zeb_response");
+            puts ("    zeb_connection");
+            puts ("    zeb_microhttpd");
+            puts ("    xrap_msg");
+            puts ("    xrap_traffic");
+            puts ("    zeb_server");
+            puts ("    zeb_client");
             return 0;
         }
         else
-        if (streq (argv [argn], "--test")) {
+        if (streq (argv [argn], "--test")
+        ||  streq (argv [argn], "-t")) {
             argn++;
             if (argn >= argc) {
                 fprintf (stderr, "--test needs an argument\n");
@@ -143,12 +121,13 @@ main (int argc, char **argv)
             }
             test = test_available (argv [argn]);
             if (!test) {
-                fprintf (stderr, "%s is not available\n", argv [argn]);
+                fprintf (stderr, "%s not valid, use --list to show tests\n", argv [argn]);
                 return 1;
             }
         }
         else
-        if (streq (argv [argn], "-e")) {
+        if (streq (argv [argn], "--continue")
+        ||  streq (argv [argn], "-c")) {
 #ifdef _MSC_VER
             //  When receiving an abort signal, only print to stderr (no dialog)
             _set_abort_behavior (0, _WRITE_ABORT_MSG);
@@ -160,7 +139,7 @@ main (int argc, char **argv)
         }
     }
     if (test) {
-        printf ("Running zebra selftest '%s'...\n", test->testname);
+        printf ("Running zebra test '%s'...\n", test->testname);
         test->test (verbose);
     }
     else

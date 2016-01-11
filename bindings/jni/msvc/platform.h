@@ -16,6 +16,5 @@
 #define __PLATFORM_H_INCLUDED__
 
 #define ZEBRA_HAVE_WINDOWS
-#define HAVE_LIBUUID 1
 
 #endif
