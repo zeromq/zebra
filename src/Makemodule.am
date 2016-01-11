@@ -58,6 +58,7 @@ src_libzebra_la_LIBADD = ${project_libs}
 
 if WITH_ZEBRA_SELFTEST
 check_PROGRAMS += src/zebra_selftest
+noinst_PROGRAMS += src/zebra_selftest
 src_zebra_selftest_CPPFLAGS = ${AM_CPPFLAGS}
 src_zebra_selftest_LDADD = ${program_libs}
 src_zebra_selftest_SOURCES = src/zebra_selftest.c
@@ -74,7 +75,8 @@ dist_api_DATA = \
 
 # define custom target for all products of /src
 src:
-	src/zebra_selftest 	src/libzebra.la
+	src/zebra_selftest \
+	src/libzebra.la
 
 # Produce generated code from models in the src directory
 code:

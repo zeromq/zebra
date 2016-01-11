@@ -25,13 +25,17 @@ Set these environment variables, e.g:
     TOOLCHAIN_ARCH=arm
     TOOLCHAIN_PATH=$ANDROID_NDK_ROOT/toolchains/$TOOLCHAIN_NAME/prebuilt/linux-x86_64/bin
 
-Then in the android directory, to build zebrajni.so run:
+Then in the android directory, run:
 
     ./build.sh
 
-Note that this implicitly builds the Android library and all dependencies. It also builds the JNI layer for Linux.
+This does the following:
 
-All results are placed in bindings/jni/android/build/libs.
+* It compiles the zebra C sources for Android, into a native library libzebra.so in builds/android/
+* It compiles the JNI Java classes into a jar file zebra-jni-0.2.0.jar in bindings/jni/build/libs
+* It compiles the JNI C sources for Android, into a native library libzebrajni.so.
+* It takes czmq-jni-*.jar, which must already be built in ../czmq/bindings/jni/build/libs/
+* It combines all these into zebra-android.jar, which you can use in your Android projects.
 
 ## Building the JNI Layer for Windows
 
@@ -44,6 +48,10 @@ You need the Java SDK. Set the JAVA_HOME environment to the installation locatio
 3. In this project, open a console in bindings/jni/msvc/vs2010 and run the build.bat batch file.
 
 The resulting libraries (zebrajni.dll, zebrajni.lib) are created in bindings/jni/msvc/bin.
+
+## Using the JNI API
+
+- to be written.
 
 ## License
 
