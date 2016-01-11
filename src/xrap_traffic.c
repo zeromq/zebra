@@ -1,5 +1,5 @@
 /*  =========================================================================
-    xrap_traffic - The ZWebRap Protocol
+    xrap_traffic - zebra protocol
 
     Codec class for xrap_traffic.
 
@@ -23,12 +23,12 @@
 
 /*
 @header
-    xrap_traffic - The ZWebRap Protocol
+    xrap_traffic - zebra protocol
 @discuss
 @end
 */
 
-#include "../include/zwebrap.h"
+#include "../include/zebra.h"
 #include "../include/xrap_traffic.h"
 
 //  Structure of our class

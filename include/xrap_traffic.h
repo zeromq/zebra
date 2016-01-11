@@ -1,5 +1,5 @@
 /*  =========================================================================
-    xrap_traffic - The ZWebRap Protocol
+    xrap_traffic - zebra protocol
 
     Codec header for xrap_traffic.
 
