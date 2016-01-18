@@ -344,7 +344,7 @@ zeb_handler (zsock_t *pipe, void *args)
     zpoller_add (self->poller, zeb_client_msgpipe (self->client));
 
     while (!self->terminated) {
-        zsock_t *which = (zsock_t *) zpoller_wait (self->poller, 0);
+        zsock_t *which = (zsock_t *) zpoller_wait (self->poller, -1);
         if (which == self->pipe)
             s_handler_recv_api (self);
         else
