@@ -16,19 +16,17 @@ if [ $BUILD_TYPE == "default" ]; then
 
     # Clone and build dependencies
     git clone --depth 1 https://github.com/zeromq/libzmq libzmq
-    ( cd libzmq && ./autogen.sh && ./configure "${CONFIG_OPTS[@]}" && make check && make install ) || exit 1
+    ( cd libzmq && ./autogen.sh && ./configure --without-libsodium "${CONFIG_OPTS[@]}" && make check && make install ) || exit 1
 
     git clone --depth 1 https://github.com/zeromq/czmq czmq
     ( cd czmq && ./autogen.sh && ./configure "${CONFIG_OPTS[@]}" && make check && make install ) || exit 1
 
-    git clone --depth 1 http://ftp.gnu.org/gnu/libmicrohttpd/ libmicrohttpd
-    ( cd libmicrohttpd && ./autogen.sh && ./configure "${CONFIG_OPTS[@]}" && make check && make install ) || exit 1
+    wget http://ftpmirror.gnu.org/libmicrohttpd/libmicrohttpd-0.9.38.tar.gz
+    tar -xvf libmicrohttpd-0.9.38.tar.gz
+    ( cd libmicrohttpd-0.9.38 && ./configure "${CONFIG_OPTS[@]}" && make check && make install ) || exit 1
 
     git clone --depth 1 https://github.com/bagder/curl libcurl
-    ( cd libcurl && ./autogen.sh && ./configure "${CONFIG_OPTS[@]}" && make check && make install ) || exit 1
-
-    git clone --depth 1 https://github.com/jedisct1/libsodium libsodium
-    ( cd libsodium && ./autogen.sh && ./configure "${CONFIG_OPTS[@]}" && make check && make install ) || exit 1
+    ( cd libcurl && ./buildconf && ./configure "${CONFIG_OPTS[@]}" && make && make test-full && make install ) || exit 1
 
     # Build and check this project
     ( ./autogen.sh && ./configure "${CONFIG_OPTS[@]}" && make && make check && make memcheck && make install ) || exit 1
