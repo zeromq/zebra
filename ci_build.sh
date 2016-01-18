@@ -26,7 +26,7 @@ if [ $BUILD_TYPE == "default" ]; then
     ( cd libmicrohttpd-0.9.38 && ./configure "${CONFIG_OPTS[@]}" && make check && make install ) || exit 1
 
     git clone --depth 1 https://github.com/bagder/curl libcurl
-    ( cd libcurl && ./autogen.sh && ./configure "${CONFIG_OPTS[@]}" && make check && make install ) || exit 1
+    ( cd libcurl && ./buildconf && ./configure "${CONFIG_OPTS[@]}" && make && make test-full && make install ) || exit 1
 
     # Build and check this project
     ( ./autogen.sh && ./configure "${CONFIG_OPTS[@]}" && make && make check && make memcheck && make install ) || exit 1
