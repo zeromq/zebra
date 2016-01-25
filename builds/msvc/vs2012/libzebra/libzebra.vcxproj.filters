@@ -16,13 +16,13 @@
     <ClCompile Include="..\..\..\..\src\xrap_traffic.c">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\zeb_connection.c">
-      <Filter>src</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\src\zeb_client.c">
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\src\zeb_microhttpd.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\zeb_server.c">
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\src\zeb_request.c">
@@ -31,7 +31,7 @@
     <ClCompile Include="..\..\..\..\src\zeb_response.c">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\zeb_server.c">
+    <ClCompile Include="..\..\..\..\src\zeb_connection.c">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>

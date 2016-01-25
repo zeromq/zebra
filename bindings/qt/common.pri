@@ -10,6 +10,8 @@ CONFIG(debug, debug|release) {
     else:win32:QZEBRA_LIBNAME = $$member(QZEBRA_LIBNAME, 0)d
 }
 TEMPLATE -= fakelib
+CONFIG += link_pkgconfig
+PKGCONFIG += libzebra
 QZEBRA_LIBDIR = $$PWD/lib
 unix:qzebra-uselib:!qzebra-buildlib:QMAKE_RPATHDIR += $$QZEBRA_LIBDIR
 ################################################################################

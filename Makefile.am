@@ -31,9 +31,9 @@ TESTS =
 EXTRA_DIST = \
     src/zeb_server_engine.inc \
     src/zeb_client_engine.inc \
-    src/zeb_connection.h \
     src/zeb_request.h \
     src/zeb_response.h \
+    src/zeb_connection.h \
     src/zebra_classes.h \
     LICENSE \
     README.txt \
