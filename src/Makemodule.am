@@ -27,9 +27,9 @@ include_HEADERS += \
 endif
 
 src_libzebra_la_SOURCES = \
-    src/zeb_connection.c \
     src/zeb_request.c \
     src/zeb_response.c \
+    src/zeb_connection.c \
     src/zeb_server_engine.inc \
     src/zeb_client_engine.inc \
     src/platform.h
