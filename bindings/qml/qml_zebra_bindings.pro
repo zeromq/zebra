@@ -25,7 +25,7 @@ android {
   }
   # Build the zebra library for android unless it is already built
   !system(bash $$ZEBRA_ROOT/builds/android/build.sh) {
-    error(Failed to build the zebra C library with $$ZEBRA_ROOT/builds/android/build.sh)
+    error(Failed to build the zebra library with $$ZEBRA_ROOT/builds/android/build.sh)
   }
   
   VENDOR_PREFIX = $$ZEBRA_ROOT/builds/android/prefix/$(TOOLCHAIN_NAME)
@@ -38,12 +38,12 @@ LIBS += -lzebra
 
 HEADERS += \
   $$SRCDIR/qml_zebra_plugin.h \
-  $$SRCDIR/QmlZebHandler.h \
-  $$SRCDIR/QmlXrapMsg.h 
+  $$SRCDIR/QmlXrapMsg.h \
+  $$SRCDIR/QmlZebHandler.h 
 
 SOURCES += \
-  $$SRCDIR/QmlZebHandler.cpp \
-  $$SRCDIR/QmlXrapMsg.cpp 
+  $$SRCDIR/QmlXrapMsg.cpp \
+  $$SRCDIR/QmlZebHandler.cpp 
 
 OBJECTS_DIR = $$BUILDDIR/.obj
 MOC_DIR     = $$BUILDDIR/.moc

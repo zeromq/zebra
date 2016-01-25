@@ -11,24 +11,24 @@ qzebra-uselib:!qzebra-buildlib {
 } else {
     HEADERS       += \
                      $$PWD/qzebra.h \
-                     $$PWD/qzebhandler.h \
                      $$PWD/qxrapmsg.h \
-                     $$PWD/qzactor.h \
+                     $$PWD/qzebhandler.h \
                      $$PWD/qzmsg.h \
                      $$PWD/qzhash.h \
-                     $$PWD/qzsock.h \
+                     $$PWD/qzactor.h \
                      $$PWD/qzframe.h \
-                     $$PWD/qzlist.h
+                     $$PWD/qzlist.h \
+                     $$PWD/qzsock.h
 
     SOURCES       += \
-                     $$PWD/qzebhandler.cpp \
                      $$PWD/qxrapmsg.cpp \
-                     $$PWD/qzactor.cpp \
+                     $$PWD/qzebhandler.cpp \
                      $$PWD/qzmsg.cpp \
                      $$PWD/qzhash.cpp \
-                     $$PWD/qzsock.cpp \
+                     $$PWD/qzactor.cpp \
                      $$PWD/qzframe.cpp \
-                     $$PWD/qzlist.cpp
+                     $$PWD/qzlist.cpp \
+                     $$PWD/qzsock.cpp
 }
 
 win32 {

@@ -7,10 +7,10 @@
 -->
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="..\..\..\src\main\c\org_zeromq_zebra_ZebHandler.c">
+    <ClCompile Include="..\..\..\src\main\c\org_zeromq_zebra_XrapMsg.c">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\main\c\org_zeromq_zebra_XrapMsg.c">
+    <ClCompile Include="..\..\..\src\main\c\org_zeromq_zebra_ZebHandler.c">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
@@ -18,10 +18,10 @@
     <ClInclude Include="..\..\..\..\..\include\zebra.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\src\native\include\org_zeromq_zebra_ZebHandler.h">
+    <ClInclude Include="..\..\..\src\native\include\org_zeromq_zebra_XrapMsg.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\src\native\include\org_zeromq_zebra_XrapMsg.h">
+    <ClInclude Include="..\..\..\src\native\include\org_zeromq_zebra_ZebHandler.h">
       <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>

@@ -169,21 +169,21 @@ ENDIF (LIBSODIUM_FOUND)
 set (zebra_headers
     include/zebra_library.h
     include/zebra.h
+    src/zeb_connection.h
     src/zeb_request.h
     src/zeb_response.h
-    src/zeb_connection.h
     src/zeb_server_engine.inc
     src/zeb_client_engine.inc
 )
 
 IF (ENABLE_DRAFTS)
     list(APPEND zebra_headers
-        include/zeb_handler.h
-        include/zeb_microhttpd.h
         include/xrap_msg.h
+        include/zeb_handler.h
         include/xrap_traffic.h
-        include/zeb_server.h
         include/zeb_client.h
+        include/zeb_microhttpd.h
+        include/zeb_server.h
     )
 ENDIF (ENABLE_DRAFTS)
 
@@ -195,19 +195,19 @@ install(FILES ${zebra_headers} DESTINATION include)
 ########################################################################
 include_directories("${SOURCE_DIR}/src" "${SOURCE_DIR}/include")
 set (zebra_sources
+    src/zeb_connection.c
     src/zeb_request.c
     src/zeb_response.c
-    src/zeb_connection.c
 )
 
 IF (ENABLE_DRAFTS)
     list (APPEND zebra_sources
-        src/zeb_handler.c
-        src/zeb_microhttpd.c
         src/xrap_msg.c
+        src/zeb_handler.c
         src/xrap_traffic.c
-        src/zeb_server.c
         src/zeb_client.c
+        src/zeb_microhttpd.c
+        src/zeb_server.c
     )
 ENDIF (ENABLE_DRAFTS)
 
@@ -282,19 +282,19 @@ set(CLASSTEST_TIMEOUT 5 CACHE STRING "Timeout of the selftest of a class")
 set(TOTAL_TIMEOUT 20 CACHE STRING "Timout of the total testsuite")
 
 set(TEST_CLASSES
+    zeb_connection
     zeb_request
     zeb_response
-    zeb_connection
 )
 
 IF (ENABLE_DRAFTS)
     list (APPEND TEST_CLASSES
-    zeb_handler
-    zeb_microhttpd
     xrap_msg
+    zeb_handler
     xrap_traffic
-    zeb_server
     zeb_client
+    zeb_microhttpd
+    zeb_server
     )
 ENDIF (ENABLE_DRAFTS)
 

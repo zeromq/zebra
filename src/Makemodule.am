@@ -18,30 +18,30 @@ include_HEADERS = \
 
 if ENABLE_DRAFTS
 include_HEADERS += \
-    include/zeb_handler.h \
-    include/zeb_microhttpd.h \
     include/xrap_msg.h \
+    include/zeb_handler.h \
     include/xrap_traffic.h \
-    include/zeb_server.h \
-    include/zeb_client.h
+    include/zeb_client.h \
+    include/zeb_microhttpd.h \
+    include/zeb_server.h
 endif
 
 src_libzebra_la_SOURCES = \
+    src/zeb_connection.c \
     src/zeb_request.c \
     src/zeb_response.c \
-    src/zeb_connection.c \
     src/zeb_server_engine.inc \
     src/zeb_client_engine.inc \
     src/platform.h
 
 if ENABLE_DRAFTS
 src_libzebra_la_SOURCES += \
-    src/zeb_handler.c \
-    src/zeb_microhttpd.c \
     src/xrap_msg.c \
+    src/zeb_handler.c \
     src/xrap_traffic.c \
-    src/zeb_server.c \
-    src/zeb_client.c
+    src/zeb_client.c \
+    src/zeb_microhttpd.c \
+    src/zeb_server.c
 endif
 
 src_libzebra_la_CPPFLAGS = ${AM_CPPFLAGS}
@@ -76,8 +76,8 @@ endif #WITH_SYSTEMD
 # Install api files into /usr/local/share/zproject
 apidir = @datadir@/zproject/zebra
 dist_api_DATA = \
-    api/zeb_handler.xml \
-    api/xrap_msg.xml
+    api/xrap_msg.xml \
+    api/zeb_handler.xml
 
 # define custom target for all products of /src
 src:

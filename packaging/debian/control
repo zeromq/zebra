@@ -1,0 +1,59 @@
+#
+#    zebra - Translates REST HTTP-Request into the XRAP protocol.
+#
+#    Copyright (c) the Contributors as noted in the AUTHORS file.       
+#    This file is part of ZWEBRAP.                                      
+#                                                                       
+#    This Source Code Form is subject to the terms of the Mozilla Public
+#    License, v. 2.0. If a copy of the MPL was not distributed with this
+#    file, You can obtain one at http://mozilla.org/MPL/2.0/.           
+
+Source:         zebra
+Section:        net
+Priority:       optional
+Maintainer:     John Doe <John.Doe@example.com>
+Uploaders:      John Doe <John.Doe@example.com>
+Standards-Version: 3.9.5
+Build-Depends: bison, debhelper (>= 8),
+    pkg-config,
+    automake,
+    autoconf,
+    libtool,
+    libzmq4-dev,
+    libczmq-dev,
+    libmicrohttpd-dev,
+    libcurl-dev,
+    libsodium-dev,
+    dh-autoreconf,
+    systemd
+
+Package: libzebra0
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: zebra
+ This package contains shared library for zebra: translates rest http-request into the xrap protocol.
+
+Package: zebra-dev
+Architecture: all
+Section: libdevel
+Depends:
+    libzmq4-dev,
+    libczmq-dev,
+    libmicrohttpd-dev,
+    libcurl-dev,
+    libsodium-dev,
+    libzebra0 (= ${binary:Version})
+Description: development files for zebra
+ This package contains development files for zebra: translates rest http-request into the xrap protocol.
+
+
+Package: zebra-dbg
+Architecture: any
+Section: debug
+Priority: extra
+Depends:
+    libzebra0 (= ${binary:Version}),
+    ${misc:Depends}
+Description: debugging symbols for zebra
+ This package contains the debugging symbols for zebra : translates rest http-request into the xrap protocol..
+

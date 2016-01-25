@@ -33,18 +33,23 @@ set (CMAKE_FIND_ROOT_PATH
 # CMake will look for prefixed g++, cpp, ld, etc. automatically
 CMAKE_FORCE_C_COMPILER (${TOOLCHAIN_PATH}/arm-linux-androideabi-gcc GNU)
 
-#   Find location of ZeroMQ header file
-pkg_check_modules (PC_ZEROMQ "libzmq")
-if (NOT PC_ZEROMQ_FOUND)
-    pkg_check_modules(PC_ZEROMQ "zmq")
-endif (NOT PC_ZEROMQ_FOUND)
+#   Find location of zmq.h file
+pkg_check_modules (PC_LIBZMQ "libzmq")
+if (NOT PC_LIBZMQ_FOUND)
+    pkg_check_modules(PC_LIBZMQ "zmq")
+endif (NOT PC_LIBZMQ_FOUND)
 
-if (PC_ZEROMQ_FOUND)
-    set (PC_ZEROMQ_INCLUDE_HINTS ${PC_ZEROMQ_INCLUDE_DIRS} ${PC_ZEROMQ_INCLUDE_DIRS}/*)
-endif (PC_ZEROMQ_FOUND)
-find_path (ZEROMQ_INCLUDE_DIR NAMES zmq.h HINTS ${PC_ZEROMQ_INCLUDE_HINTS})
+if (PC_LIBZMQ_FOUND)
+    set (PC_LIBZMQ_INCLUDE_HINTS ${PC_LIBZMQ_INCLUDE_DIRS} ${PC_LIBZMQ_INCLUDE_DIRS}/*)
+endif (PC_LIBZMQ_FOUND)
 
-#   Find location of CZMQ header file
+find_path (
+    LIBZMQ_INCLUDE_DIR
+    NAMES zmq.h
+    HINTS ${PC_LIBZMQ_INCLUDE_HINTS}
+)
+
+#   Find location of czmq.h file
 pkg_check_modules (PC_CZMQ "libczmq")
 if (NOT PC_CZMQ_FOUND)
     pkg_check_modules(PC_CZMQ "czmq")
@@ -53,9 +58,14 @@ endif (NOT PC_CZMQ_FOUND)
 if (PC_CZMQ_FOUND)
     set (PC_CZMQ_INCLUDE_HINTS ${PC_CZMQ_INCLUDE_DIRS} ${PC_CZMQ_INCLUDE_DIRS}/*)
 endif (PC_CZMQ_FOUND)
-find_path (CZMQ_INCLUDE_DIR NAMES czmq.h HINTS ${PC_CZMQ_INCLUDE_HINTS})
 
-#   Find location of Libmicrohttpd header file
+find_path (
+    CZMQ_INCLUDE_DIR
+    NAMES czmq.h
+    HINTS ${PC_CZMQ_INCLUDE_HINTS}
+)
+
+#   Find location of microhttpd.h file
 pkg_check_modules (PC_LIBMICROHTTPD "libmicrohttpd")
 if (NOT PC_LIBMICROHTTPD_FOUND)
     pkg_check_modules(PC_LIBMICROHTTPD "microhttpd")
@@ -64,12 +74,17 @@ endif (NOT PC_LIBMICROHTTPD_FOUND)
 if (PC_LIBMICROHTTPD_FOUND)
     set (PC_LIBMICROHTTPD_INCLUDE_HINTS ${PC_LIBMICROHTTPD_INCLUDE_DIRS} ${PC_LIBMICROHTTPD_INCLUDE_DIRS}/*)
 endif (PC_LIBMICROHTTPD_FOUND)
-find_path (LIBMICROHTTPD_INCLUDE_DIR NAMES microhttpd.h HINTS ${PC_LIBMICROHTTPD_INCLUDE_HINTS})
+
+find_path (
+    LIBMICROHTTPD_INCLUDE_DIR
+    NAMES microhttpd.h
+    HINTS ${PC_LIBMICROHTTPD_INCLUDE_HINTS}
+)
 
 cmake_policy (SET CMP0015 NEW)   #  Use relative paths in link_directories
 
 include_directories (
-    ${ZEROMQ_INCLUDE_DIR}
+    ${LIBZMQ_INCLUDE_DIR}
     ${CZMQ_INCLUDE_DIR}
     ${LIBMICROHTTPD_INCLUDE_DIR}
     ../../../include

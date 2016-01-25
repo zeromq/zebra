@@ -38,61 +38,397 @@ module Zebra
         blocking: true  # only necessary on MRI to deal with the GIL.
       }
 
-      attach_function :zeb_handler_add_offer, [:pointer, :int, :string], :int, **opts
-      attach_function :zeb_handler_add_accept, [:pointer, :string], :int, **opts
-      attach_function :zeb_handler_test, [:bool], :void, **opts
-
-      require_relative 'ffi/zeb_handler'
-
-      attach_function :xrap_msg_new, [:int], :pointer, **opts
-      attach_function :xrap_msg_destroy, [:pointer], :void, **opts
-      attach_function :xrap_msg_decode, [:pointer], :pointer, **opts
-      attach_function :xrap_msg_encode, [:pointer], :pointer, **opts
-      attach_function :xrap_msg_recv, [:pointer], :pointer, **opts
-      attach_function :xrap_msg_recv_nowait, [:pointer], :pointer, **opts
-      attach_function :xrap_msg_send, [:pointer, :pointer], :int, **opts
-      attach_function :xrap_msg_send_again, [:pointer, :pointer], :int, **opts
-      attach_function :xrap_msg_id, [:pointer], :int, **opts
-      attach_function :xrap_msg_set_id, [:pointer, :int], :void, **opts
-      attach_function :xrap_msg_parent, [:pointer], :string, **opts
-      attach_function :xrap_msg_set_parent, [:pointer, :string, :varargs], :void, **opts
-      attach_function :xrap_msg_content_type, [:pointer], :string, **opts
-      attach_function :xrap_msg_set_content_type, [:pointer, :string, :varargs], :void, **opts
-      attach_function :xrap_msg_content_body, [:pointer], :string, **opts
-      attach_function :xrap_msg_set_content_body, [:pointer, :string, :varargs], :void, **opts
-      attach_function :xrap_msg_status_code, [:pointer], :uint16, **opts
-      attach_function :xrap_msg_set_status_code, [:pointer, :uint16], :void, **opts
-      attach_function :xrap_msg_location, [:pointer], :string, **opts
-      attach_function :xrap_msg_set_location, [:pointer, :string, :varargs], :void, **opts
-      attach_function :xrap_msg_etag, [:pointer], :string, **opts
-      attach_function :xrap_msg_set_etag, [:pointer, :string, :varargs], :void, **opts
-      attach_function :xrap_msg_date_modified, [:pointer], :uint64, **opts
-      attach_function :xrap_msg_set_date_modified, [:pointer, :uint64], :void, **opts
-      attach_function :xrap_msg_resource, [:pointer], :string, **opts
-      attach_function :xrap_msg_set_resource, [:pointer, :string, :varargs], :void, **opts
-      attach_function :xrap_msg_parameters, [:pointer], :pointer, **opts
-      attach_function :xrap_msg_get_parameters, [:pointer], :pointer, **opts
-      attach_function :xrap_msg_set_parameters, [:pointer, :pointer], :void, **opts
-      attach_function :xrap_msg_parameters_string, [:pointer, :string, :string], :string, **opts
-      attach_function :xrap_msg_parameters_insert, [:pointer, :string, :string, :varargs], :void, **opts
-      attach_function :xrap_msg_if_modified_since, [:pointer], :uint64, **opts
-      attach_function :xrap_msg_set_if_modified_since, [:pointer, :uint64], :void, **opts
-      attach_function :xrap_msg_if_none_match, [:pointer], :string, **opts
-      attach_function :xrap_msg_set_if_none_match, [:pointer, :string, :varargs], :void, **opts
-      attach_function :xrap_msg_metadata, [:pointer], :pointer, **opts
-      attach_function :xrap_msg_get_metadata, [:pointer], :pointer, **opts
-      attach_function :xrap_msg_set_metadata, [:pointer, :pointer], :void, **opts
-      attach_function :xrap_msg_metadata_string, [:pointer, :string, :string], :string, **opts
-      attach_function :xrap_msg_metadata_insert, [:pointer, :string, :string, :varargs], :void, **opts
-      attach_function :xrap_msg_if_unmodified_since, [:pointer], :uint64, **opts
-      attach_function :xrap_msg_set_if_unmodified_since, [:pointer, :uint64], :void, **opts
-      attach_function :xrap_msg_if_match, [:pointer], :string, **opts
-      attach_function :xrap_msg_set_if_match, [:pointer, :string, :varargs], :void, **opts
-      attach_function :xrap_msg_status_text, [:pointer], :string, **opts
-      attach_function :xrap_msg_set_status_text, [:pointer, :string, :varargs], :void, **opts
+      begin # DRAFT method
+        attach_function :xrap_msg_new, [:int], :pointer, **opts
+      rescue ::FFI::NotFoundError
+        if $VERBOSE || $DEBUG
+          warn "The function new() can't be used through " +
+               "this Ruby binding because it's not available."
+        end
+      end
+      begin # DRAFT method
+        attach_function :xrap_msg_destroy, [:pointer], :void, **opts
+      rescue ::FFI::NotFoundError
+        if $VERBOSE || $DEBUG
+          warn "The function destroy() can't be used through " +
+               "this Ruby binding because it's not available."
+        end
+      end
+      begin # DRAFT method
+        attach_function :xrap_msg_decode, [:pointer], :pointer, **opts
+      rescue ::FFI::NotFoundError
+        if $VERBOSE || $DEBUG
+          warn "The function decode() can't be used through " +
+               "this Ruby binding because it's not available."
+        end
+      end
+      begin # DRAFT method
+        attach_function :xrap_msg_encode, [:pointer], :pointer, **opts
+      rescue ::FFI::NotFoundError
+        if $VERBOSE || $DEBUG
+          warn "The function encode() can't be used through " +
+               "this Ruby binding because it's not available."
+        end
+      end
+      begin # DRAFT method
+        attach_function :xrap_msg_recv, [:pointer], :pointer, **opts
+      rescue ::FFI::NotFoundError
+        if $VERBOSE || $DEBUG
+          warn "The function recv() can't be used through " +
+               "this Ruby binding because it's not available."
+        end
+      end
+      begin # DRAFT method
+        attach_function :xrap_msg_recv_nowait, [:pointer], :pointer, **opts
+      rescue ::FFI::NotFoundError
+        if $VERBOSE || $DEBUG
+          warn "The function recv_nowait() can't be used through " +
+               "this Ruby binding because it's not available."
+        end
+      end
+      begin # DRAFT method
+        attach_function :xrap_msg_send, [:pointer, :pointer], :int, **opts
+      rescue ::FFI::NotFoundError
+        if $VERBOSE || $DEBUG
+          warn "The function send() can't be used through " +
+               "this Ruby binding because it's not available."
+        end
+      end
+      begin # DRAFT method
+        attach_function :xrap_msg_send_again, [:pointer, :pointer], :int, **opts
+      rescue ::FFI::NotFoundError
+        if $VERBOSE || $DEBUG
+          warn "The function send_again() can't be used through " +
+               "this Ruby binding because it's not available."
+        end
+      end
+      begin # DRAFT method
+        attach_function :xrap_msg_id, [:pointer], :int, **opts
+      rescue ::FFI::NotFoundError
+        if $VERBOSE || $DEBUG
+          warn "The function id() can't be used through " +
+               "this Ruby binding because it's not available."
+        end
+      end
+      begin # DRAFT method
+        attach_function :xrap_msg_set_id, [:pointer, :int], :void, **opts
+      rescue ::FFI::NotFoundError
+        if $VERBOSE || $DEBUG
+          warn "The function set_id() can't be used through " +
+               "this Ruby binding because it's not available."
+        end
+      end
+      begin # DRAFT method
+        attach_function :xrap_msg_parent, [:pointer], :string, **opts
+      rescue ::FFI::NotFoundError
+        if $VERBOSE || $DEBUG
+          warn "The function parent() can't be used through " +
+               "this Ruby binding because it's not available."
+        end
+      end
+      begin # DRAFT method
+        attach_function :xrap_msg_set_parent, [:pointer, :string, :varargs], :void, **opts
+      rescue ::FFI::NotFoundError
+        if $VERBOSE || $DEBUG
+          warn "The function set_parent() can't be used through " +
+               "this Ruby binding because it's not available."
+        end
+      end
+      begin # DRAFT method
+        attach_function :xrap_msg_content_type, [:pointer], :string, **opts
+      rescue ::FFI::NotFoundError
+        if $VERBOSE || $DEBUG
+          warn "The function content_type() can't be used through " +
+               "this Ruby binding because it's not available."
+        end
+      end
+      begin # DRAFT method
+        attach_function :xrap_msg_set_content_type, [:pointer, :string, :varargs], :void, **opts
+      rescue ::FFI::NotFoundError
+        if $VERBOSE || $DEBUG
+          warn "The function set_content_type() can't be used through " +
+               "this Ruby binding because it's not available."
+        end
+      end
+      begin # DRAFT method
+        attach_function :xrap_msg_content_body, [:pointer], :string, **opts
+      rescue ::FFI::NotFoundError
+        if $VERBOSE || $DEBUG
+          warn "The function content_body() can't be used through " +
+               "this Ruby binding because it's not available."
+        end
+      end
+      begin # DRAFT method
+        attach_function :xrap_msg_set_content_body, [:pointer, :string, :varargs], :void, **opts
+      rescue ::FFI::NotFoundError
+        if $VERBOSE || $DEBUG
+          warn "The function set_content_body() can't be used through " +
+               "this Ruby binding because it's not available."
+        end
+      end
+      begin # DRAFT method
+        attach_function :xrap_msg_status_code, [:pointer], :uint16, **opts
+      rescue ::FFI::NotFoundError
+        if $VERBOSE || $DEBUG
+          warn "The function status_code() can't be used through " +
+               "this Ruby binding because it's not available."
+        end
+      end
+      begin # DRAFT method
+        attach_function :xrap_msg_set_status_code, [:pointer, :uint16], :void, **opts
+      rescue ::FFI::NotFoundError
+        if $VERBOSE || $DEBUG
+          warn "The function set_status_code() can't be used through " +
+               "this Ruby binding because it's not available."
+        end
+      end
+      begin # DRAFT method
+        attach_function :xrap_msg_location, [:pointer], :string, **opts
+      rescue ::FFI::NotFoundError
+        if $VERBOSE || $DEBUG
+          warn "The function location() can't be used through " +
+               "this Ruby binding because it's not available."
+        end
+      end
+      begin # DRAFT method
+        attach_function :xrap_msg_set_location, [:pointer, :string, :varargs], :void, **opts
+      rescue ::FFI::NotFoundError
+        if $VERBOSE || $DEBUG
+          warn "The function set_location() can't be used through " +
+               "this Ruby binding because it's not available."
+        end
+      end
+      begin # DRAFT method
+        attach_function :xrap_msg_etag, [:pointer], :string, **opts
+      rescue ::FFI::NotFoundError
+        if $VERBOSE || $DEBUG
+          warn "The function etag() can't be used through " +
+               "this Ruby binding because it's not available."
+        end
+      end
+      begin # DRAFT method
+        attach_function :xrap_msg_set_etag, [:pointer, :string, :varargs], :void, **opts
+      rescue ::FFI::NotFoundError
+        if $VERBOSE || $DEBUG
+          warn "The function set_etag() can't be used through " +
+               "this Ruby binding because it's not available."
+        end
+      end
+      begin # DRAFT method
+        attach_function :xrap_msg_date_modified, [:pointer], :uint64, **opts
+      rescue ::FFI::NotFoundError
+        if $VERBOSE || $DEBUG
+          warn "The function date_modified() can't be used through " +
+               "this Ruby binding because it's not available."
+        end
+      end
+      begin # DRAFT method
+        attach_function :xrap_msg_set_date_modified, [:pointer, :uint64], :void, **opts
+      rescue ::FFI::NotFoundError
+        if $VERBOSE || $DEBUG
+          warn "The function set_date_modified() can't be used through " +
+               "this Ruby binding because it's not available."
+        end
+      end
+      begin # DRAFT method
+        attach_function :xrap_msg_resource, [:pointer], :string, **opts
+      rescue ::FFI::NotFoundError
+        if $VERBOSE || $DEBUG
+          warn "The function resource() can't be used through " +
+               "this Ruby binding because it's not available."
+        end
+      end
+      begin # DRAFT method
+        attach_function :xrap_msg_set_resource, [:pointer, :string, :varargs], :void, **opts
+      rescue ::FFI::NotFoundError
+        if $VERBOSE || $DEBUG
+          warn "The function set_resource() can't be used through " +
+               "this Ruby binding because it's not available."
+        end
+      end
+      begin # DRAFT method
+        attach_function :xrap_msg_parameters, [:pointer], :pointer, **opts
+      rescue ::FFI::NotFoundError
+        if $VERBOSE || $DEBUG
+          warn "The function parameters() can't be used through " +
+               "this Ruby binding because it's not available."
+        end
+      end
+      begin # DRAFT method
+        attach_function :xrap_msg_get_parameters, [:pointer], :pointer, **opts
+      rescue ::FFI::NotFoundError
+        if $VERBOSE || $DEBUG
+          warn "The function get_parameters() can't be used through " +
+               "this Ruby binding because it's not available."
+        end
+      end
+      begin # DRAFT method
+        attach_function :xrap_msg_set_parameters, [:pointer, :pointer], :void, **opts
+      rescue ::FFI::NotFoundError
+        if $VERBOSE || $DEBUG
+          warn "The function set_parameters() can't be used through " +
+               "this Ruby binding because it's not available."
+        end
+      end
+      begin # DRAFT method
+        attach_function :xrap_msg_parameters_string, [:pointer, :string, :string], :string, **opts
+      rescue ::FFI::NotFoundError
+        if $VERBOSE || $DEBUG
+          warn "The function parameters_string() can't be used through " +
+               "this Ruby binding because it's not available."
+        end
+      end
+      begin # DRAFT method
+        attach_function :xrap_msg_parameters_insert, [:pointer, :string, :string, :varargs], :void, **opts
+      rescue ::FFI::NotFoundError
+        if $VERBOSE || $DEBUG
+          warn "The function parameters_insert() can't be used through " +
+               "this Ruby binding because it's not available."
+        end
+      end
+      begin # DRAFT method
+        attach_function :xrap_msg_if_modified_since, [:pointer], :uint64, **opts
+      rescue ::FFI::NotFoundError
+        if $VERBOSE || $DEBUG
+          warn "The function if_modified_since() can't be used through " +
+               "this Ruby binding because it's not available."
+        end
+      end
+      begin # DRAFT method
+        attach_function :xrap_msg_set_if_modified_since, [:pointer, :uint64], :void, **opts
+      rescue ::FFI::NotFoundError
+        if $VERBOSE || $DEBUG
+          warn "The function set_if_modified_since() can't be used through " +
+               "this Ruby binding because it's not available."
+        end
+      end
+      begin # DRAFT method
+        attach_function :xrap_msg_if_none_match, [:pointer], :string, **opts
+      rescue ::FFI::NotFoundError
+        if $VERBOSE || $DEBUG
+          warn "The function if_none_match() can't be used through " +
+               "this Ruby binding because it's not available."
+        end
+      end
+      begin # DRAFT method
+        attach_function :xrap_msg_set_if_none_match, [:pointer, :string, :varargs], :void, **opts
+      rescue ::FFI::NotFoundError
+        if $VERBOSE || $DEBUG
+          warn "The function set_if_none_match() can't be used through " +
+               "this Ruby binding because it's not available."
+        end
+      end
+      begin # DRAFT method
+        attach_function :xrap_msg_metadata, [:pointer], :pointer, **opts
+      rescue ::FFI::NotFoundError
+        if $VERBOSE || $DEBUG
+          warn "The function metadata() can't be used through " +
+               "this Ruby binding because it's not available."
+        end
+      end
+      begin # DRAFT method
+        attach_function :xrap_msg_get_metadata, [:pointer], :pointer, **opts
+      rescue ::FFI::NotFoundError
+        if $VERBOSE || $DEBUG
+          warn "The function get_metadata() can't be used through " +
+               "this Ruby binding because it's not available."
+        end
+      end
+      begin # DRAFT method
+        attach_function :xrap_msg_set_metadata, [:pointer, :pointer], :void, **opts
+      rescue ::FFI::NotFoundError
+        if $VERBOSE || $DEBUG
+          warn "The function set_metadata() can't be used through " +
+               "this Ruby binding because it's not available."
+        end
+      end
+      begin # DRAFT method
+        attach_function :xrap_msg_metadata_string, [:pointer, :string, :string], :string, **opts
+      rescue ::FFI::NotFoundError
+        if $VERBOSE || $DEBUG
+          warn "The function metadata_string() can't be used through " +
+               "this Ruby binding because it's not available."
+        end
+      end
+      begin # DRAFT method
+        attach_function :xrap_msg_metadata_insert, [:pointer, :string, :string, :varargs], :void, **opts
+      rescue ::FFI::NotFoundError
+        if $VERBOSE || $DEBUG
+          warn "The function metadata_insert() can't be used through " +
+               "this Ruby binding because it's not available."
+        end
+      end
+      begin # DRAFT method
+        attach_function :xrap_msg_if_unmodified_since, [:pointer], :uint64, **opts
+      rescue ::FFI::NotFoundError
+        if $VERBOSE || $DEBUG
+          warn "The function if_unmodified_since() can't be used through " +
+               "this Ruby binding because it's not available."
+        end
+      end
+      begin # DRAFT method
+        attach_function :xrap_msg_set_if_unmodified_since, [:pointer, :uint64], :void, **opts
+      rescue ::FFI::NotFoundError
+        if $VERBOSE || $DEBUG
+          warn "The function set_if_unmodified_since() can't be used through " +
+               "this Ruby binding because it's not available."
+        end
+      end
+      begin # DRAFT method
+        attach_function :xrap_msg_if_match, [:pointer], :string, **opts
+      rescue ::FFI::NotFoundError
+        if $VERBOSE || $DEBUG
+          warn "The function if_match() can't be used through " +
+               "this Ruby binding because it's not available."
+        end
+      end
+      begin # DRAFT method
+        attach_function :xrap_msg_set_if_match, [:pointer, :string, :varargs], :void, **opts
+      rescue ::FFI::NotFoundError
+        if $VERBOSE || $DEBUG
+          warn "The function set_if_match() can't be used through " +
+               "this Ruby binding because it's not available."
+        end
+      end
+      begin # DRAFT method
+        attach_function :xrap_msg_status_text, [:pointer], :string, **opts
+      rescue ::FFI::NotFoundError
+        if $VERBOSE || $DEBUG
+          warn "The function status_text() can't be used through " +
+               "this Ruby binding because it's not available."
+        end
+      end
+      begin # DRAFT method
+        attach_function :xrap_msg_set_status_text, [:pointer, :string, :varargs], :void, **opts
+      rescue ::FFI::NotFoundError
+        if $VERBOSE || $DEBUG
+          warn "The function set_status_text() can't be used through " +
+               "this Ruby binding because it's not available."
+        end
+      end
       attach_function :xrap_msg_test, [:bool], :void, **opts
 
       require_relative 'ffi/xrap_msg'
+
+      begin # DRAFT method
+        attach_function :zeb_handler_add_offer, [:pointer, :int, :string], :int, **opts
+      rescue ::FFI::NotFoundError
+        if $VERBOSE || $DEBUG
+          warn "The function add_offer() can't be used through " +
+               "this Ruby binding because it's not available."
+        end
+      end
+      begin # DRAFT method
+        attach_function :zeb_handler_add_accept, [:pointer, :string], :int, **opts
+      rescue ::FFI::NotFoundError
+        if $VERBOSE || $DEBUG
+          warn "The function add_accept() can't be used through " +
+               "this Ruby binding because it's not available."
+        end
+      end
+      attach_function :zeb_handler_test, [:bool], :void, **opts
+
+      require_relative 'ffi/zeb_handler'
     end
   end
 end

@@ -28,24 +28,24 @@
 #endif
 
 //  Opaque class structures to allow forward references
-class QZebHandler;
 class QXrapMsg;
-class QZactor;
+class QZebHandler;
 class QZmsg;
 class QZhash;
-class QZsock;
+class QZactor;
 class QZframe;
 class QZlist;
+class QZsock;
 
 //  Public API classes
-#include "qzebhandler.h"
 #include "qxrapmsg.h"
-#include "qzactor.h"
+#include "qzebhandler.h"
 #include "qzmsg.h"
 #include "qzhash.h"
-#include "qzsock.h"
+#include "qzactor.h"
 #include "qzframe.h"
 #include "qzlist.h"
+#include "qzsock.h"
 
 #endif //  Q_ZEBRA_H
 /*
