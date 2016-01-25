@@ -17,6 +17,9 @@
 #ifndef ZEBRA_CLASSES_H_INCLUDED
 #define ZEBRA_CLASSES_H_INCLUDED
 
+//  Platform definitions, must come first
+#include "platform.h"
+
 //  External API
 #include "../include/zebra.h"
 

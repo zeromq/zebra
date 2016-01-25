@@ -27,15 +27,17 @@ typedef struct {
 
 static test_item_t
 all_tests [] = {
-    { "zeb_handler", zeb_handler_test },
     { "zeb_request", zeb_request_test },
     { "zeb_response", zeb_response_test },
     { "zeb_connection", zeb_connection_test },
+#ifdef ZEBRA_BUILD_DRAFT_API
+    { "zeb_handler", zeb_handler_test },
     { "zeb_microhttpd", zeb_microhttpd_test },
     { "xrap_msg", xrap_msg_test },
     { "xrap_traffic", xrap_traffic_test },
     { "zeb_server", zeb_server_test },
     { "zeb_client", zeb_client_test },
+#endif // ZEBRA_BUILD_DRAFT_API
     {0, 0}          //  Sentinel
 };
 

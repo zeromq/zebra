@@ -1368,7 +1368,7 @@ zeb_client_connected (zeb_client_t *self)
     int connected;
     zsock_send (self->actor, "s", "$CONNECTED");
     zsock_recv (self->actor, "i", &connected);
-    return (bool) connected;
+    return connected == 1;
 }
 
 

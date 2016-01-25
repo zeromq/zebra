@@ -18,7 +18,6 @@
 */
 
 #include <curl/curl.h>
-#include "../include/zebra.h"
 #include "zebra_classes.h"
 
 //  Structure of our class

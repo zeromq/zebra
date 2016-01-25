@@ -139,6 +139,7 @@ ZEBRA_EXPORT int
 ZEBRA_EXPORT int
     xrap_traffic_send (xrap_traffic_t *self, zsock_t *output);
 
+
 //  Print contents of message to stdout
 ZEBRA_EXPORT void
     xrap_traffic_print (xrap_traffic_t *self);

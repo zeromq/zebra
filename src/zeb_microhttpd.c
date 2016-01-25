@@ -20,7 +20,6 @@
 */
 
 #include "platform.h"
-#include "../include/zebra.h"
 #include "zebra_classes.h"
 #if defined (HAVE_LIBCURL)
 #include "zeb_curl_client.c"
