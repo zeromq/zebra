@@ -20,7 +20,6 @@
 */
 
 #include "platform.h"
-#include "../include/zebra.h"
 #include "zebra_classes.h"
 #if defined (HAVE_LIBCURL)
 #include "zeb_curl_client.c"
@@ -304,6 +303,9 @@ static int
 s_append_connection_value (void *cls, enum MHD_ValueKind kind, const char *key, const char *value)
 {
     assert (cls);
+    if (!key || !value)
+        return MHD_YES;     //  Ignore connection value if invalid!
+
     zeb_request_t *request = (zeb_request_t *) cls;
     zhash_t *mapping = NULL;
     if (MHD_HEADER_KIND == kind)

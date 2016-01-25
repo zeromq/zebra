@@ -27,15 +27,17 @@ typedef struct {
 
 static test_item_t
 all_tests [] = {
-    { "zeb_handler", zeb_handler_test },
+    { "zeb_connection", zeb_connection_test },
     { "zeb_request", zeb_request_test },
     { "zeb_response", zeb_response_test },
-    { "zeb_connection", zeb_connection_test },
-    { "zeb_microhttpd", zeb_microhttpd_test },
+#ifdef ZEBRA_BUILD_DRAFT_API
     { "xrap_msg", xrap_msg_test },
+    { "zeb_handler", zeb_handler_test },
     { "xrap_traffic", xrap_traffic_test },
-    { "zeb_server", zeb_server_test },
     { "zeb_client", zeb_client_test },
+    { "zeb_microhttpd", zeb_microhttpd_test },
+    { "zeb_server", zeb_server_test },
+#endif // ZEBRA_BUILD_DRAFT_API
     {0, 0}          //  Sentinel
 };
 
@@ -100,15 +102,15 @@ main (int argc, char **argv)
         if (streq (argv [argn], "--list")
         ||  streq (argv [argn], "-l")) {
             puts ("Available tests:");
+            puts ("    xrap_msg");
             puts ("    zeb_handler");
+            puts ("    xrap_traffic");
+            puts ("    zeb_connection");
+            puts ("    zeb_client");
+            puts ("    zeb_microhttpd");
             puts ("    zeb_request");
             puts ("    zeb_response");
-            puts ("    zeb_connection");
-            puts ("    zeb_microhttpd");
-            puts ("    xrap_msg");
-            puts ("    xrap_traffic");
             puts ("    zeb_server");
-            puts ("    zeb_client");
             return 0;
         }
         else

@@ -44,6 +44,19 @@ set(
 )
 
 ########################################################################
+# options
+########################################################################
+if (EXISTS ".git")
+    OPTION (ENABLE_DRAFTS "Build and install draft classes and methods" ON)
+else ()
+    OPTION (ENABLE_DRAFTS "Build and install draft classes and methods" OFF)
+endif ()
+
+IF (ENABLE_DRAFTS)
+    ADD_DEFINITIONS (-DZEBRA_BUILD_DRAFT_API)
+ENDIF (ENABLE_DRAFTS)
+
+########################################################################
 # platform.h
 ########################################################################
 include(CheckIncludeFile)
@@ -93,58 +106,61 @@ if (CYGWIN)
 endif()
 
 list(APPEND CMAKE_MODULE_PATH "${SOURCE_DIR}")
+set(OPTIONAL_LIBRARIES)
 
 ########################################################################
 # LIBZMQ dependency
 ########################################################################
-find_package(ZeroMQ REQUIRED)
-IF (ZEROMQ_FOUND)
-    include_directories(${ZEROMQ_INCLUDE_DIRS})
-    list(APPEND MORE_LIBRARIES ${ZEROMQ_LIBRARIES})
-ELSE (ZEROMQ_FOUND)
-    message( FATAL_ERROR "ZeroMQ not found." )
-ENDIF (ZEROMQ_FOUND)
+find_package(libzmq REQUIRED)
+IF (LIBZMQ_FOUND)
+    include_directories(${LIBZMQ_INCLUDE_DIRS})
+    list(APPEND MORE_LIBRARIES ${LIBZMQ_LIBRARIES})
+ELSE (LIBZMQ_FOUND)
+    message( FATAL_ERROR "libzmq not found." )
+ENDIF (LIBZMQ_FOUND)
 
 ########################################################################
 # CZMQ dependency
 ########################################################################
-find_package(CZMQ REQUIRED)
+find_package(czmq REQUIRED)
 IF (CZMQ_FOUND)
     include_directories(${CZMQ_INCLUDE_DIRS})
     list(APPEND MORE_LIBRARIES ${CZMQ_LIBRARIES})
 ELSE (CZMQ_FOUND)
-    message( FATAL_ERROR "CZMQ not found." )
+    message( FATAL_ERROR "czmq not found." )
 ENDIF (CZMQ_FOUND)
 
 ########################################################################
 # LIBMICROHTTPD dependency
 ########################################################################
-find_package(Libmicrohttpd REQUIRED)
+find_package(libmicrohttpd REQUIRED)
 IF (LIBMICROHTTPD_FOUND)
     include_directories(${LIBMICROHTTPD_INCLUDE_DIRS})
     list(APPEND MORE_LIBRARIES ${LIBMICROHTTPD_LIBRARIES})
 ELSE (LIBMICROHTTPD_FOUND)
-    message( FATAL_ERROR "Libmicrohttpd not found." )
+    message( FATAL_ERROR "libmicrohttpd not found." )
 ENDIF (LIBMICROHTTPD_FOUND)
 
 ########################################################################
 # LIBCURL dependency
 ########################################################################
-find_package(Libcurl)
+find_package(libcurl)
 IF (LIBCURL_FOUND)
     include_directories(${LIBCURL_INCLUDE_DIRS})
     list(APPEND MORE_LIBRARIES ${LIBCURL_LIBRARIES})
     add_definitions(-DHAVE_LIBCURL)
+    list(APPEND OPTIONAL_LIBRARIES ${LIBCURL_LIBRARIES})
 ENDIF (LIBCURL_FOUND)
 
 ########################################################################
 # LIBSODIUM dependency
 ########################################################################
-find_package(Libsodium)
+find_package(libsodium)
 IF (LIBSODIUM_FOUND)
     include_directories(${LIBSODIUM_INCLUDE_DIRS})
     list(APPEND MORE_LIBRARIES ${LIBSODIUM_LIBRARIES})
     add_definitions(-DHAVE_LIBSODIUM)
+    list(APPEND OPTIONAL_LIBRARIES ${LIBSODIUM_LIBRARIES})
 ENDIF (LIBSODIUM_FOUND)
 
 ########################################################################
@@ -153,18 +169,24 @@ ENDIF (LIBSODIUM_FOUND)
 set (zebra_headers
     include/zebra_library.h
     include/zebra.h
-    include/zeb_handler.h
-    include/zeb_microhttpd.h
-    include/xrap_msg.h
-    include/xrap_traffic.h
-    include/zeb_server.h
-    include/zeb_client.h
+    src/zeb_connection.h
     src/zeb_request.h
     src/zeb_response.h
-    src/zeb_connection.h
     src/zeb_server_engine.inc
     src/zeb_client_engine.inc
 )
+
+IF (ENABLE_DRAFTS)
+    list(APPEND zebra_headers
+        include/xrap_msg.h
+        include/zeb_handler.h
+        include/xrap_traffic.h
+        include/zeb_client.h
+        include/zeb_microhttpd.h
+        include/zeb_server.h
+    )
+ENDIF (ENABLE_DRAFTS)
+
 source_group ("Header Files" FILES ${zebra_headers})
 install(FILES ${zebra_headers} DESTINATION include)
 
@@ -173,16 +195,22 @@ install(FILES ${zebra_headers} DESTINATION include)
 ########################################################################
 include_directories("${SOURCE_DIR}/src" "${SOURCE_DIR}/include")
 set (zebra_sources
-    src/zeb_handler.c
+    src/zeb_connection.c
     src/zeb_request.c
     src/zeb_response.c
-    src/zeb_connection.c
-    src/zeb_microhttpd.c
-    src/xrap_msg.c
-    src/xrap_traffic.c
-    src/zeb_server.c
-    src/zeb_client.c
 )
+
+IF (ENABLE_DRAFTS)
+    list (APPEND zebra_sources
+        src/xrap_msg.c
+        src/zeb_handler.c
+        src/xrap_traffic.c
+        src/zeb_client.c
+        src/zeb_microhttpd.c
+        src/zeb_server.c
+    )
+ENDIF (ENABLE_DRAFTS)
+
 source_group("Source Files" FILES ${zebra_sources})
 if (NOT DEFINED BUILD_SHARED_LIBS)
     SET(BUILD_SHARED_LIBS ON)
@@ -207,11 +235,16 @@ install(TARGETS zebra
 ########################################################################
 # pkgconfig
 ########################################################################
-set(VERSION "${ZEBRA_VERSION}")
-set(prefix "${CMAKE_INSTALL_PREFIX}")
-set(exec_prefix "\${prefix}")
-set(libdir "\${prefix}/lib${LIB_SUFFIX}")
-set(includedir "\${prefix}/include")
+set (VERSION "${ZEBRA_VERSION}")
+set (prefix "${CMAKE_INSTALL_PREFIX}")
+set (exec_prefix "\${prefix}")
+set (libdir "\${prefix}/lib${LIB_SUFFIX}")
+set (includedir "\${prefix}/include")
+IF (ENABLE_DRAFTS)
+    set (pkg_config_defines "-DZEBRA_BUILD_DRAFT_API=1")
+ELSE (ENABLE_DRAFTS)
+    set (pkg_config_defines "")
+ENDIF (ENABLE_DRAFTS)
 configure_file(
     "${SOURCE_DIR}/src/libzebra.pc.in"
     "${SOURCE_DIR}/src/libzebra.pc"
@@ -232,11 +265,10 @@ add_executable(
 target_link_libraries(
     zebra_selftest
     zebra
-    ${ZEROMQ_LIBRARIES}
+    ${LIBZMQ_LIBRARIES}
     ${CZMQ_LIBRARIES}
     ${LIBMICROHTTPD_LIBRARIES}
-    ${LIBCURL_LIBRARIES}
-    ${LIBSODIUM_LIBRARIES}
+    ${OPTIONAL_LIBRARIES}
 )
 set_target_properties(
     zebra_selftest
@@ -250,16 +282,21 @@ set(CLASSTEST_TIMEOUT 5 CACHE STRING "Timeout of the selftest of a class")
 set(TOTAL_TIMEOUT 20 CACHE STRING "Timout of the total testsuite")
 
 set(TEST_CLASSES
-    zeb_handler
+    zeb_connection
     zeb_request
     zeb_response
-    zeb_connection
-    zeb_microhttpd
-    xrap_msg
-    xrap_traffic
-    zeb_server
-    zeb_client
 )
+
+IF (ENABLE_DRAFTS)
+    list (APPEND TEST_CLASSES
+    xrap_msg
+    zeb_handler
+    xrap_traffic
+    zeb_client
+    zeb_microhttpd
+    zeb_server
+    )
+ENDIF (ENABLE_DRAFTS)
 
 foreach(TEST_CLASS ${TEST_CLASSES})
     add_test(

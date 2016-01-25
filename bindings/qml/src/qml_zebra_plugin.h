@@ -11,13 +11,13 @@
 #include <QQmlExtensionPlugin>
 #include <qqml.h>
 
-class QmlZebHandler;
-class QmlZebHandlerAttached;
 class QmlXrapMsg;
 class QmlXrapMsgAttached;
+class QmlZebHandler;
+class QmlZebHandlerAttached;
 
-#include "QmlZebHandler.h"
 #include "QmlXrapMsg.h"
+#include "QmlZebHandler.h"
 
 class QmlZebraPlugin : public QQmlExtensionPlugin
 {
@@ -27,10 +27,10 @@ class QmlZebraPlugin : public QQmlExtensionPlugin
 public:
     void registerTypes (const char *uri)
     {
-        qmlRegisterType<QmlZebHandler> (uri, 1, 0, "QmlZebHandler");
-        qmlRegisterType<QmlZebHandlerAttached>();
         qmlRegisterType<QmlXrapMsg> (uri, 1, 0, "QmlXrapMsg");
         qmlRegisterType<QmlXrapMsgAttached>();
+        qmlRegisterType<QmlZebHandler> (uri, 1, 0, "QmlZebHandler");
+        qmlRegisterType<QmlZebHandlerAttached>();
     };
 };
 

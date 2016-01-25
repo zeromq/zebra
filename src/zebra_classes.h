@@ -17,12 +17,15 @@
 #ifndef ZEBRA_CLASSES_H_INCLUDED
 #define ZEBRA_CLASSES_H_INCLUDED
 
+//  Platform definitions, must come first
+#include "platform.h"
+
 //  External API
 #include "../include/zebra.h"
 
 //  Internal API
+#include "zeb_connection.h"
 #include "zeb_request.h"
 #include "zeb_response.h"
-#include "zeb_connection.h"
 
 #endif

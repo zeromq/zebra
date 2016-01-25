@@ -1,18 +1,3 @@
-<!--
-    The project.xml generates build environments for:
-
-        * android
-        * autotool
-        * cmake
-        * mingw32
-        * cygwin
-        * vs2008
-        * vs2010+
-
-    Classes are automatically added to all build environments. Further as you
-    add new classes to your project you can generate skeleton header and source
-    files according to http://rfc.zeromq.org/spec:21.
--->
 <project
     name = "zebra"
     description = "Translates REST HTTP-Request into the XRAP protocol."
@@ -20,84 +5,36 @@
     email = "zeromq-dev@lists.zeromq.org"
     >
 
-    <!--
-        Includes are processed first, so XML in included files will be
-        part of the XML tree
-    -->
     <include filename = "license.xml" />
-
-    <!--
-        Current version of your project.
-        This will be used to package your distribution
-    -->
     <version major = "0" minor = "2" patch = "0" />
-
-    <!--
-        Specify which other projects this depends on.
-        These projects must be known by zproject, and the list of
-        known projects is maintained in the zproject_known_projects.xml model.
-        You need not specify subdependencies if they are implied.
-    -->
     <use project = "czmq" min_major= "3" min_minor = "0" min_patch = "0" />
     <use project = "libmicrohttpd" prefix = "microhttpd"
          repository = "http://ftp.gnu.org/gnu/libmicrohttpd/" test = "MHD_start_daemon" />
     <use project = "libcurl" min_major= "7" min_minor = "7" min_patch = "0" optional = "1" implied = "1" />
     <use project = "libsodium" min_major= "1" min_minor = "0" min_patch = "0" optional = "1" implied = "1" />
+    <target name = "*" />
 
-    <!-- Header Files
-         name := The name the header file to include without file ending
-    <header name = "myproject_prelude" />
-    -->
-
-    <!--
-        Classes, if the class header or source file doesn't exist this will
-        generate a skeletons for them.
-        use private = "1" for internal classes
-    -->
+    <!-- These classes have an API model -->
+    <class name = "xrap_msg">XRAP data protocol</class>
     <class name = "zeb_handler">Handler for XRAP requests</class>
+
+    <!-- These classes have no API model -->
+    <class name = "xrap_traffic">XRAP exchange protocol</class>
+    <class name = "zeb_connection" private = "1">Wrapper for zeb_request and zeb_response.</class>
+    <class name = "zeb_client" >Client to interact with zeb_server</class>
+    <class name = "zeb_microhttpd">HTTP web server backend using libmicrohttpd.</class>
     <class name = "zeb_request" private = "1">Representation of a HTTP request.</class>
     <class name = "zeb_response" private = "1">Representation of a HTTP response.</class>
-    <class name = "zeb_connection" private = "1">Wrapper for zeb_request and zeb_response.</class>
-    <class name = "zeb_microhttpd">HTTP web server backend using libmicrohttpd.</class>
+    <class name = "zeb_server" >XRAP message dispatcher</class>
 
-    <!--
-        Models that we build using GSL.
-        This will generate a 'make code' target to build the models.
-    -->
+    <!-- Models that we build using GSL -->
     <model name = "xrap_msg" />
     <model name = "xrap_traffic" />
     <model name = "zeb_server" />
     <model name = "zeb_client" />
-    <class name = "xrap_msg">XRAP data protocol</class>
-    <class name = "xrap_traffic">XRAP exchange protocol</class>
-    <class name = "zeb_server" >XRAP message dispatcher</class>
-    <class name = "zeb_client" >Client to interact with zeb_server</class>
-    <!--
-        If a model should be generated using a specific gsl script,
-        this can be set through the script attribute:
-    <model name = "hydra_msg" script = "zproto_codec_java.gsl" />
 
-        Additional parameters to the script can be set via nested
-        param elements:
-    <model name = "hydra_msg" script = "zproto_codec_java.gsl">
-        <param name = "root_path" value = "../main" />
-    </model>
-    -->
-
-    <!-- Other source files that we need to package
-    <extra name = "some_resource" />
-    -->
+    <!-- Other source files in src that we need to package -->
     <extra name = "zeb_server_engine.inc" />
     <extra name = "zeb_client_engine.inc" />
 
-    <!--
-        Stuff that needs to be installed:
-
-        NOTICE: If you copied this file to get started you want to delete or
-                at least comment out those bin tag as they distribute the
-                zproject files.
-
-        * Linux -> /usr/local/bin
-    <bin name = "zproject.gsl" />
-    -->
 </project>

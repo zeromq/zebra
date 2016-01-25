@@ -10,8 +10,8 @@ find_library (ZEBRA_LIBRARY NAMES zebra REQUIRED)
 include_directories (${JAVA_INCLUDE_PATH} ${JAVA_INCLUDE_PATH2} src/native/include)
 
 set (zebrajni_sources
-    src/main/c/org_zeromq_zebra_ZebHandler.c
     src/main/c/org_zeromq_zebra_XrapMsg.c
+    src/main/c/org_zeromq_zebra_ZebHandler.c
 )
 
 add_library (zebrajni SHARED ${zebrajni_sources})

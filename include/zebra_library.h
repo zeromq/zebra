@@ -1,5 +1,5 @@
 /*  =========================================================================
-    zebra - ZEBRA wrapper
+    zebra - generated layer of public API
 
     Copyright (c) the Contributors as noted in the AUTHORS file.       
     This file is part of ZWEBRAP.                                      
@@ -48,27 +48,33 @@
 #endif
 
 //  Opaque class structures to allow forward references
-typedef struct _zeb_handler_t zeb_handler_t;
-#define ZEB_HANDLER_T_DEFINED
-typedef struct _zeb_microhttpd_t zeb_microhttpd_t;
-#define ZEB_MICROHTTPD_T_DEFINED
+//  These classes are stable or legacy and built in all releases
+//  Draft classes are by default not built stable releases
+#ifdef ZEBRA_BUILD_DRAFT_API
 typedef struct _xrap_msg_t xrap_msg_t;
 #define XRAP_MSG_T_DEFINED
+typedef struct _zeb_handler_t zeb_handler_t;
+#define ZEB_HANDLER_T_DEFINED
 typedef struct _xrap_traffic_t xrap_traffic_t;
 #define XRAP_TRAFFIC_T_DEFINED
-typedef struct _zeb_server_t zeb_server_t;
-#define ZEB_SERVER_T_DEFINED
 typedef struct _zeb_client_t zeb_client_t;
 #define ZEB_CLIENT_T_DEFINED
+typedef struct _zeb_microhttpd_t zeb_microhttpd_t;
+#define ZEB_MICROHTTPD_T_DEFINED
+typedef struct _zeb_server_t zeb_server_t;
+#define ZEB_SERVER_T_DEFINED
+#endif // ZEBRA_BUILD_DRAFT_API
 
 
-//  Public API classes
-#include "zeb_handler.h"
-#include "zeb_microhttpd.h"
+//  Public classes, each with its own header file
+#ifdef ZEBRA_BUILD_DRAFT_API
 #include "xrap_msg.h"
+#include "zeb_handler.h"
 #include "xrap_traffic.h"
-#include "zeb_server.h"
 #include "zeb_client.h"
+#include "zeb_microhttpd.h"
+#include "zeb_server.h"
+#endif // ZEBRA_BUILD_DRAFT_API
 
 #endif
 /*

@@ -17,7 +17,6 @@
 @end
 */
 
-#include "../include/zebra.h"
 #include "zebra_classes.h"
 
 //  Structure of the actor
