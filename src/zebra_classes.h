@@ -24,8 +24,8 @@
 #include "../include/zebra.h"
 
 //  Internal API
-#include "zeb_connection.h"
 #include "zeb_request.h"
 #include "zeb_response.h"
+#include "zeb_connection.h"
 
 #endif
