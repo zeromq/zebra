@@ -20,9 +20,9 @@
 
     <!-- These classes have no API model -->
     <class name = "xrap_traffic">XRAP exchange protocol</class>
-    <class name = "zeb_client" >Client to interact with zeb_server</class>
+    <class name = "zeb_broker" >XRAP service broker</class>
+    <class name = "zeb_client" >Client to interact with zeb_broker</class>
     <class name = "zeb_microhttpd">HTTP web server backend using libmicrohttpd.</class>
-    <class name = "zeb_server" >XRAP message dispatcher</class>
     <class name = "zeb_request" private = "1">Representation of a HTTP request.</class>
     <class name = "zeb_response" private = "1">Representation of a HTTP response.</class>
     <class name = "zeb_connection" private = "1">Wrapper for zeb_request and zeb_response.</class>
@@ -30,11 +30,11 @@
     <!-- Models that we build using GSL -->
     <model name = "xrap_msg" />
     <model name = "xrap_traffic" />
-    <model name = "zeb_server" />
+    <model name = "zeb_broker" />
     <model name = "zeb_client" />
 
     <!-- Other source files in src that we need to package -->
-    <extra name = "zeb_server_engine.inc" />
+    <extra name = "zeb_broker_engine.inc" />
     <extra name = "zeb_client_engine.inc" />
 
 </project>

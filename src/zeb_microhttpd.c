@@ -2,7 +2,7 @@
     zeb_microhttpdd - Simple HTTP web server
 
     Copyright (c) the Contributors as noted in the AUTHORS file.
-    This file is part of ZWEBRAP.
+    This file is part of ZEBRA.
 
     This Source Code Form is subject to the terms of the Mozilla Public
     License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -13,8 +13,8 @@
 /*
 @header
     Simple HTTP webserver implementation using the libmicrohttpd library.
-    Incomming HTTP request are converted to XRAP and send to the dispatcher.
-    Responses from the dispatcher are converted back into HTTP.
+    Incomming HTTP request are converted to XRAP and send to the broker.
+    Responses from the broker are converted back into HTTP.
 @discuss
 @end
 */
@@ -728,22 +728,22 @@ zeb_microhttpd_test (bool verbose)
     rc = zsock_wait (zeb_microhttpd);             //  Wait until port is configured
     assert (rc == 0);
 
-    zstr_sendx (zeb_microhttpd, "ENDPOINT", "inproc://http_dispatcher", NULL);
+    zstr_sendx (zeb_microhttpd, "ENDPOINT", "inproc://http_broker", NULL);
     rc = zsock_wait (zeb_microhttpd);             //  Wait until endpoint configured
     assert (rc == 0);
 
-    zactor_t *dispatcher = zactor_new (zeb_server, "dispatcher");
+    zactor_t *broker = zactor_new (zeb_broker, "broker");
 
     if (verbose)
-        zstr_send (dispatcher, "VERBOSE");
-    zstr_sendx (dispatcher, "BIND", "inproc://http_dispatcher", NULL);
+        zstr_send (broker, "VERBOSE");
+    zstr_sendx (broker, "BIND", "inproc://http_broker", NULL);
 
     //  Create handler
     zeb_client_t *handler = zeb_client_new ();
     assert (handler);
 
     //  Connect handler to server
-    rc = zeb_client_connect (handler, "inproc://http_dispatcher",  1000, "handler");
+    rc = zeb_client_connect (handler, "inproc://http_broker",  1000, "handler");
     assert (rc == 0);
     assert (zeb_client_connected (handler) == true);
 
@@ -820,7 +820,7 @@ zeb_microhttpd_test (bool verbose)
     zeb_curl_client_destroy (&curl);
 
     zeb_client_destroy (&handler);
-    zactor_destroy (&dispatcher);
+    zactor_destroy (&broker);
 
     zstr_send (zeb_microhttpd, "STOP");
     rc = zsock_wait (zeb_microhttpd);             //  Wait until actor stopped

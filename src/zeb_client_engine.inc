@@ -1,5 +1,5 @@
 /*  =========================================================================
-    zeb_client_engine - zeb_server client implementation for both clients and handlers engine
+    zeb_client_engine - zeb_broker client implementation for both clients and handlers engine
 
     ** WARNING *************************************************************
     THIS SOURCE FILE IS 100% GENERATED. If you edit this file, you will lose
@@ -11,7 +11,7 @@
      * The code generation script that built this file: zproto_client_c
     ************************************************************************
     Copyright (c) the Contributors as noted in the AUTHORS file.       
-    This file is part of ZWEBRAP.                                      
+    This file is part of ZEBRA.                                        
                                                                        
     This Source Code Form is subject to the terms of the Mozilla Public
     License, v. 2.0. If a copy of the MPL was not distributed with this

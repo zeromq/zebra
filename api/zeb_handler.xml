@@ -12,9 +12,9 @@
     <actor>
         To work with zeb_handler, use the CZMQ zactor API:
 
-        Create new zeb_handler instance, passing dispatcher endpoint:
+        Create new zeb_handler instance, passing broker endpoint:
 
-            zactor_t *handler = zactor_new (zeb_handler, "inproc://dispatcher");
+            zactor_t *handler = zactor_new (zeb_handler, "inproc://broker");
 
         Destroy zeb_handler instance
 

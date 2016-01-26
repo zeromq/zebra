@@ -41,13 +41,13 @@
         'sources': [
             'src/xrap_msg.c',
             'src/xrap_traffic.c',
+            'src/zeb_broker.c',
             'src/zeb_client.c',
             'src/zeb_connection.c',
             'src/zeb_handler.c',
             'src/zeb_microhttpd.c',
             'src/zeb_request.c',
-            'src/zeb_response.c',
-            'src/zeb_server.c'
+            'src/zeb_response.c'
         ]
       },
       {

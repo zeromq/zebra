@@ -1,13 +1,14 @@
 <class
-    name = "zeb_server"
-    title = "ZWebRap Server"
+    name = "zeb_broker"
+    title = "zebra service broker"
     script = "zproto_server_c"
     protocol_class = "xrap_traffic"
     package_dir = "../include"
-    project_header = "zwebrap_classes.h"
+    project_header = "zebra_classes.h"
     export_macro = "ZEBRA_EXPORT"
     >
-    This is a server implementation of the WEB XRAP gateway
+    The zeb_broker implements the zproto server. This broker connects
+    client requests to handler offers.
     <include filename = "../license.xml" />
 
     <state name = "start" inherit = "defaults">

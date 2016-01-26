@@ -172,7 +172,7 @@ set (zebra_headers
     src/zeb_request.h
     src/zeb_response.h
     src/zeb_connection.h
-    src/zeb_server_engine.inc
+    src/zeb_broker_engine.inc
     src/zeb_client_engine.inc
 )
 
@@ -181,9 +181,9 @@ IF (ENABLE_DRAFTS)
         include/xrap_msg.h
         include/zeb_handler.h
         include/xrap_traffic.h
+        include/zeb_broker.h
         include/zeb_client.h
         include/zeb_microhttpd.h
-        include/zeb_server.h
     )
 ENDIF (ENABLE_DRAFTS)
 
@@ -205,9 +205,9 @@ IF (ENABLE_DRAFTS)
         src/xrap_msg.c
         src/zeb_handler.c
         src/xrap_traffic.c
+        src/zeb_broker.c
         src/zeb_client.c
         src/zeb_microhttpd.c
-        src/zeb_server.c
     )
 ENDIF (ENABLE_DRAFTS)
 
@@ -292,9 +292,9 @@ IF (ENABLE_DRAFTS)
     xrap_msg
     zeb_handler
     xrap_traffic
+    zeb_broker
     zeb_client
     zeb_microhttpd
-    zeb_server
     )
 ENDIF (ENABLE_DRAFTS)
 

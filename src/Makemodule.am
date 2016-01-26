@@ -21,16 +21,16 @@ include_HEADERS += \
     include/xrap_msg.h \
     include/zeb_handler.h \
     include/xrap_traffic.h \
+    include/zeb_broker.h \
     include/zeb_client.h \
-    include/zeb_microhttpd.h \
-    include/zeb_server.h
+    include/zeb_microhttpd.h
 endif
 
 src_libzebra_la_SOURCES = \
     src/zeb_request.c \
     src/zeb_response.c \
     src/zeb_connection.c \
-    src/zeb_server_engine.inc \
+    src/zeb_broker_engine.inc \
     src/zeb_client_engine.inc \
     src/platform.h
 
@@ -39,9 +39,9 @@ src_libzebra_la_SOURCES += \
     src/xrap_msg.c \
     src/zeb_handler.c \
     src/xrap_traffic.c \
+    src/zeb_broker.c \
     src/zeb_client.c \
-    src/zeb_microhttpd.c \
-    src/zeb_server.c
+    src/zeb_microhttpd.c
 endif
 
 src_libzebra_la_CPPFLAGS = ${AM_CPPFLAGS}
@@ -88,7 +88,7 @@ src:
 code:
 	cd $(srcdir)/src; gsl -q xrap_msg.xml
 	cd $(srcdir)/src; gsl -q xrap_traffic.xml
-	cd $(srcdir)/src; gsl -q zeb_server.xml
+	cd $(srcdir)/src; gsl -q zeb_broker.xml
 	cd $(srcdir)/src; gsl -q zeb_client.xml
 
 check-local: src/zebra_selftest

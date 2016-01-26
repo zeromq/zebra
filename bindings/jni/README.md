@@ -57,7 +57,7 @@ The resulting libraries (zebrajni.dll, zebrajni.lib) are created in bindings/jni
 
 
 Copyright (c) the Contributors as noted in the AUTHORS file.
-This file is part of ZWEBRAP.
+This file is part of ZEBRA.
 
 This Source Code Form is subject to the terms of the Mozilla Public
 License, v. 2.0. If a copy of the MPL was not distributed with this

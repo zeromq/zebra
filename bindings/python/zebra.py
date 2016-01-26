@@ -30,10 +30,6 @@ class xrap_msg_t(Structure):
     pass # Empty - only for type checking
 xrap_msg_p = POINTER(xrap_msg_t)
 
-class number_t(Structure):
-    pass # Empty - only for type checking
-number_p = POINTER(number_t)
-
 
 # xrap msg
 lib.xrap_msg_new.restype = xrap_msg_p
@@ -68,10 +64,10 @@ lib.xrap_msg_content_body.restype = c_char_p
 lib.xrap_msg_content_body.argtypes = [xrap_msg_p]
 lib.xrap_msg_set_content_body.restype = None
 lib.xrap_msg_set_content_body.argtypes = [xrap_msg_p, c_char_p]
-lib.xrap_msg_status_code.restype = number_p
+lib.xrap_msg_status_code.restype = c_short
 lib.xrap_msg_status_code.argtypes = [xrap_msg_p]
 lib.xrap_msg_set_status_code.restype = None
-lib.xrap_msg_set_status_code.argtypes = [xrap_msg_p, number_p]
+lib.xrap_msg_set_status_code.argtypes = [xrap_msg_p, c_short]
 lib.xrap_msg_location.restype = c_char_p
 lib.xrap_msg_location.argtypes = [xrap_msg_p]
 lib.xrap_msg_set_location.restype = None
@@ -80,10 +76,10 @@ lib.xrap_msg_etag.restype = c_char_p
 lib.xrap_msg_etag.argtypes = [xrap_msg_p]
 lib.xrap_msg_set_etag.restype = None
 lib.xrap_msg_set_etag.argtypes = [xrap_msg_p, c_char_p]
-lib.xrap_msg_date_modified.restype = number_p
+lib.xrap_msg_date_modified.restype = c_long
 lib.xrap_msg_date_modified.argtypes = [xrap_msg_p]
 lib.xrap_msg_set_date_modified.restype = None
-lib.xrap_msg_set_date_modified.argtypes = [xrap_msg_p, number_p]
+lib.xrap_msg_set_date_modified.argtypes = [xrap_msg_p, c_long]
 lib.xrap_msg_resource.restype = c_char_p
 lib.xrap_msg_resource.argtypes = [xrap_msg_p]
 lib.xrap_msg_set_resource.restype = None
@@ -98,10 +94,10 @@ lib.xrap_msg_parameters_string.restype = c_char_p
 lib.xrap_msg_parameters_string.argtypes = [xrap_msg_p, c_char_p, c_char_p]
 lib.xrap_msg_parameters_insert.restype = None
 lib.xrap_msg_parameters_insert.argtypes = [xrap_msg_p, c_char_p, c_char_p]
-lib.xrap_msg_if_modified_since.restype = number_p
+lib.xrap_msg_if_modified_since.restype = c_long
 lib.xrap_msg_if_modified_since.argtypes = [xrap_msg_p]
 lib.xrap_msg_set_if_modified_since.restype = None
-lib.xrap_msg_set_if_modified_since.argtypes = [xrap_msg_p, number_p]
+lib.xrap_msg_set_if_modified_since.argtypes = [xrap_msg_p, c_long]
 lib.xrap_msg_if_none_match.restype = c_char_p
 lib.xrap_msg_if_none_match.argtypes = [xrap_msg_p]
 lib.xrap_msg_set_if_none_match.restype = None
@@ -116,10 +112,10 @@ lib.xrap_msg_metadata_string.restype = c_char_p
 lib.xrap_msg_metadata_string.argtypes = [xrap_msg_p, c_char_p, c_char_p]
 lib.xrap_msg_metadata_insert.restype = None
 lib.xrap_msg_metadata_insert.argtypes = [xrap_msg_p, c_char_p, c_char_p]
-lib.xrap_msg_if_unmodified_since.restype = number_p
+lib.xrap_msg_if_unmodified_since.restype = c_long
 lib.xrap_msg_if_unmodified_since.argtypes = [xrap_msg_p]
 lib.xrap_msg_set_if_unmodified_since.restype = None
-lib.xrap_msg_set_if_unmodified_since.argtypes = [xrap_msg_p, number_p]
+lib.xrap_msg_set_if_unmodified_since.argtypes = [xrap_msg_p, c_long]
 lib.xrap_msg_if_match.restype = c_char_p
 lib.xrap_msg_if_match.argtypes = [xrap_msg_p]
 lib.xrap_msg_set_if_match.restype = None

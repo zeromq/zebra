@@ -13,7 +13,7 @@
 
 ### Scope and Goals
 
-zebra is designed to take HTTP requests for the common HTTP methods GET, POST, PUT and DELETE and convert them into the [XRAP](http://rfc.zeromq.org/spec:40) format. The converted messages will be passed to the request handlers which compose a response in the XRAP format which will be converted back into HTTP. To allow handler to come and go a they please, they need to register at a dispatcher which will forward XRAP messages both ways.
+zebra is designed to take HTTP requests for the common HTTP methods GET, POST, PUT and DELETE and convert them into the [XRAP](http://rfc.zeromq.org/spec:40) format. The converted messages will be passed to the request handlers which compose a response in the XRAP format which will be converted back into HTTP. To allow handler to come and go a they please, they need to register at a broker which will forward XRAP messages both ways.
 
 [diagram]
                    HTTP
@@ -21,16 +21,16 @@ zebra is designed to take HTTP requests for the common HTTP methods GET, POST, P
                     | GET, POST,
                     | PUT, DELETE
                     v
-  Converts   +----------------+
-  HTTP to    | zeb_microhttpd |
-  XRAP.      |  (webserver)   |
-             +----------------+
+  Converts  +----------------+
+  HTTP to   | zeb_microhttpd |
+  XRAP.     |  (webserver)   |
+            +----------------+
                     ^
                     |
                     v
              +--------------+  Dispatches xrap msg
-             |  zeb_server  |  to the handlers, based
-             | (dispatcher) |  on their offerings
+             |  zeb_broker  |  to the handlers, based
+             |   (broker)   |  on their offerings
              +--------------+
                  ^      ^
                  |      |
@@ -130,7 +130,7 @@ This is the API provided by zebra v0.x, in alphabetical order.
 
 .pull doc/zeb_handler.doc
 .pull doc/zeb_microhttpd.doc
-.pull doc/zeb_server.doc
+.pull doc/zeb_broker.doc
 .pull doc/zeb_client.doc
 
 ### Hints to Contributors

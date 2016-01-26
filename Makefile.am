@@ -29,7 +29,7 @@ noinst_LTLIBRARIES =
 TESTS =
 
 EXTRA_DIST = \
-    src/zeb_server_engine.inc \
+    src/zeb_broker_engine.inc \
     src/zeb_client_engine.inc \
     src/zeb_request.h \
     src/zeb_response.h \
