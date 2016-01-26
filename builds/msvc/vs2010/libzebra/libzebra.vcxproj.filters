@@ -16,13 +16,13 @@
     <ClCompile Include="..\..\..\..\src\xrap_traffic.c">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\src\zeb_broker.c">
+      <Filter>src</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\..\..\src\zeb_client.c">
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\src\zeb_microhttpd.c">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\src\zeb_server.c">
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\src\zeb_request.c">
@@ -42,7 +42,7 @@
     <ClInclude Include="..\..\..\..\include\zebra.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\src\zeb_server_engine.inc">
+    <ClInclude Include="..\..\..\..\src\zeb_broker_engine.inc">
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\src\zeb_client_engine.inc">

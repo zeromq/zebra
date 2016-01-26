@@ -77,7 +77,7 @@ typedef struct _zeb_microhttpd_t zeb_microhttpd_t;
 //
 //  ------------------------ zeb_microhttpd.cfg -------------------------------
 //  | 1 | zeb_microhttpd
-//  | 2 |     endpoint = tcp://192.168.178.1:7777  # Dispatcher endpoint
+//  | 2 |     endpoint = tcp://192.168.178.1:7777  # Broker endpoint
 //  | 3 |     port = 8888                          # Webserver port
 //  | 4 |     verbose = 0
 //  | 5 |     ratelimit

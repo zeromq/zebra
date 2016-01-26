@@ -79,7 +79,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\..\..\include\zebra_library.h" />
     <ClInclude Include="..\..\..\..\include\zebra.h" />
-    <ClInclude Include="..\..\..\..\src\zeb_server_engine.inc" />
+    <ClInclude Include="..\..\..\..\src\zeb_broker_engine.inc" />
     <ClInclude Include="..\..\..\..\src\zeb_client_engine.inc" />
   </ItemGroup>
   <ItemGroup>
@@ -92,13 +92,13 @@
     <ClCompile Include="..\..\..\..\src\xrap_traffic.c">
       <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\src\zeb_broker.c">
+      <CompileAs>CompileAsCpp</CompileAs>
+    </ClCompile>
     <ClCompile Include="..\..\..\..\src\zeb_client.c">
       <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
     <ClCompile Include="..\..\..\..\src\zeb_microhttpd.c">
-      <CompileAs>CompileAsCpp</CompileAs>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\src\zeb_server.c">
       <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
     <ClCompile Include="..\..\..\..\src\zeb_request.c">

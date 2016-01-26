@@ -1,5 +1,5 @@
 /*  =========================================================================
-    zeb_server_engine - zeb_server engine
+    zeb_broker_engine - zeb_broker engine
 
     ** WARNING *************************************************************
     THIS SOURCE FILE IS 100% GENERATED. If you edit this file, you will lose
@@ -7,11 +7,11 @@
     statements. DO NOT MAKE ANY CHANGES YOU WISH TO KEEP. The correct places
     for commits are:
 
-     * The XML model used for this code generation: zeb_server.xml, or
+     * The XML model used for this code generation: zeb_broker.xml, or
      * The code generation script that built this file: zproto_server_c
     ************************************************************************
     Copyright (c) the Contributors as noted in the AUTHORS file.       
-    This file is part of ZWEBRAP.                                      
+    This file is part of ZEBRA.                                        
                                                                        
     This Source Code Form is subject to the terms of the Mozilla Public
     License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -1064,7 +1064,7 @@ static void
 s_server_config_service (s_server_t *self)
 {
     //  Apply echo commands and class methods
-    zconfig_t *section = zconfig_locate (self->config, "zeb_server");
+    zconfig_t *section = zconfig_locate (self->config, "zeb_broker");
     if (section)
         section = zconfig_child (section);
 
@@ -1237,7 +1237,7 @@ s_watch_server_config (zloop_t *loop, int timer_id, void *argument)
 //  incoming messages
 
 void
-zeb_server (zsock_t *pipe, void *args)
+zeb_broker (zsock_t *pipe, void *args)
 {
     //  Initialize
     s_server_t *self = s_server_new (pipe);

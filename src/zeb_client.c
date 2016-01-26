@@ -1,8 +1,8 @@
 /*  =========================================================================
-    zeb_client - Dispatcher client
+    zeb_client - Broker client
 
     Copyright (c) the Contributors as noted in the AUTHORS file.
-    This file is part of ZWEBRAP.
+    This file is part of ZEBRA.
 
     This Source Code Form is subject to the terms of the Mozilla Public
     License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -12,7 +12,7 @@
 
 /*
 @header
-    Client implementation to communicate with the dispatcher. This
+    Client implementation to communicate with the broker. This
     implementation is used by both clients (i.e. zeb_microhttpd) and the
     handlers.
 @discuss
@@ -326,7 +326,7 @@ zeb_client_test (bool verbose)
     zeb_client_verbose = verbose;
 
     //  Start a server to test against, and bind to endpoint
-    zactor_t *server = zactor_new (zeb_server, "zeb_client_test");
+    zactor_t *server = zactor_new (zeb_broker, "zeb_client_test");
     if (verbose)
         zstr_send (server, "VERBOSE");
     zstr_sendx (server, "LOAD", "src/zeb_client.cfg", NULL);

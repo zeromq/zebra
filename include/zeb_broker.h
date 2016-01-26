@@ -1,5 +1,5 @@
 /*  =========================================================================
-    zeb_server - ZWebRap Server
+    zeb_broker - zebra service broker
 
     ** WARNING *************************************************************
     THIS SOURCE FILE IS 100% GENERATED. If you edit this file, you will lose
@@ -7,11 +7,11 @@
     statements. DO NOT MAKE ANY CHANGES YOU WISH TO KEEP. The correct places
     for commits are:
 
-     * The XML model used for this code generation: zeb_server.xml, or
+     * The XML model used for this code generation: zeb_broker.xml, or
      * The code generation script that built this file: zproto_server_c
     ************************************************************************
     Copyright (c) the Contributors as noted in the AUTHORS file.       
-    This file is part of ZWEBRAP.                                      
+    This file is part of ZEBRA.                                        
                                                                        
     This Source Code Form is subject to the terms of the Mozilla Public
     License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -19,8 +19,8 @@
     =========================================================================
 */
 
-#ifndef ZEB_SERVER_H_INCLUDED
-#define ZEB_SERVER_H_INCLUDED
+#ifndef ZEB_BROKER_H_INCLUDED
+#define ZEB_BROKER_H_INCLUDED
 
 #include <czmq.h>
 
@@ -29,62 +29,62 @@ extern "C" {
 #endif
 
 //  @interface
-//  To work with zeb_server, use the CZMQ zactor API:
+//  To work with zeb_broker, use the CZMQ zactor API:
 //
-//  Create new zeb_server instance, passing logging prefix:
+//  Create new zeb_broker instance, passing logging prefix:
 //
-//      zactor_t *zeb_server = zactor_new (zeb_server, "myname");
+//      zactor_t *zeb_broker = zactor_new (zeb_broker, "myname");
 //
-//  Destroy zeb_server instance
+//  Destroy zeb_broker instance
 //
-//      zactor_destroy (&zeb_server);
+//      zactor_destroy (&zeb_broker);
 //
 //  Enable verbose logging of commands and activity:
 //
-//      zstr_send (zeb_server, "VERBOSE");
+//      zstr_send (zeb_broker, "VERBOSE");
 //
-//  Bind zeb_server to specified endpoint. TCP endpoints may specify
+//  Bind zeb_broker to specified endpoint. TCP endpoints may specify
 //  the port number as "*" to aquire an ephemeral port:
 //
-//      zstr_sendx (zeb_server, "BIND", endpoint, NULL);
+//      zstr_sendx (zeb_broker, "BIND", endpoint, NULL);
 //
 //  Return assigned port number, specifically when BIND was done using an
 //  an ephemeral port:
 //
-//      zstr_sendx (zeb_server, "PORT", NULL);
+//      zstr_sendx (zeb_broker, "PORT", NULL);
 //      char *command, *port_str;
-//      zstr_recvx (zeb_server, &command, &port_str, NULL);
+//      zstr_recvx (zeb_broker, &command, &port_str, NULL);
 //      assert (streq (command, "PORT"));
 //
 //  Specify configuration file to load, overwriting any previous loaded
 //  configuration file or options:
 //
-//      zstr_sendx (zeb_server, "LOAD", filename, NULL);
+//      zstr_sendx (zeb_broker, "LOAD", filename, NULL);
 //
 //  Set configuration path value:
 //
-//      zstr_sendx (zeb_server, "SET", path, value, NULL);
+//      zstr_sendx (zeb_broker, "SET", path, value, NULL);
 //
 //  Save configuration data to config file on disk:
 //
-//      zstr_sendx (zeb_server, "SAVE", filename, NULL);
+//      zstr_sendx (zeb_broker, "SAVE", filename, NULL);
 //
-//  Send zmsg_t instance to zeb_server:
+//  Send zmsg_t instance to zeb_broker:
 //
-//      zactor_send (zeb_server, &msg);
+//      zactor_send (zeb_broker, &msg);
 //
-//  Receive zmsg_t instance from zeb_server:
+//  Receive zmsg_t instance from zeb_broker:
 //
-//      zmsg_t *msg = zactor_recv (zeb_server);
+//      zmsg_t *msg = zactor_recv (zeb_broker);
 //
-//  This is the zeb_server constructor as a zactor_fn:
+//  This is the zeb_broker constructor as a zactor_fn:
 //
 ZEBRA_EXPORT void
-    zeb_server (zsock_t *pipe, void *args);
+    zeb_broker (zsock_t *pipe, void *args);
 
 //  Self test of this class
 ZEBRA_EXPORT void
-    zeb_server_test (bool verbose);
+    zeb_broker_test (bool verbose);
 //  @end
 
 #ifdef __cplusplus

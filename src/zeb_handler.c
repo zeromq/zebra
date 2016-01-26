@@ -27,7 +27,7 @@ typedef struct {
     bool terminated;
     bool verbose;
     //  Declare properties
-    zeb_client_t *client;       //  Client that communicates with the zeb_server
+    zeb_client_t *client;       //  Client that communicates with the zeb_broker
     ztrie_t *offers;            //  Holds the offers the handler handles
     zlistx_t *accepts;          //  Response formats this handler can deliver
 } s_handler_t;
@@ -403,7 +403,7 @@ zeb_handler_test (bool verbose)
     //  Simple create/destroy test
 
     //  Start a server to test against, and bind to endpoint
-    zactor_t *server = zactor_new (zeb_server, "zeb_client_test");
+    zactor_t *server = zactor_new (zeb_broker, "zeb_client_test");
     if (verbose)
         zstr_send (server, "VERBOSE");
     zstr_sendx (server, "LOAD", "src/zeb_client.cfg", NULL);

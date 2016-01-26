@@ -1,5 +1,5 @@
 /*  =========================================================================
-    zeb_server - Request/response dispatcher.
+    zeb_broker - zebra service broker
 
     Copyright (c) the Contributors as noted in the AUTHORS file.
     This file is part of ZWEBRAP.
@@ -12,9 +12,8 @@
 
 /*
 @header
-    The zeb_server implements the zproto server. It acts as dispatcher for XRAP
-    requests from clients to handlers and it redirects responses from handlers to
-    clients.
+    The zeb_broker implements the zproto server. This broker connects
+    client requests to handler offers.
 @discuss
 @end
 */
@@ -64,7 +63,7 @@ struct _client_t {
     client_t * callee;      //  Message source
 };
 
-#include "zeb_server_engine.inc"
+#include "zeb_broker_engine.inc"
 
 //  Work with service instance
 //
@@ -183,7 +182,7 @@ write_message_to_xrap_client (client_t *self)
     assert (client_id);
     client_t *client = (client_t *) zhashx_lookup (self->server->clients, zuuid_str (client_id));
     if (client) {
-        //  Save message for dispatcher
+        //  Save message for broker
         client->msg = zmsg_dup (xrap_traffic_content (self->message));
         client->callee = NULL;
         engine_send_event (client, xrap_message_event);
@@ -232,7 +231,7 @@ write_message_to_xrap_handler (client_t *self)
     client_t *target;
     if (routes && ztrie_matches (routes, route)) {
         target = (client_t *) ztrie_hit_data (routes);
-        //  Save message for dispatcher
+        //  Save message for broker
         target->msg = zmsg_dup (xrap_traffic_content (self->message));
         //  Trigger dispatch event
         target->callee = self;
@@ -334,14 +333,14 @@ get_message_to_deliver (client_t *self)
 //  Self test of this class.
 
 void
-zeb_server_test (bool verbose)
+zeb_broker_test (bool verbose)
 {
-    printf (" * zeb_server: ");
+    printf (" * zeb_broker: ");
     if (verbose)
         printf ("\n");
 
     //  @selftest
-    zactor_t *server = zactor_new (zeb_server, "dispatcher");
+    zactor_t *server = zactor_new (zeb_broker, "broker");
     if (verbose)
         zstr_send (server, "VERBOSE");
     zstr_sendx (server, "BIND", "tcp://127.0.0.1:9999", NULL);

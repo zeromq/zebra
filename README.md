@@ -4,50 +4,50 @@
 
 [![Build Status](https://travis-ci.org/zeromq/zebra.svg)](https://travis-ci.org/zeromq/zebra)
 
-<A name="toc2-6" title="Contents" />
+<A name="toc2-8" title="Contents" />
 ## Contents
 
 
-**<a href="#toc2-11">Overview</a>**
+**<a href="#toc2-13">Overview</a>**
 
-**<a href="#toc3-14">Scope and Goals</a>**
+**<a href="#toc3-16">Scope and Goals</a>**
 
-**<a href="#toc2-47">Ownership and License</a>**
+**<a href="#toc2-49">Ownership and License</a>**
 
-**<a href="#toc2-58">Using zebra</a>**
+**<a href="#toc2-60">Using zebra</a>**
 
-**<a href="#toc3-61">Requirements</a>**
+**<a href="#toc3-63">Requirements</a>**
 
-**<a href="#toc3-69">Building and Installing</a>**
+**<a href="#toc3-71">Building and Installing</a>**
 
-**<a href="#toc3-106">User information</a>**
-&emsp;<a href="#toc4-109">User Agent Required</a>
-&emsp;<a href="#toc4-114">Rate Limiting</a>
-&emsp;<a href="#toc4-131">Conditional requests</a>
+**<a href="#toc3-108">User information</a>**
+&emsp;<a href="#toc4-111">User Agent Required</a>
+&emsp;<a href="#toc4-116">Rate Limiting</a>
+&emsp;<a href="#toc4-133">Conditional requests</a>
 
-**<a href="#toc3-136">Usage</a>**
-&emsp;<a href="#toc4-141">zeb_handler - Handler for XRAP requests</a>
-&emsp;<a href="#toc4-543">zeb_microhttpd - Simple HTTP web server</a>
-&emsp;<a href="#toc4-740">zeb_server - Request/response dispatcher.</a>
-&emsp;<a href="#toc4-915">zeb_client - Dispatcher client</a>
+**<a href="#toc3-138">Usage</a>**
+&emsp;<a href="#toc4-143">zeb_handler - Handler for XRAP requests</a>
+&emsp;<a href="#toc4-555">zeb_microhttpd - Simple HTTP web server</a>
+&emsp;<a href="#toc4-752">zeb_broker - zebra service broker</a>
+&emsp;<a href="#toc4-926">zeb_client - Broker client</a>
 
-**<a href="#toc3-1094">Hints to Contributors</a>**
+**<a href="#toc3-1105">Hints to Contributors</a>**
 
-**<a href="#toc3-1103">This Document</a>**
+**<a href="#toc3-1114">This Document</a>**
 
-<A name="toc2-11" title="Overview" />
+<A name="toc2-13" title="Overview" />
 ## Overview
 
-<A name="toc3-14" title="Scope and Goals" />
+<A name="toc3-16" title="Scope and Goals" />
 ### Scope and Goals
 
-zebra is designed to take HTTP requests for the common HTTP methods GET, POST, PUT and DELETE and convert them into the [XRAP](http://rfc.zeromq.org/spec:40) format. The converted messages will be passed to the request handlers which compose a response in the XRAP format which will be converted back into HTTP. To allow handler to come and go a they please, they need to register at a dispatcher which will forward XRAP messages both ways.
+zebra is designed to take HTTP requests for the common HTTP methods GET, POST, PUT and DELETE and convert them into the [XRAP](http://rfc.zeromq.org/spec:40) format. The converted messages will be passed to the request handlers which compose a response in the XRAP format which will be converted back into HTTP. To allow handler to come and go a they please, they need to register at a broker which will forward XRAP messages both ways.
 
 <center>
 <img src="https://github.com/zeromq/zebra/raw/master/images/README_1.png" alt="1">
 </center>
 
-<A name="toc2-47" title="Ownership and License" />
+<A name="toc2-49" title="Ownership and License" />
 ## Ownership and License
 
 The contributors are listed in AUTHORS. This project uses the MPL v2 license, see LICENSE.
@@ -58,10 +58,10 @@ zebra uses the [CLASS (C Language Style for Scalabilty)](http://rfc.zeromq.org/s
 
 To report an issue, use the [zebra issue tracker](https://github.com/zeromq/zebra/issues) at github.com.
 
-<A name="toc2-58" title="Using zebra" />
+<A name="toc2-60" title="Using zebra" />
 ## Using zebra
 
-<A name="toc3-61" title="Requirements" />
+<A name="toc3-63" title="Requirements" />
 ### Requirements
 
 * libmicrohttpd (>= 0.9.38)
@@ -69,7 +69,7 @@ To report an issue, use the [zebra issue tracker](https://github.com/zeromq/zebr
 * czmq (>= 3.0.3)
 * libcurl [optional, to run HTTP tests]
 
-<A name="toc3-69" title="Building and Installing" />
+<A name="toc3-71" title="Building and Installing" />
 ### Building and Installing
 
 Here's how to build zebra, including libmicrohttpd, libzmq and czmq:
@@ -106,15 +106,15 @@ Here's how to build zebra, including libmicrohttpd, libzmq and czmq:
     sudo ldconfig
     cd ..
 
-<A name="toc3-106" title="User information" />
+<A name="toc3-108" title="User information" />
 ### User information
 
-<A name="toc4-109" title="User Agent Required" />
+<A name="toc4-111" title="User Agent Required" />
 #### User Agent Required
 
 All HTTP requests MUST include a valid User-Agent header. Requests with no User-Agent header will be rejected. A good User-Agent header value is the name of your application.
 
-<A name="toc4-114" title="Rate Limiting" />
+<A name="toc4-116" title="Rate Limiting" />
 #### Rate Limiting
 
 To allow to compensate hardware limitations or to mitigate DOS attacks zebra has a built in rate limiting which allows to limit the number of request within an time interval.
@@ -131,17 +131,17 @@ X-RateLimit-Reset: 22
 
 Once you go over the rate limit you will receive an 403 Forbidden error.
 
-<A name="toc4-131" title="Conditional requests" />
+<A name="toc4-133" title="Conditional requests" />
 #### Conditional requests
 
 XRAP allows responses to return an ETag header as well as a Last-Modified header. You can use the values of these headers to make subsequent requests to those resources using the If-None-Match and If-Modified-Since headers, respectively. If the resource has not changed, the handler might return a 304 Not Modified. Also note: making a conditional request and receiving a 304 response does not count against the Rate Limit which zebra takes automatically care of.
 
-<A name="toc3-136" title="Usage" />
+<A name="toc3-138" title="Usage" />
 ### Usage
 
 This is the API provided by zebra v0.x, in alphabetical order.
 
-<A name="toc4-141" title="zeb_handler - Handler for XRAP requests" />
+<A name="toc4-143" title="zeb_handler - Handler for XRAP requests" />
 #### zeb_handler - Handler for XRAP requests
 
 zeb_handler - Handler for XRAP requests
@@ -150,6 +150,15 @@ Please add @discuss section in ../src/zeb_handler.c.
 
 This is the class interface:
 
+    //  This is a draft class, and may change without notice. It is disabled in
+    //  stable builds by default. If you use this in applications, please ask
+    //  for it to be pushed to stable state. Use --enable-drafts to enable.
+    //  Self test of this class.
+    ZEBRA_EXPORT void
+        zeb_handler_test (bool verbose);
+    
+    
+    #ifdef ZEBRA_BUILD_DRAFT_API
     //  To work with zeb_handler, use the CZMQ zactor API:                      
     //                                                                          
     //  Create new zeb_handler instance, passing dispatcher endpoint:           
@@ -198,26 +207,27 @@ This is the class interface:
     ZEBRA_EXPORT void
         zeb_handler (zsock_t *pipe, void *args);
     
+    //  *** Draft method, for development use, may change without warning ***
     //  Add a new offer this handler will handle. Returns 0 if successful,
     //  otherwise -1.                                                     
     ZEBRA_EXPORT int
         zeb_handler_add_offer (zactor_t *self, int method, const char *uri);
     
+    //  *** Draft method, for development use, may change without warning ***
     //  Add a new accept type that this handler can deliver. May be a regular
     //  expression. Returns 0 if successfull, otherwise -1.                  
     ZEBRA_EXPORT int
         zeb_handler_add_accept (zactor_t *self, const char *accept);
     
-    //  Self test of this class.
-    ZEBRA_EXPORT void
-        zeb_handler_test (bool verbose);
+    
+    #endif // ZEBRA_BUILD_DRAFT_API
 
 This is the class self test code:
 
     //  Simple create/destroy test
     
     //  Start a server to test against, and bind to endpoint
-    zactor_t *server = zactor_new (zeb_server, "zeb_client_test");
+    zactor_t *server = zactor_new (zeb_broker, "zeb_client_test");
     if (verbose)
         zstr_send (server, "VERBOSE");
     zstr_sendx (server, "LOAD", "src/zeb_client.cfg", NULL);
@@ -543,12 +553,12 @@ This is the class self test code:
     //  Done, shut down
     zactor_destroy (&server);
 
-<A name="toc4-543" title="zeb_microhttpd - Simple HTTP web server" />
+<A name="toc4-555" title="zeb_microhttpd - Simple HTTP web server" />
 #### zeb_microhttpd - Simple HTTP web server
 
 Simple HTTP webserver implementation using the libmicrohttpd library.
-Incomming HTTP request are converted to XRAP and send to the dispatcher.
-Responses from the dispatcher are converted back into HTTP.
+Incomming HTTP request are converted to XRAP and send to the broker.
+Responses from the broker are converted back into HTTP.
 
 Please add @discuss section in ../src/zeb_microhttpd.c.
 
@@ -605,7 +615,7 @@ This is the class interface:
     //
     //  ------------------------ zeb_microhttpd.cfg -------------------------------
     //  | 1 | zeb_microhttpd
-    //  | 2 |     endpoint = tcp://192.168.178.1:7777  # Dispatcher endpoint
+    //  | 2 |     endpoint = tcp://192.168.178.1:7777  # Broker endpoint
     //  | 3 |     port = 8888                          # Webserver port
     //  | 4 |     verbose = 0
     //  | 5 |     ratelimit
@@ -640,22 +650,22 @@ This is the class self test code:
     rc = zsock_wait (zeb_microhttpd);             //  Wait until port is configured
     assert (rc == 0);
     
-    zstr_sendx (zeb_microhttpd, "ENDPOINT", "inproc://http_dispatcher", NULL);
+    zstr_sendx (zeb_microhttpd, "ENDPOINT", "inproc://http_broker", NULL);
     rc = zsock_wait (zeb_microhttpd);             //  Wait until endpoint configured
     assert (rc == 0);
     
-    zactor_t *dispatcher = zactor_new (zeb_server, "dispatcher");
+    zactor_t *broker = zactor_new (zeb_broker, "broker");
     
     if (verbose)
-        zstr_send (dispatcher, "VERBOSE");
-    zstr_sendx (dispatcher, "BIND", "inproc://http_dispatcher", NULL);
+        zstr_send (broker, "VERBOSE");
+    zstr_sendx (broker, "BIND", "inproc://http_broker", NULL);
     
     //  Create handler
     zeb_client_t *handler = zeb_client_new ();
     assert (handler);
     
     //  Connect handler to server
-    rc = zeb_client_connect (handler, "inproc://http_dispatcher",  1000, "handler");
+    rc = zeb_client_connect (handler, "inproc://http_broker",  1000, "handler");
     assert (rc == 0);
     assert (zeb_client_connected (handler) == true);
     
@@ -732,7 +742,7 @@ This is the class self test code:
     zeb_curl_client_destroy (&curl);
     
     zeb_client_destroy (&handler);
-    zactor_destroy (&dispatcher);
+    zactor_destroy (&broker);
     
     zstr_send (zeb_microhttpd, "STOP");
     rc = zsock_wait (zeb_microhttpd);             //  Wait until actor stopped
@@ -740,77 +750,76 @@ This is the class self test code:
     
     zactor_destroy (&zeb_microhttpd);
 
-<A name="toc4-740" title="zeb_server - Request/response dispatcher." />
-#### zeb_server - Request/response dispatcher.
+<A name="toc4-752" title="zeb_broker - zebra service broker" />
+#### zeb_broker - zebra service broker
 
-The zeb_server implements the zproto server. It acts as dispatcher for XRAP
-requests from clients to handlers and it redirects responses from handlers to
-clients.
+The zeb_broker implements the zproto server. This broker connects
+client requests to handler offers.
 
-Please add @discuss section in ../src/zeb_server.c.
+Please add @discuss section in ../src/zeb_broker.c.
 
 This is the class interface:
 
-    //  To work with zeb_server, use the CZMQ zactor API:
+    //  To work with zeb_broker, use the CZMQ zactor API:
     //
-    //  Create new zeb_server instance, passing logging prefix:
+    //  Create new zeb_broker instance, passing logging prefix:
     //
-    //      zactor_t *zeb_server = zactor_new (zeb_server, "myname");
+    //      zactor_t *zeb_broker = zactor_new (zeb_broker, "myname");
     //
-    //  Destroy zeb_server instance
+    //  Destroy zeb_broker instance
     //
-    //      zactor_destroy (&zeb_server);
+    //      zactor_destroy (&zeb_broker);
     //
     //  Enable verbose logging of commands and activity:
     //
-    //      zstr_send (zeb_server, "VERBOSE");
+    //      zstr_send (zeb_broker, "VERBOSE");
     //
-    //  Bind zeb_server to specified endpoint. TCP endpoints may specify
+    //  Bind zeb_broker to specified endpoint. TCP endpoints may specify
     //  the port number as "*" to aquire an ephemeral port:
     //
-    //      zstr_sendx (zeb_server, "BIND", endpoint, NULL);
+    //      zstr_sendx (zeb_broker, "BIND", endpoint, NULL);
     //
     //  Return assigned port number, specifically when BIND was done using an
     //  an ephemeral port:
     //
-    //      zstr_sendx (zeb_server, "PORT", NULL);
+    //      zstr_sendx (zeb_broker, "PORT", NULL);
     //      char *command, *port_str;
-    //      zstr_recvx (zeb_server, &command, &port_str, NULL);
+    //      zstr_recvx (zeb_broker, &command, &port_str, NULL);
     //      assert (streq (command, "PORT"));
     //
     //  Specify configuration file to load, overwriting any previous loaded
     //  configuration file or options:
     //
-    //      zstr_sendx (zeb_server, "LOAD", filename, NULL);
+    //      zstr_sendx (zeb_broker, "LOAD", filename, NULL);
     //
     //  Set configuration path value:
     //
-    //      zstr_sendx (zeb_server, "SET", path, value, NULL);
+    //      zstr_sendx (zeb_broker, "SET", path, value, NULL);
     //
     //  Save configuration data to config file on disk:
     //
-    //      zstr_sendx (zeb_server, "SAVE", filename, NULL);
+    //      zstr_sendx (zeb_broker, "SAVE", filename, NULL);
     //
-    //  Send zmsg_t instance to zeb_server:
+    //  Send zmsg_t instance to zeb_broker:
     //
-    //      zactor_send (zeb_server, &msg);
+    //      zactor_send (zeb_broker, &msg);
     //
-    //  Receive zmsg_t instance from zeb_server:
+    //  Receive zmsg_t instance from zeb_broker:
     //
-    //      zmsg_t *msg = zactor_recv (zeb_server);
+    //      zmsg_t *msg = zactor_recv (zeb_broker);
     //
-    //  This is the zeb_server constructor as a zactor_fn:
+    //  This is the zeb_broker constructor as a zactor_fn:
     //
     ZEBRA_EXPORT void
-        zeb_server (zsock_t *pipe, void *args);
+        zeb_broker (zsock_t *pipe, void *args);
     
     //  Self test of this class
     ZEBRA_EXPORT void
-        zeb_server_test (bool verbose);
+        zeb_broker_test (bool verbose);
 
 This is the class self test code:
 
-    zactor_t *server = zactor_new (zeb_server, "dispatcher");
+    zactor_t *server = zactor_new (zeb_broker, "broker");
     if (verbose)
         zstr_send (server, "VERBOSE");
     zstr_sendx (server, "BIND", "tcp://127.0.0.1:9999", NULL);
@@ -915,10 +924,10 @@ This is the class self test code:
     zsock_destroy (&worker);
     zactor_destroy (&server);
 
-<A name="toc4-915" title="zeb_client - Dispatcher client" />
-#### zeb_client - Dispatcher client
+<A name="toc4-926" title="zeb_client - Broker client" />
+#### zeb_client - Broker client
 
-Client implementation to communicate with the dispatcher. This
+Client implementation to communicate with the broker. This
 implementation is used by both clients (i.e. zeb_microhttpd) and the
 handlers.
 
@@ -1016,7 +1025,7 @@ This is the class self test code:
     zeb_client_verbose = verbose;
     
     //  Start a server to test against, and bind to endpoint
-    zactor_t *server = zactor_new (zeb_server, "zeb_client_test");
+    zactor_t *server = zactor_new (zeb_broker, "zeb_client_test");
     if (verbose)
         zstr_send (server, "VERBOSE");
     zstr_sendx (server, "LOAD", "src/zeb_client.cfg", NULL);
@@ -1094,7 +1103,7 @@ This is the class self test code:
     zactor_destroy (&server);
 
 
-<A name="toc3-1094" title="Hints to Contributors" />
+<A name="toc3-1105" title="Hints to Contributors" />
 ### Hints to Contributors
 
 Read the CLASS style guide please, and write your code to make it indistinguishable from the rest of the code in the library. That is the only real criteria for good style: it's invisible.
@@ -1103,7 +1112,7 @@ Do read your code after you write it and ask, "Can I make this simpler?" We do u
 
 Before opening a pull request read our [contribution guidelines](https://github.com/zeromq/zebra/blob/master/CONTRIBUTING.md). Thanks!
 
-<A name="toc3-1103" title="This Document" />
+<A name="toc3-1114" title="This Document" />
 ### This Document
 
 This document is originally at README.txt and is built using [gitdown](http://github.com/imatix/gitdown).

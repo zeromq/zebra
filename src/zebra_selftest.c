@@ -5,7 +5,7 @@
 
     -------------------------------------------------------------------------
     Copyright (c) the Contributors as noted in the AUTHORS file.       
-    This file is part of ZWEBRAP.                                      
+    This file is part of ZEBRA.                                        
                                                                        
     This Source Code Form is subject to the terms of the Mozilla Public
     License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -34,9 +34,9 @@ all_tests [] = {
     { "xrap_msg", xrap_msg_test },
     { "zeb_handler", zeb_handler_test },
     { "xrap_traffic", xrap_traffic_test },
+    { "zeb_broker", zeb_broker_test },
     { "zeb_client", zeb_client_test },
     { "zeb_microhttpd", zeb_microhttpd_test },
-    { "zeb_server", zeb_server_test },
 #endif // ZEBRA_BUILD_DRAFT_API
     {0, 0}          //  Sentinel
 };
@@ -105,9 +105,9 @@ main (int argc, char **argv)
             puts ("    xrap_msg");
             puts ("    zeb_handler");
             puts ("    xrap_traffic");
+            puts ("    zeb_broker");
             puts ("    zeb_client");
             puts ("    zeb_microhttpd");
-            puts ("    zeb_server");
             puts ("    zeb_request");
             puts ("    zeb_response");
             puts ("    zeb_connection");
