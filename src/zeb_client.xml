@@ -4,7 +4,7 @@
     script = "zproto_client_c"
     protocol_class = "xrap_traffic"
     package_dir = "../include"
-    project_header = "zwebrap_classes.h"
+    project_header = "zebra_classes.h"
     export_macro = "ZEBRA_EXPORT"
     >
     This is a client implementation of the ZWebRap Protocol

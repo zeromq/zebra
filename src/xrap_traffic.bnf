@@ -1,6 +1,6 @@
 The following ABNF grammar defines the zebra protocol:
 
-    ZWEBRAP = open ( traffic / heartbeat ) close
+    ZEBRA = open ( traffic / heartbeat ) close
 
     open = C:CONNECTION-OPEN ( S:OK / S:ERROR )
 

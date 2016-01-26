@@ -11,7 +11,7 @@
     <include filename = "../license.xml" />
 
     <grammar>
-    ZWEBRAP = open ( traffic / heartbeat ) close
+    ZEBRA = open ( traffic / heartbeat ) close
 
     open = C:CONNECTION-OPEN ( S:OK / S:ERROR )
 
