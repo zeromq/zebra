@@ -47,12 +47,20 @@
     <ClInclude Include="..\..\..\..\..\include\zebra.h" />
     <ClInclude Include="..\..\..\src\native\include\org_zeromq_zebra_XrapMsg.h" />
     <ClInclude Include="..\..\..\src\native\include\org_zeromq_zebra_ZebHandler.h" />
+    <ClInclude Include="..\..\..\src\native\include\org_zeromq_zebra_XrapTraffic.h" />
+    <ClInclude Include="..\..\..\src\native\include\org_zeromq_zebra_ZebClient.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\src\main\c\org_zeromq_zebra_XrapMsg.c">
       <CompileAs>CompileAsC</CompileAs>
     </ClCompile>
     <ClCompile Include="..\..\..\src\main\c\org_zeromq_zebra_ZebHandler.c">
+      <CompileAs>CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\main\c\org_zeromq_zebra_XrapTraffic.c">
+      <CompileAs>CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\main\c\org_zeromq_zebra_ZebClient.c">
       <CompileAs>CompileAsC</CompileAs>
     </ClCompile>
   </ItemGroup>

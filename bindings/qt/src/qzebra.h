@@ -30,22 +30,28 @@
 //  Opaque class structures to allow forward references
 class QXrapMsg;
 class QZebHandler;
+class QXrapTraffic;
+class QZebClient;
 class QZmsg;
 class QZhash;
 class QZactor;
-class QZframe;
-class QZlist;
 class QZsock;
+class QZframe;
+class QZuuid;
+class QZlist;
 
 //  Public API classes
 #include "qxrapmsg.h"
 #include "qzebhandler.h"
+#include "qxraptraffic.h"
+#include "qzebclient.h"
 #include "qzmsg.h"
 #include "qzhash.h"
 #include "qzactor.h"
-#include "qzframe.h"
-#include "qzlist.h"
 #include "qzsock.h"
+#include "qzframe.h"
+#include "qzuuid.h"
+#include "qzlist.h"
 
 #endif //  Q_ZEBRA_H
 /*

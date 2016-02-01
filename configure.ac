@@ -7,11 +7,7 @@
 # Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.61)
 #
-# The version number is extracted from include/zebra.h using
-# the version.sh script. Hence, it should be updated there.
-# The version in git should reflect the *next* version planned.
-#
-AC_INIT([zebra],[m4_esyscmd([./version.sh zebra.h])],[zeromq-dev@lists.zeromq.org])
+AC_INIT([zebra],[0.2.0],[zeromq-dev@lists.zeromq.org])
 
 AC_CONFIG_AUX_DIR(config)
 AC_CONFIG_MACRO_DIR(config)

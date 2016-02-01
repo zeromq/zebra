@@ -24,8 +24,8 @@ include_HEADERS += \
     include/zeb_broker.h \
     include/zeb_client.h \
     include/zeb_microhttpd.h
-endif
 
+endif
 src_libzebra_la_SOURCES = \
     src/zeb_request.c \
     src/zeb_response.c \
@@ -42,6 +42,7 @@ src_libzebra_la_SOURCES += \
     src/zeb_broker.c \
     src/zeb_client.c \
     src/zeb_microhttpd.c
+
 endif
 
 src_libzebra_la_CPPFLAGS = ${AM_CPPFLAGS}
@@ -64,20 +65,21 @@ endif
 
 src_libzebra_la_LIBADD = ${project_libs}
 
+if ENABLE_ZEBRA_SELFTEST
 check_PROGRAMS += src/zebra_selftest
 noinst_PROGRAMS += src/zebra_selftest
 src_zebra_selftest_CPPFLAGS = ${AM_CPPFLAGS}
 src_zebra_selftest_LDADD = ${program_libs}
 src_zebra_selftest_SOURCES = src/zebra_selftest.c
-if WITH_SYSTEMD
-endif #WITH_SYSTEMD
-
+endif #ENABLE_ZEBRA_SELFTEST
 
 # Install api files into /usr/local/share/zproject
 apidir = @datadir@/zproject/zebra
 dist_api_DATA = \
     api/xrap_msg.xml \
-    api/zeb_handler.xml
+    api/zeb_handler.xml \
+    api/xrap_traffic.api \
+    api/zeb_client.api
 
 # define custom target for all products of /src
 src:
@@ -86,10 +88,11 @@ src:
 
 # Produce generated code from models in the src directory
 code:
-	cd $(srcdir)/src; gsl -q xrap_msg.xml
-	cd $(srcdir)/src; gsl -q xrap_traffic.xml
-	cd $(srcdir)/src; gsl -q zeb_broker.xml
-	cd $(srcdir)/src; gsl -q zeb_client.xml
+	cd $(srcdir)/src; gsl -topdir:.. -zproject:1 -q xrap_msg.xml
+	cd $(srcdir)/src; gsl -topdir:.. -zproject:1 -q xrap_traffic.xml
+	cd $(srcdir)/src; gsl -topdir:.. -zproject:1 -q zeb_broker.xml
+	cd $(srcdir)/src; gsl -topdir:.. -zproject:1 -q zeb_client.xml
+	gsl -target:- project.xml
 
 check-local: src/zebra_selftest
 	$(LIBTOOL) --mode=execute $(srcdir)/src/zebra_selftest

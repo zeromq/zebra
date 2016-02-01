@@ -2,6 +2,7 @@
     signature = "5"
     title = "XRAP serialization over ZMTP"
     script = "zproto_codec_c_v1"
+    project_header = "zebra_classes.h"
     >
 This is the XRAP protocol (http://rfc.zeromq.org/spec:40/XRAP):
 

@@ -323,8 +323,6 @@ zeb_client_test (bool verbose)
         printf ("\n");
 
     //  @selftest
-    zeb_client_verbose = verbose;
-
     //  Start a server to test against, and bind to endpoint
     zactor_t *server = zactor_new (zeb_broker, "zeb_client_test");
     if (verbose)
@@ -336,6 +334,9 @@ zeb_client_test (bool verbose)
     zeb_client_t *handler = zeb_client_new ();
     assert (client);
     assert (handler);
+
+    //  Enable verbose logging
+    zeb_client_set_verbose (client, verbose);
 
     //  Connect clients to server
     int rc = zeb_client_connect (client, "tcp://127.0.0.1:9999", 1000, "client");

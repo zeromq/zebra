@@ -6,3 +6,9 @@ IF EXIST ..\..\..\src\native\include\org_zeromq_zebra_XrapMsg.h GOTO HAVE_XrapMs
 IF EXIST ..\..\..\src\native\include\org_zeromq_zebra_ZebHandler.h GOTO HAVE_ZebHandler
 "%JAVA_HOME%\bin\javah.exe" -d ..\..\..\src\native\include -classpath ..\..\..\src\main\java org.zeromq.zebra.ZebHandler
 :HAVE_ZebHandler
+IF EXIST ..\..\..\src\native\include\org_zeromq_zebra_XrapTraffic.h GOTO HAVE_XrapTraffic
+"%JAVA_HOME%\bin\javah.exe" -d ..\..\..\src\native\include -classpath ..\..\..\src\main\java org.zeromq.zebra.XrapTraffic
+:HAVE_XrapTraffic
+IF EXIST ..\..\..\src\native\include\org_zeromq_zebra_ZebClient.h GOTO HAVE_ZebClient
+"%JAVA_HOME%\bin\javah.exe" -d ..\..\..\src\native\include -classpath ..\..\..\src\main\java org.zeromq.zebra.ZebClient
+:HAVE_ZebClient

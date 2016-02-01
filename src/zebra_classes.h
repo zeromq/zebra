@@ -28,4 +28,19 @@
 #include "zeb_response.h"
 #include "zeb_connection.h"
 
+//  *** Draft method, defined for internal use only ***
+//  Self test of this class.
+ZEBRA_EXPORT void
+    zeb_request_test (bool verbose);
+
+//  *** Draft method, defined for internal use only ***
+//  Self test of this class.
+ZEBRA_EXPORT void
+    zeb_response_test (bool verbose);
+
+//  *** Draft method, defined for internal use only ***
+//  Self test of this class.
+ZEBRA_EXPORT void
+    zeb_connection_test (bool verbose);
+
 #endif

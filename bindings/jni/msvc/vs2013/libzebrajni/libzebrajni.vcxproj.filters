@@ -13,6 +13,12 @@
     <ClCompile Include="..\..\..\src\main\c\org_zeromq_zebra_ZebHandler.c">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\src\main\c\org_zeromq_zebra_XrapTraffic.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\main\c\org_zeromq_zebra_ZebClient.c">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\..\include\zebra.h">
@@ -22,6 +28,12 @@
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\native\include\org_zeromq_zebra_ZebHandler.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\native\include\org_zeromq_zebra_XrapTraffic.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\native\include\org_zeromq_zebra_ZebClient.h">
       <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>

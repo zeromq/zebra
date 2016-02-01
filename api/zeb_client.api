@@ -1,21 +1,31 @@
-<class name = "zeb_client">
-    <!--
-    Copyright (c) the Contributors as noted in the AUTHORS file.
-    This file is part of ZEBRA.
+<!--
+    ** WARNING *************************************************************
+    THIS SOURCE FILE IS 100% GENERATED. If you edit this file, you will lose
+    your changes at the next build cycle. This is great for temporary printf
+    statements. DO NOT MAKE ANY CHANGES YOU WISH TO KEEP. The correct places
+    for commits are:
 
+     * The XML model used for this code generation: zeb_client.xml, or
+     * The code generation script that built this file: zproto_client_c
+    ************************************************************************
+    Copyright (c) the Contributors as noted in the AUTHORS file.       
+    This file is part of ZEBRA.                                        
+                                                                       
     This Source Code Form is subject to the terms of the Mozilla Public
     License, v. 2.0. If a copy of the MPL was not distributed with this
-    file, You can obtain one at http://mozilla.org/MPL/2.0/.
-    -->
+    file, You can obtain one at http://mozilla.org/MPL/2.0/.           
+ -->
+<class name = "zeb_client">
     zeb_broker client implementation for both clients and handlers
 
+        Codec class for zeb_client.
     <constructor>
-        Create a new zwr_client, return the reference if successful, or NULL
-        if construction failed due to lack of available memory.
+        Create a new zeb_client, return the reference if successful,
+        or NULL if construction failed due to lack of available memory.
     </constructor>
 
     <destructor>
-        Destroy the zwr_client and free all memory used by the object.
+        Destroy the zeb_client and free all memory used by the object.
     </destructor>
 
     <method name = "actor">
@@ -41,38 +51,38 @@
     </method>
 
     <method name = "connect">
-        Connect to server endpoint, with specified timeout in msecs (zero means wait
-        forever). Constructor succeeds if connection is successful. The caller may
-        specify its address.
+        Connect to server endpoint, with specified timeout in msecs (zero means wait    
+        forever). Constructor succeeds if connection is successful. The caller may      
+        specify its address.                                                            
         Returns >= 0 if successful, -1 if interrupted.
-        <argument name = "endpoint" type = "string" />
-        <argument name = "timeout" type = "number" size = "4" />
-        <argument name = "address" type = "string" />
+        <argument name = "endpoint" type = "string"></argument>
+        <argument name = "timeout" type = "number" size = "4"></argument>
+        <argument name = "address" type = "string"></argument>
         <return type = "integer" />
     </method>
 
-    <method  name = "set handler">
-        Offer to handle particular XRAP requests, where the route matches request's
-        resource.
+    <method name = "set handler">
+        Offer to handle particular XRAP requests, where the route matches request's     
+        resource.                                                                       
         Returns >= 0 if successful, -1 if interrupted.
-        <argument name = "method" type = "string" />
-        <argument name = "route" type = "string" />
+        <argument name = "method" type = "string"></argument>
+        <argument name = "route" type = "string"></argument>
         <return type = "integer" />
     </method>
 
     <method name = "request">
-        No explanation
+        No explanation                                                                  
         Returns >= 0 if successful, -1 if interrupted.
-        <argument name = "timeout" type = "number" size = "4" />
-        <argument name = "content_p" type = "zmsg" by_reference = "1" />
+        <argument name = "timeout" type = "number" size = "4"></argument>
+        <argument name = "content" type = "zmsg" by_reference = "1"></argument>
         <return type = "integer" />
     </method>
 
     <method name = "deliver">
         Send XRAP DELIVER message to server, takes ownership of message
         and destroys message when done sending it.
-        <argument name = "sender" type = "zuuid" />
-        <argument name = "content_p" type = "zmsg" by_reference = "1" />
+        <argument name = "sender" type = "zuuid">Sending client address</argument>
+        <argument name = "content" type = "zmsg" by_reference = "1">Message body frames</argument>
         <return type = "integer" />
     </method>
 
@@ -107,4 +117,8 @@
         <return type = "zmsg" />
     </method>
 
+    <method name = "set verbose">
+        Enable verbose tracing (animation) of state machine activity.
+        <argument name = "verbose" type = "boolean" />
+    </method>
 </class>

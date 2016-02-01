@@ -3,7 +3,7 @@
     title = "zebra protocol"
     script = "zproto_codec_c"
     package_dir = "../include"
-    project_header = "../include/zebra.h"
+    project_header = "zebra_classes.h"
     signature = "9"
     export_macro = "ZEBRA_EXPORT"
     >
