@@ -15,9 +15,15 @@ class QmlXrapMsg;
 class QmlXrapMsgAttached;
 class QmlZebHandler;
 class QmlZebHandlerAttached;
+class QmlXrapTraffic;
+class QmlXrapTrafficAttached;
+class QmlZebClient;
+class QmlZebClientAttached;
 
 #include "QmlXrapMsg.h"
 #include "QmlZebHandler.h"
+#include "QmlXrapTraffic.h"
+#include "QmlZebClient.h"
 
 class QmlZebraPlugin : public QQmlExtensionPlugin
 {
@@ -31,6 +37,10 @@ public:
         qmlRegisterType<QmlXrapMsgAttached>();
         qmlRegisterType<QmlZebHandler> (uri, 1, 0, "QmlZebHandler");
         qmlRegisterType<QmlZebHandlerAttached>();
+        qmlRegisterType<QmlXrapTraffic> (uri, 1, 0, "QmlXrapTraffic");
+        qmlRegisterType<QmlXrapTrafficAttached>();
+        qmlRegisterType<QmlZebClient> (uri, 1, 0, "QmlZebClient");
+        qmlRegisterType<QmlZebClientAttached>();
     };
 };
 

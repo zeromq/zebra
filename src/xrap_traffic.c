@@ -28,7 +28,7 @@
 @end
 */
 
-#include "../include/zebra.h"
+#include "zebra_classes.h"
 #include "../include/xrap_traffic.h"
 
 //  Structure of our class

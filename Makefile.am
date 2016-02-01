@@ -34,12 +34,11 @@ EXTRA_DIST = \
     src/zeb_request.h \
     src/zeb_response.h \
     src/zeb_connection.h \
-    src/zebra_classes.h \
     LICENSE \
     README.txt \
     README.md \
     CONTRIBUTING.md \
-    version.sh
+    src/zebra_classes.h
 
 include $(srcdir)/src/Makemodule.am
 

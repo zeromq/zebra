@@ -19,12 +19,15 @@ int main(int argc, char **argv)
 
     QXrapMsg::test (verbose);
     QZebHandler::test (verbose);
+    QXrapTraffic::test (verbose);
+    QZebClient::test (verbose);
     QZmsg::test (verbose);
     QZhash::test (verbose);
     QZactor::test (verbose);
-    QZframe::test (verbose);
-    QZlist::test (verbose);
     QZsock::test (verbose);
+    QZframe::test (verbose);
+    QZuuid::test (verbose);
+    QZlist::test (verbose);
 
     qDebug() << "Tests passed OK\n";
     return 0;
