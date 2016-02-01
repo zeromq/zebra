@@ -7,6 +7,14 @@ os:
 
 sudo: false
 
+services:
+- docker
+
+addons:
+  apt:
+    packages:
+    - git
+
 env:
 - BUILD_TYPE=default
 - BUILD_TYPE=qt-android
