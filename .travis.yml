@@ -27,6 +27,6 @@ script: ./ci_build.sh
 matrix:
   exclude:
   - os: osx
-      env: BUILD_TYPE=check_zproto
+    env: BUILD_TYPE=check_zproto
   - os: osx
-      env: BUILD_TYPE=check_zproject
+    env: BUILD_TYPE=check_zproject
