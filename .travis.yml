@@ -23,3 +23,10 @@ env:
 
 # Build and check this project according to the BUILD_TYPE
 script: ./ci_build.sh
+
+matrix:
+  exclude:
+  - os: osx
+      env: BUILD_TYPE=check_zproto
+  - os: osx
+      env: BUILD_TYPE=check_zproject
