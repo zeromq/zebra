@@ -24,6 +24,8 @@ env:
 # Build and check this project according to the BUILD_TYPE
 script: ./ci_build.sh
 
+
+# osx environment does not have docker
 matrix:
   exclude:
   - os: osx
