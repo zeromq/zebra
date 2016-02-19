@@ -24,7 +24,7 @@ if [ "$BUILD_TYPE" == "default" ]; then
 
     # Clone and build dependencies
     wget http://ftp.gnu.org/gnu/libmicrohttpd/libmicrohttpd-0.9.48.tar.gz
-    tar -xzf http://ftp.gnu.org/gnu/libmicrohttpd/libmicrohttpd-0.9.48.tar.gz
+    tar -xzf $(basename "http://ftp.gnu.org/gnu/libmicrohttpd/libmicrohttpd-0.9.48.tar.gz")
     cd $(basename "http://ftp.gnu.org/gnu/libmicrohttpd/libmicrohttpd-0.9.48.tar.gz" .tar.gz)
     ./configure "${CONFIG_OPTS[@]}"
     make -j4
