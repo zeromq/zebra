@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <jni.h>
 #include "zebra.h"
-#include "../../native/include/org_zeromq_zebra_XrapTraffic.h"
+#include "org_zeromq_zebra_XrapTraffic.h"
 
 JNIEXPORT jlong JNICALL
 Java_org_zeromq_zebra_XrapTraffic__1_1new (JNIEnv *env, jclass c)

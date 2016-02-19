@@ -116,6 +116,51 @@ if test "x$was_libzmq_check_lib_detected" = "xno"; then
     LIBS="${libzmq_LIBS} ${LIBS}"
 fi
 
+was_uuid_check_lib_detected=no
+
+PKG_CHECK_MODULES([uuid], [uuid >= 0.0.0],
+    [
+        AC_DEFINE(HAVE_UUID, 1, [The uuid library is to be used.])
+    ],
+    [
+        AC_ARG_WITH([uuid],
+            [
+                AS_HELP_STRING([--with-uuid],
+                [Specify uuid prefix])
+            ],
+            [search_uuid="yes"],
+            [])
+
+        uuid_synthetic_cflags=""
+        uuid_synthetic_libs="-luuid"
+
+        if test "x$search_uuid" = "xyes"; then
+            if test -r "${with_uuid}/include/uuid/uuid.h"; then
+                uuid_synthetic_cflags="-I${with_uuid}/include"
+                uuid_synthetic_libs="-L${with_uuid}/lib -luuid"
+            else
+                AC_MSG_ERROR([${with_uuid}/include/uuid/uuid.h not found. Please check uuid prefix])
+            fi
+        fi
+
+        AC_CHECK_LIB([uuid], [uuid_generate],
+            [
+                CFLAGS="${uuid_synthetic_cflags} ${CFLAGS}"
+                LDFLAGS="${uuid_synthetic_libs} ${LDFLAGS}"
+                LIBS="${uuid_synthetic_libs} ${LIBS}"
+
+                AC_SUBST([uuid_CFLAGS],[${uuid_synthetic_cflags}])
+                AC_SUBST([uuid_LIBS],[${uuid_synthetic_libs}])
+                was_uuid_check_lib_detected=yes
+                AC_DEFINE(HAVE_UUID, 1, [The uuid library is to be used.])
+            ],
+            [])
+    ])
+
+if test "x$was_uuid_check_lib_detected" = "xno"; then
+    CFLAGS="${uuid_CFLAGS} ${CFLAGS}"
+    LIBS="${uuid_LIBS} ${LIBS}"
+fi
 
 was_czmq_check_lib_detected=no
 
@@ -130,7 +175,6 @@ if test "x$was_czmq_check_lib_detected" = "xno"; then
     CFLAGS="${czmq_CFLAGS} ${CFLAGS}"
     LIBS="${czmq_LIBS} ${LIBS}"
 fi
-
 
 was_libmicrohttpd_check_lib_detected=no
 
@@ -176,7 +220,6 @@ if test "x$was_libmicrohttpd_check_lib_detected" = "xno"; then
     LIBS="${libmicrohttpd_LIBS} ${LIBS}"
 fi
 
-
 was_libcurl_check_lib_detected=no
 
 PKG_CHECK_MODULES([libcurl], [libcurl >= 7.7.0],
@@ -184,13 +227,13 @@ PKG_CHECK_MODULES([libcurl], [libcurl >= 7.7.0],
         AC_DEFINE(HAVE_LIBCURL, 1, [The libcurl library is to be used.])
     ],
     [
+        AC_MSG_WARN([Cannot find libcurl 7.7.0 or higher])
     ])
 
 if test "x$was_libcurl_check_lib_detected" = "xno"; then
     CFLAGS="${libcurl_CFLAGS} ${CFLAGS}"
     LIBS="${libcurl_LIBS} ${LIBS}"
 fi
-
 
 was_libsodium_check_lib_detected=no
 
@@ -199,13 +242,13 @@ PKG_CHECK_MODULES([libsodium], [libsodium >= 1.0.0],
         AC_DEFINE(HAVE_LIBSODIUM, 1, [The libsodium library is to be used.])
     ],
     [
+        AC_MSG_WARN([Cannot find libsodium 1.0.0 or higher])
     ])
 
 if test "x$was_libsodium_check_lib_detected" = "xno"; then
     CFLAGS="${libsodium_CFLAGS} ${CFLAGS}"
     LIBS="${libsodium_LIBS} ${LIBS}"
 fi
-
 
 CFLAGS="${PREVIOUS_CFLAGS}"
 LIBS="${PREVIOUS_LIBS}"
@@ -394,17 +437,17 @@ AC_SUBST([pkgconfigdir])
 
 
 # enable specific system integration features
-AC_ARG_WITH([systemd],
-    AS_HELP_STRING([--with-systemd],
-    [Build and install with systemd integration [default=no].]),
-    [with_systemd=$withval],
-    [with_systemd=no])
+AC_ARG_WITH([systemd-units],
+    AS_HELP_STRING([--with-systemd-units],
+    [Build and install with systemd units integration [default=no].]),
+    [with_systemd_units=$withval],
+    [with_systemd_units=no])
 
-AM_CONDITIONAL([WITH_SYSTEMD], [test x$with_systemd != xno])
+AM_CONDITIONAL([WITH_SYSTEMD_UNITS], [test x$with_systemd_units != xno])
 
-AM_COND_IF([WITH_SYSTEMD],
-    [PKG_CHECK_MODULES([SYSTEMD], [systemd >= 200], [],
-        [AC_MSG_ERROR([Cannot find required package for systemd. Note, pkg-config is required due to specified version >= 200])])],
+AM_COND_IF([WITH_SYSTEMD_UNITS],
+    [AC_DEFINE(WITH_SYSTEMD_UNITS, 1, [systemd units are going to be installed])
+    AC_SUBST(WITH_SYSTEMD_UNITS)],
     [])
 
 if test "x$cross_compiling" = "xyes"; then
@@ -413,13 +456,13 @@ if test "x$cross_compiling" = "xyes"; then
 else
     # enable draft API by default if we're in a git repository
     # else disable it by default; then allow --enable-drafts=yes/no override
-    AC_CHECK_FILE(.git, [gitmaster=yes], [gitmaster=no])
+    AC_CHECK_FILE($srcdir/.git, [gitmaster=yes], [gitmaster=no])
 fi
 
 AC_ARG_ENABLE([drafts],
     AS_HELP_STRING([--enable-drafts],
         [Build and install draft classes and methods [default=yes.]]),
-    [enable_drafts=$withval],
+    [enable_drafts=$enableval],
     [enable_drafts=$gitmaster])
 
 AM_CONDITIONAL([ENABLE_DRAFTS], [test x$enable_drafts != xno])
@@ -439,7 +482,7 @@ AC_CONFIG_FILES([Makefile
                  src/libzebra.pc
                  ])
 
-AM_COND_IF([WITH_SYSTEMD],
+AM_COND_IF([WITH_SYSTEMD_UNITS],
     [AC_CONFIG_FILES([
     ])],
     [])

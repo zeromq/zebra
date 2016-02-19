@@ -38,9 +38,10 @@ fi
 
     if [ ! -d "$CZMQ_ROOT" ]; then
         echo "The CZMQ_ROOT directory does not exist"
-        echo "  ${CZMQ_ROOT}"
+        echo "  ${CZMQ_ROOT}" run run
         exit 1
     fi
+    echo "Building czmq in ${CZMQ_ROOT}..."
 
     (bash ${CZMQ_ROOT}/builds/android/build.sh) || exit 1
     UPSTREAM_PREFIX=${CZMQ_ROOT}/builds/android/prefix/${TOOLCHAIN_NAME}
@@ -56,9 +57,10 @@ fi
 
     if [ ! -d "$LIBMICROHTTPD_ROOT" ]; then
         echo "The LIBMICROHTTPD_ROOT directory does not exist"
-        echo "  ${LIBMICROHTTPD_ROOT}"
+        echo "  ${LIBMICROHTTPD_ROOT}" run run
         exit 1
     fi
+    echo "Building libmicrohttpd in ${LIBMICROHTTPD_ROOT}..."
 
     (bash ${LIBMICROHTTPD_ROOT}/builds/android/build.sh) || exit 1
     UPSTREAM_PREFIX=${LIBMICROHTTPD_ROOT}/builds/android/prefix/${TOOLCHAIN_NAME}
@@ -75,8 +77,8 @@ fi
 
     export LIBTOOL_EXTRA_LDFLAGS='-avoid-version'
 
-    (cd "${cache}/zebra" && ./autogen.sh \
-        && ./configure "${ANDROID_BUILD_OPTS[@]}" --without-documentation \
+    (cd "${cache}/zebra" && ./autogen.sh 2> /dev/null \
+        && ./configure --quiet "${ANDROID_BUILD_OPTS[@]}" --without-docs \
         && make -j 4 \
         && make install) || exit 1
 }

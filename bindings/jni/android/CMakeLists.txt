@@ -29,6 +29,7 @@ set (zebrajni_sources
 )
 
 add_library (zebrajni SHARED ${zebrajni_sources})
+add_definitions (-DZEBRA_BUILD_DRAFT_API)
 target_link_libraries (zebrajni
     zebra
     zmq

@@ -12,17 +12,15 @@
   </PropertyGroup>
 
   <!-- User Interface -->
-
   <ItemGroup Label="BuildOptionsExtension">
     <PropertyPageSchema Include="$(MSBuildThisFileDirectory)zebra.import.xml" />
   </ItemGroup>
 
   <!-- Linkage -->
-
   <ItemDefinitionGroup>
     <ClCompile>
       <AdditionalIncludeDirectories>$(ProjectDir)..\..\..\..\..\zebra\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions Condition="'$(Linkage-zebra)' == 'static' Or '$(Linkage-zebra)' == 'ltcg'">LIBZEBRA_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Linkage-zebra)' == 'static' Or '$(Linkage-zebra)' == 'ltcg'">ZEBRA_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <AdditionalDependencies Condition="'$(Linkage-zebra)' != ''">libzebra.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -32,7 +30,6 @@
   </ItemDefinitionGroup>
 
   <!-- Copy -->
-
   <Target Name="Linkage-zebra-dynamic" AfterTargets="AfterBuild" Condition="'$(Linkage-zebra)' == 'dynamic'">
     <Copy Condition="$(Configuration.IndexOf('Debug')) != -1"
           SourceFiles="$(ProjectDir)..\..\..\..\..\zebra\bin\$(PlatformName)\Debug\$(PlatformToolset)\dynamic\libzebra.dll"
@@ -49,7 +46,6 @@
   </Target>
 
   <!-- Messages -->
-
   <Target Name="zebra-info" BeforeTargets="AfterBuild" Condition="'$(Linkage-zebra)' == 'dynamic'">
     <Message Text="Copying libzebra.dll -&gt; $(TargetDir)libzebra.dll" Importance="high"/>
     <Message Text="Copying libzebra.pdb -&gt; $(TargetDir)libzebra.pdb" Importance="high" Condition="$(Configuration.IndexOf('Debug')) != -1" />

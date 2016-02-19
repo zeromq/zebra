@@ -228,6 +228,18 @@ class XrapMsg(object):
         if self.allow_destruct:
             lib.xrap_msg_destroy(byref(self._as_parameter_))
 
+    def __eq__(self, other):
+        if type(other) == type(self):
+            return other.c_address() == self.c_address()
+        elif type(other) == c_void_p:
+            return other.value == self.c_address()
+
+    def c_address(self):
+        """
+        Return the address of the object pointer in c.  Useful for comparison.
+        """
+        return addressof(self._as_parameter_.contents)
+
     def __bool__(self):
         "Determine whether the object is valid by converting to boolean" # Python 3
         return self._as_parameter_.__bool__()
@@ -532,6 +544,18 @@ class ZebHandler(object):
     """
 
     allow_destruct = False
+    def __eq__(self, other):
+        if type(other) == type(self):
+            return other.c_address() == self.c_address()
+        elif type(other) == c_void_p:
+            return other.value == self.c_address()
+
+    def c_address(self):
+        """
+        Return the address of the object pointer in c.  Useful for comparison.
+        """
+        return addressof(self._as_parameter_.contents)
+
     def __bool__(self):
         "Determine whether the object is valid by converting to boolean" # Python 3
         return self._as_parameter_.__bool__()
@@ -679,6 +703,18 @@ class XrapTraffic(object):
         """
         if self.allow_destruct:
             lib.xrap_traffic_destroy(byref(self._as_parameter_))
+
+    def __eq__(self, other):
+        if type(other) == type(self):
+            return other.c_address() == self.c_address()
+        elif type(other) == c_void_p:
+            return other.value == self.c_address()
+
+    def c_address(self):
+        """
+        Return the address of the object pointer in c.  Useful for comparison.
+        """
+        return addressof(self._as_parameter_.contents)
 
     def __bool__(self):
         "Determine whether the object is valid by converting to boolean" # Python 3
@@ -919,6 +955,18 @@ or NULL if construction failed due to lack of available memory.
         """
         if self.allow_destruct:
             lib.zeb_client_destroy(byref(self._as_parameter_))
+
+    def __eq__(self, other):
+        if type(other) == type(self):
+            return other.c_address() == self.c_address()
+        elif type(other) == c_void_p:
+            return other.value == self.c_address()
+
+    def c_address(self):
+        """
+        Return the address of the object pointer in c.  Useful for comparison.
+        """
+        return addressof(self._as_parameter_.contents)
 
     def __bool__(self):
         "Determine whether the object is valid by converting to boolean" # Python 3

@@ -11,13 +11,14 @@ AM_CFLAGS = \
 
 AM_CPPFLAGS = \
     ${libzmq_CFLAGS} \
+    ${uuid_CFLAGS} \
     ${czmq_CFLAGS} \
     ${libmicrohttpd_CFLAGS} \
     ${libcurl_CFLAGS} \
     ${libsodium_CFLAGS} \
     -I$(srcdir)/include
 
-project_libs = ${libzmq_LIBS} ${czmq_LIBS} ${libmicrohttpd_LIBS} ${libcurl_LIBS} ${libsodium_LIBS}
+project_libs = ${libzmq_LIBS} ${uuid_LIBS} ${czmq_LIBS} ${libmicrohttpd_LIBS} ${libcurl_LIBS} ${libsodium_LIBS}
 
 SUBDIRS = doc
 DIST_SUBDIRS = doc

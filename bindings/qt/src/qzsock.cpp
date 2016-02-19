@@ -127,6 +127,20 @@ QZsock* QZsock::newClient (const QString &endpoint, QObject *qObjParent)
 }
 
 ///
+//  Create a RADIO socket. Default action is bind.
+QZsock* QZsock::newRadio (const QString &endpoint, QObject *qObjParent)
+{
+    return new QZsock (zsock_new_radio (endpoint.toUtf8().data()), qObjParent);
+}
+
+///
+//  Create a DISH socket. Default action is connect.
+QZsock* QZsock::newDish (const QString &endpoint, QObject *qObjParent)
+{
+    return new QZsock (zsock_new_dish (endpoint.toUtf8().data()), qObjParent);
+}
+
+///
 //  Destroy the socket. You must use this for any socket created via the
 //  zsock_new method.                                                   
 QZsock::~QZsock ()
@@ -373,6 +387,24 @@ void QZsock::flush ()
 }
 
 ///
+//  Join a group for the RADIO-DISH pattern. Call only on ZMQ_DISH.
+//  Returns 0 if OK, -1 if failed.                                 
+int QZsock::join (const QString &group)
+{
+    int rv = zsock_join (self, group.toUtf8().data());
+    return rv;
+}
+
+///
+//  Leave a group for the RADIO-DISH pattern. Call only on ZMQ_DISH.
+//  Returns 0 if OK, -1 if failed.                                  
+int QZsock::leave (const QString &group)
+{
+    int rv = zsock_leave (self, group.toUtf8().data());
+    return rv;
+}
+
+///
 //  Probe the supplied object, and report if it looks like a zsock_t.
 //  Takes a polymorphic socket reference.                            
 bool QZsock::is (void *self)
@@ -437,6 +469,22 @@ int QZsock::heartbeatTimeout ()
 void QZsock::setHeartbeatTimeout (int heartbeatTimeout)
 {
     zsock_set_heartbeat_timeout (self, heartbeatTimeout);
+    
+}
+
+///
+//  Get socket option `use_fd`.
+int QZsock::useFd ()
+{
+    int rv = zsock_use_fd (self);
+    return rv;
+}
+
+///
+//  Set socket option `use_fd`.
+void QZsock::setUseFd (int useFd)
+{
+    zsock_set_use_fd (self, useFd);
     
 }
 
