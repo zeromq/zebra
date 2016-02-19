@@ -68,6 +68,12 @@ public:
     //  Create a CLIENT socket. Default action is connect.
     static QZsock* newClient (const QString &endpoint, QObject *qObjParent = 0);
 
+    //  Create a RADIO socket. Default action is bind.
+    static QZsock* newRadio (const QString &endpoint, QObject *qObjParent = 0);
+
+    //  Create a DISH socket. Default action is connect.
+    static QZsock* newDish (const QString &endpoint, QObject *qObjParent = 0);
+
     //  Destroy the socket. You must use this for any socket created via the
     //  zsock_new method.                                                   
     ~QZsock ();
@@ -219,6 +225,14 @@ public:
     //  message types.                                                           
     void flush ();
 
+    //  Join a group for the RADIO-DISH pattern. Call only on ZMQ_DISH.
+    //  Returns 0 if OK, -1 if failed.                                 
+    int join (const QString &group);
+
+    //  Leave a group for the RADIO-DISH pattern. Call only on ZMQ_DISH.
+    //  Returns 0 if OK, -1 if failed.                                  
+    int leave (const QString &group);
+
     //  Probe the supplied object, and report if it looks like a zsock_t.
     //  Takes a polymorphic socket reference.                            
     static bool is (void *self);
@@ -246,6 +260,12 @@ public:
 
     //  Set socket option `heartbeat_timeout`.
     void setHeartbeatTimeout (int heartbeatTimeout);
+
+    //  Get socket option `use_fd`.
+    int useFd ();
+
+    //  Set socket option `use_fd`.
+    void setUseFd (int useFd);
 
     //  Get socket option `tos`.
     int tos ();

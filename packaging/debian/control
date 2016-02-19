@@ -20,6 +20,7 @@ Build-Depends: bison, debhelper (>= 8),
     autoconf,
     libtool,
     libzmq4-dev,
+    uuid-dev,
     libczmq-dev,
     libmicrohttpd-dev,
     libcurl-dev,
@@ -38,6 +39,7 @@ Architecture: all
 Section: libdevel
 Depends:
     libzmq4-dev,
+    uuid-dev,
     libczmq-dev,
     libmicrohttpd-dev,
     libcurl-dev,

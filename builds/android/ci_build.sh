@@ -31,19 +31,19 @@ export TOOLCHAIN_HOST="arm-linux-androideabi"
 export TOOLCHAIN_ARCH="arm"
 
 export LIBZMQ_ROOT="/tmp/libzmq"
-git clone --depth 1 https://github.com/zeromq/libzmq $LIBZMQ_ROOT
+git clone --quiet --depth 1 https://github.com/zeromq/libzmq $LIBZMQ_ROOT
 
 export CZMQ_ROOT="/tmp/czmq"
-git clone --depth 1 https://github.com/zeromq/czmq $CZMQ_ROOT
+git clone --quiet --depth 1 https://github.com/zeromq/czmq $CZMQ_ROOT
 
 export LIBMICROHTTPD_ROOT="/tmp/libmicrohttpd"
-git clone --depth 1 http://ftp.gnu.org/gnu/libmicrohttpd/ $LIBMICROHTTPD_ROOT
+git clone --quiet --depth 1 http://ftp.gnu.org/gnu/libmicrohttpd/ $LIBMICROHTTPD_ROOT
 
 export LIBCURL_ROOT="/tmp/libcurl"
-git clone --depth 1 https://github.com/bagder/curl $LIBCURL_ROOT
+git clone --quiet --depth 1 https://github.com/bagder/curl $LIBCURL_ROOT
 
 export LIBSODIUM_ROOT="/tmp/libsodium"
-git clone --depth 1 https://github.com/jedisct1/libsodium $LIBSODIUM_ROOT
+git clone --quiet --depth 1 -b stable https://github.com/jedisct1/libsodium $LIBSODIUM_ROOT
 
 source ./build.sh
 

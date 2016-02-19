@@ -1,0 +1,7 @@
+project.Makefile
+*.mk
+out/
+Makefile
+libzmq/
+czmq/
+libmicrohttpd/

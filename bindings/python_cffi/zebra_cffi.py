@@ -236,54 +236,6 @@ void
     xrap_msg_test (bool verbose);
 
 // CLASS: zeb_handler
-// To work with zeb_handler, use the CZMQ zactor API:                      
-//                                                                         
-// Create new zeb_handler instance, passing broker endpoint:               
-//                                                                         
-//     zactor_t *handler = zactor_new (zeb_handler, "inproc://broker");    
-//                                                                         
-// Destroy zeb_handler instance                                            
-//                                                                         
-//     zactor_destroy (&handler);                                          
-//                                                                         
-// Enable verbose logging of commands and activity:                        
-//                                                                         
-//     zstr_send (handler, "VERBOSE");                                     
-//                                                                         
-// Receive API calls from zeb_handler:                                     
-//                                                                         
-//     char *command = zstr_recv (handler);                                
-//                                                                         
-// Check if an etag is current, MUST signal 0 if true otherwise 1.         
-//                                                                         
-//   if (streq (command, "CHECK ETAG")) {                                  
-//      char *etag = zstr_recv (handler);                                  
-//      zsock_signal (handler, 0);                                         
-//   }                                                                     
-//                                                                         
-//   Check if a last modified timestamp is current, MUST signal 0 if true  
-//   otherwise 1.                                                          
-//                                                                         
-//   if (streq (command, "CHECK LAST MODIFIED")) {                         
-//      uint64_t last_modified;                                            
-//      zsock_brecv (handler, "8", &last_modified);                        
-//      zsock_signal (handler, 0);                                         
-//   }                                                                     
-//                                                                         
-// Handle incomming request from clients. MUST return a response.          
-//                                                                         
-// if (streq (command, "HANDLE REQUEST")) {                                
-//     zmsg_t *request = zmsg_recv (handle);                               
-//     xrap_msg_t *xrequest = xrap_msg_decode (&request);                  
-//     zmsg_t *response = xrap_msg_encode (&xrequest);                     
-//     zmsg_send (&response, handler);                                     
-// }                                                                       
-//                                                                         
-// This is the handler actor which runs in its own thread and polls its two
-// sockets to process incoming messages.                                   
-ZEBRA_EXPORT void
-    zeb_handler (zsock_t *pipe, void *args);
-
 // Add a new offer this handler will handle. Returns 0 if successful,
 // otherwise -1.                                                     
 int
@@ -416,11 +368,6 @@ void
 void
     xrap_traffic_test (bool verbose);
 
-// CLASS: zeb_broker
-// Self test of this class.
-void
-    zeb_broker_test (bool verbose);
-
 // CLASS: zeb_client
 // Create a new zeb_client, return the reference if successful,   
 // or NULL if construction failed due to lack of available memory.
@@ -505,26 +452,6 @@ void
 // Self test of this class.
 void
     zeb_client_test (bool verbose);
-
-// CLASS: zeb_microhttpd
-// Self test of this class.
-void
-    zeb_microhttpd_test (bool verbose);
-
-// CLASS: zeb_request
-// Self test of this class.
-void
-    zeb_request_test (bool verbose);
-
-// CLASS: zeb_response
-// Self test of this class.
-void
-    zeb_response_test (bool verbose);
-
-// CLASS: zeb_connection
-// Self test of this class.
-void
-    zeb_connection_test (bool verbose);
 
 '''
 cdefs = re.sub(r';[^;]*\bva_list\b[^;]*;', ';', cdefs, flags=re.S) # we don't support anything with a va_list arg

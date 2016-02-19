@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <jni.h>
 #include "zebra.h"
-#include "../../native/include/org_zeromq_zebra_ZebHandler.h"
+#include "org_zeromq_zebra_ZebHandler.h"
 
 JNIEXPORT jint JNICALL
 Java_org_zeromq_zebra_ZebHandler__1_1addOffer (JNIEnv *env, jclass c, jlong self, jint method, jstring uri)

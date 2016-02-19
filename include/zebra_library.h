@@ -36,9 +36,9 @@
     ZEBRA_MAKE_VERSION(ZEBRA_VERSION_MAJOR, ZEBRA_VERSION_MINOR, ZEBRA_VERSION_PATCH)
 
 #if defined (__WINDOWS__)
-#   if defined LIBZEBRA_STATIC
+#   if defined ZEBRA_STATIC
 #       define ZEBRA_EXPORT
-#   elif defined LIBZEBRA_EXPORTS
+#   elif defined ZEBRA_EXPORTS
 #       define ZEBRA_EXPORT __declspec(dllexport)
 #   else
 #       define ZEBRA_EXPORT __declspec(dllimport)

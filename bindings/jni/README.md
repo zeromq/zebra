@@ -4,12 +4,12 @@ JNI Binding for zebra
 
 ## Building the JNI Layer for Linux
 
-Ensure you have cmake installed, then run:
+Ensure you have gradle and cmake installed, then run:
 
-    ./gradle build jar
-    ./gradle test
+    gradle build jar
+    gradle test
 
-This calls javah to build the headers in src/native/c, and then compiles the C and Java pieces to create a jar file a sharable library (.so).
+This calls javah to build the headers in src/native/include, and then compiles the C and Java pieces to create a jar file a sharable library (.so).
 
 ## Building the JNI Layer for Android
 
@@ -43,7 +43,7 @@ You need MS Visual Studio 2010 or later.
 
 You need the Java SDK. Set the JAVA_HOME environment to the installation location, e.g. C:Program FilesJavajdk1.8.0_66.
 
-1. Check out all dependent projects from github, at the same level as this project. E.g.: libsodium, libzmq, czmq.
+1. Check out all dependent projects from github, at the same level as this project. E.g.: libzmq, czmq.
 2. In each project, open a console in builds/msvc/vs2010 and run the build.bat batch file.
 3. In this project, open a console in bindings/jni/msvc/vs2010 and run the build.bat batch file.
 
