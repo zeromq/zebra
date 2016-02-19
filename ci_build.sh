@@ -33,7 +33,9 @@ if [ "$BUILD_TYPE" == "default" ]; then
     git clone --quiet --depth 1 https://github.com/zeromq/libzmq libzmq
     cd libzmq
     git --no-pager log --oneline -n1
-    ./autogen.sh 2> /dev/null
+    if [ -e autogen.sh ]; then
+        ./autogen.sh 2> /dev/null
+    fi
     ./configure "${CONFIG_OPTS[@]}"
     make -j4
     make install
@@ -41,7 +43,9 @@ if [ "$BUILD_TYPE" == "default" ]; then
     git clone --quiet --depth 1 https://github.com/zeromq/czmq czmq
     cd czmq
     git --no-pager log --oneline -n1
-    ./autogen.sh 2> /dev/null
+    if [ -e autogen.sh ]; then
+        ./autogen.sh 2> /dev/null
+    fi
     ./configure "${CONFIG_OPTS[@]}"
     make -j4
     make install
@@ -49,7 +53,9 @@ if [ "$BUILD_TYPE" == "default" ]; then
     git clone --quiet --depth 1 https://github.com/bagder/curl libcurl
     cd libcurl
     git --no-pager log --oneline -n1
-    ./autogen.sh 2> /dev/null
+    if [ -e autogen.sh ]; then
+        ./autogen.sh 2> /dev/null
+    fi
     ./configure "${CONFIG_OPTS[@]}"
     make -j4
     make install
@@ -57,7 +63,9 @@ if [ "$BUILD_TYPE" == "default" ]; then
     git clone --quiet --depth 1 -b stable https://github.com/jedisct1/libsodium libsodium
     cd libsodium
     git --no-pager log --oneline -n1
-    ./autogen.sh 2> /dev/null
+    if [ -e autogen.sh ]; then
+        ./autogen.sh 2> /dev/null
+    fi
     ./configure "${CONFIG_OPTS[@]}"
     make -j4
     make install
