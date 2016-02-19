@@ -36,6 +36,9 @@ if [ "$BUILD_TYPE" == "default" ]; then
     if [ -e autogen.sh ]; then
         ./autogen.sh 2> /dev/null
     fi
+    if [ -e buildconf ]; then
+        ./buildconf 2> /dev/null
+    fi
     ./configure "${CONFIG_OPTS[@]}"
     make -j4
     make install
@@ -45,6 +48,9 @@ if [ "$BUILD_TYPE" == "default" ]; then
     git --no-pager log --oneline -n1
     if [ -e autogen.sh ]; then
         ./autogen.sh 2> /dev/null
+    fi
+    if [ -e buildconf ]; then
+        ./buildconf 2> /dev/null
     fi
     ./configure "${CONFIG_OPTS[@]}"
     make -j4
@@ -56,6 +62,9 @@ if [ "$BUILD_TYPE" == "default" ]; then
     if [ -e autogen.sh ]; then
         ./autogen.sh 2> /dev/null
     fi
+    if [ -e buildconf ]; then
+        ./buildconf 2> /dev/null
+    fi
     ./configure "${CONFIG_OPTS[@]}"
     make -j4
     make install
@@ -65,6 +74,9 @@ if [ "$BUILD_TYPE" == "default" ]; then
     git --no-pager log --oneline -n1
     if [ -e autogen.sh ]; then
         ./autogen.sh 2> /dev/null
+    fi
+    if [ -e buildconf ]; then
+        ./buildconf 2> /dev/null
     fi
     ./configure "${CONFIG_OPTS[@]}"
     make -j4
