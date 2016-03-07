@@ -6,6 +6,7 @@
 ################################################################################
 
 set -x
+set -e
 
 if [ "$BUILD_TYPE" == "default" ]; then
     mkdir tmp
@@ -18,30 +19,77 @@ if [ "$BUILD_TYPE" == "default" ]; then
     CONFIG_OPTS+=("LDFLAGS=-L${BUILD_PREFIX}/lib")
     CONFIG_OPTS+=("PKG_CONFIG_PATH=${BUILD_PREFIX}/lib/pkgconfig")
     CONFIG_OPTS+=("--prefix=${BUILD_PREFIX}")
+    CONFIG_OPTS+=("--with-docs=no")
+    CONFIG_OPTS+=("--quiet")
 
     # Clone and build dependencies
-    git clone --depth 1 https://github.com/zeromq/libzmq libzmq
-    git --no-pager log -oneline -n1
-    ( cd libzmq && ./autogen.sh && ./configure "${CONFIG_OPTS[@]}" && make -j4 && make install ) || exit 1
-
-    git clone --depth 1 https://github.com/zeromq/czmq czmq
-    git --no-pager log -oneline -n1
-    ( cd czmq && ./autogen.sh && ./configure "${CONFIG_OPTS[@]}" && make -j4 && make install ) || exit 1
-
-    git clone --depth 1 http://ftp.gnu.org/gnu/libmicrohttpd/ libmicrohttpd
-    git --no-pager log -oneline -n1
-    ( cd libmicrohttpd && ./autogen.sh && ./configure "${CONFIG_OPTS[@]}" && make -j4 && make install ) || exit 1
-
-    git clone --depth 1 https://github.com/bagder/curl libcurl
-    git --no-pager log -oneline -n1
-    ( cd libcurl && ./autogen.sh && ./configure "${CONFIG_OPTS[@]}" && make -j4 && make install ) || exit 1
-
-    git clone --depth 1 https://github.com/jedisct1/libsodium libsodium
-    git --no-pager log -oneline -n1
-    ( cd libsodium && ./autogen.sh && ./configure "${CONFIG_OPTS[@]}" && make -j4 && make install ) || exit 1
+    wget http://ftp.gnu.org/gnu/libmicrohttpd/libmicrohttpd-0.9.48.tar.gz
+    tar -xzf $(basename "http://ftp.gnu.org/gnu/libmicrohttpd/libmicrohttpd-0.9.48.tar.gz")
+    cd $(basename "http://ftp.gnu.org/gnu/libmicrohttpd/libmicrohttpd-0.9.48.tar.gz" .tar.gz)
+    ./configure "${CONFIG_OPTS[@]}"
+    make -j4
+    make install
+    cd ..
+    git clone --quiet --depth 1 https://github.com/zeromq/libzmq libzmq
+    cd libzmq
+    git --no-pager log --oneline -n1
+    if [ -e autogen.sh ]; then
+        ./autogen.sh 2> /dev/null
+    fi
+    if [ -e buildconf ]; then
+        ./buildconf 2> /dev/null
+    fi
+    ./configure "${CONFIG_OPTS[@]}"
+    make -j4
+    make install
+    cd ..
+    git clone --quiet --depth 1 https://github.com/zeromq/czmq czmq
+    cd czmq
+    git --no-pager log --oneline -n1
+    if [ -e autogen.sh ]; then
+        ./autogen.sh 2> /dev/null
+    fi
+    if [ -e buildconf ]; then
+        ./buildconf 2> /dev/null
+    fi
+    ./configure "${CONFIG_OPTS[@]}"
+    make -j4
+    make install
+    cd ..
+    git clone --quiet --depth 1 https://github.com/bagder/curl libcurl
+    cd libcurl
+    git --no-pager log --oneline -n1
+    if [ -e autogen.sh ]; then
+        ./autogen.sh 2> /dev/null
+    fi
+    if [ -e buildconf ]; then
+        ./buildconf 2> /dev/null
+    fi
+    ./configure "${CONFIG_OPTS[@]}"
+    make -j4
+    make install
+    cd ..
+    git clone --quiet --depth 1 -b stable https://github.com/jedisct1/libsodium libsodium
+    cd libsodium
+    git --no-pager log --oneline -n1
+    if [ -e autogen.sh ]; then
+        ./autogen.sh 2> /dev/null
+    fi
+    if [ -e buildconf ]; then
+        ./buildconf 2> /dev/null
+    fi
+    ./configure "${CONFIG_OPTS[@]}"
+    make -j4
+    make install
+    cd ..
 
     # Build and check this project
-    ( ./autogen.sh && ./configure "${CONFIG_OPTS[@]}" && make -j4 && make check && make memcheck && make install ) || exit 1
+    ./autogen.sh 2> /dev/null
+    ./configure "${CONFIG_OPTS[@]}"
+    make -j4
+    make check
+    make memcheck
+    make install
 else
     pushd "./builds/${BUILD_TYPE}" && REPO_DIR="$(dirs -l +1)" ./ci_build.sh
 fi

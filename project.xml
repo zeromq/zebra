@@ -9,7 +9,7 @@
     <version major = "0" minor = "2" patch = "0" />
     <use project = "czmq" min_major= "3" min_minor = "0" min_patch = "0" />
     <use project = "libmicrohttpd" prefix = "microhttpd"
-         repository = "http://ftp.gnu.org/gnu/libmicrohttpd/" test = "MHD_start_daemon" />
+         tarball = "http://ftp.gnu.org/gnu/libmicrohttpd/libmicrohttpd-0.9.48.tar.gz" test = "MHD_start_daemon" />
     <use project = "libcurl" min_major= "7" min_minor = "7" min_patch = "0" optional = "1" implied = "1" />
     <use project = "libsodium" min_major= "1" min_minor = "0" min_patch = "0" optional = "1" implied = "1" />
     <target name = "*" />
