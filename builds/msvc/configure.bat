@@ -30,13 +30,6 @@ IF EXIST "..\..\..\libzmq" (
     ECHO TODO: resolve this problem automatically.
     GOTO error
 )
-IF EXIST "..\..\..\uuid" (
-    ECHO Building with uuid
-    ECHO #define HAVE_UUID 1>> platform.h
-) ELSE (
-    ECHO Building without uuid
-    ECHO #undef HAVE_UUID>> platform.h
-)
 IF EXIST "..\..\..\czmq" (
     ECHO Building with czmq
     ECHO #define HAVE_CZMQ 1>> platform.h
@@ -53,7 +46,6 @@ IF EXIST "..\..\..\libmicrohttpd" (
 ) ELSE (
     ECHO Building without libmicrohttpd
     ECHO zebra cannot build without libmicrohttpd
-    ECHO Please clone http://ftp.gnu.org/gnu/libmicrohttpd/, and then configure & build
     ECHO TODO: resolve this problem automatically.
     GOTO error
 )

@@ -47,7 +47,7 @@ zeb_client.txt:
 zeb_microhttpd.txt:
 	./mkman $@
 clean:
-	rm -f *.1 *.3
+	rm -f *.1 *.3 *.7
 	./mkman xrap_msg zeb_handler xrap_traffic zeb_broker zeb_client zeb_microhttpd 
 endif
 ################################################################################

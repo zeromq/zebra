@@ -19,6 +19,7 @@
 
 # Executables
 zebra_selftest
+selftest
 *.exe
 *.out
 *.app

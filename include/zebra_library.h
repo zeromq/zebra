@@ -25,7 +25,6 @@
 #include <microhttpd.h>
 
 //  ZEBRA version macros for compile-time API detection
-
 #define ZEBRA_VERSION_MAJOR 0
 #define ZEBRA_VERSION_MINOR 2
 #define ZEBRA_VERSION_PATCH 0
@@ -47,9 +46,13 @@
 #   define ZEBRA_EXPORT
 #endif
 
+//  Project has no stable classes, so we build the draft API
+#undef  ZEBRA_BUILD_DRAFT_API
+#define ZEBRA_BUILD_DRAFT_API
+
 //  Opaque class structures to allow forward references
 //  These classes are stable or legacy and built in all releases
-//  Draft classes are by default not built stable releases
+//  Draft classes are by default not built in stable releases
 #ifdef ZEBRA_BUILD_DRAFT_API
 typedef struct _xrap_msg_t xrap_msg_t;
 #define XRAP_MSG_T_DEFINED

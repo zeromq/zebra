@@ -35,7 +35,6 @@
   <!-- Dependencies -->
   <ImportGroup Label="PropertySheets">
     <Import Project="$(SolutionDir)libzmq.import.props" />
-    <Import Project="$(SolutionDir)uuid.import.props" Condition="'$(HAVE_UUID)'=='1'" />
     <Import Project="$(SolutionDir)czmq.import.props" />
     <Import Project="$(SolutionDir)libmicrohttpd.import.props" />
     <Import Project="$(SolutionDir)libcurl.import.props" Condition="'$(HAVE_LIBCURL)'=='1'" />
@@ -44,7 +43,6 @@
 
   <PropertyGroup Condition="'$(DefaultLinkage)' == 'dynamic'">
     <Linkage-libzmq>dynamic</Linkage-libzmq>
-    <Linkage-uuid Condition="'$(HAVE_UUID)'=='1'">dynamic</Linkage-uuid>
     <Linkage-czmq>dynamic</Linkage-czmq>
     <Linkage-libmicrohttpd>dynamic</Linkage-libmicrohttpd>
     <Linkage-libcurl Condition="'$(HAVE_LIBCURL)'=='1'">dynamic</Linkage-libcurl>
@@ -53,7 +51,6 @@
 
   <PropertyGroup Condition="'$(DefaultLinkage)' == 'ltcg'">
     <Linkage-libzmq>ltcg</Linkage-libzmq>
-    <Linkage-uuid Condition="'$(HAVE_UUID)'=='1'">ltcg</Linkage-uuid>
     <Linkage-czmq>ltcg</Linkage-czmq>
     <Linkage-libmicrohttpd>ltcg</Linkage-libmicrohttpd>
     <Linkage-libcurl Condition="'$(HAVE_LIBCURL)'=='1'">ltcg</Linkage-libcurl>
@@ -62,7 +59,6 @@
 
   <PropertyGroup Condition="'$(DefaultLinkage)' == 'static'">
     <Linkage-libzmq>static</Linkage-libzmq>
-    <Linkage-uuid Condition="'$(HAVE_UUID)'=='1'">static</Linkage-uuid>
     <Linkage-czmq>static</Linkage-czmq>
     <Linkage-libmicrohttpd>static</Linkage-libmicrohttpd>
     <Linkage-libcurl Condition="'$(HAVE_LIBCURL)'=='1'">static</Linkage-libcurl>
@@ -76,7 +72,6 @@
 
   <Target Name="LinkageInfo" BeforeTargets="PrepareForBuild">
     <Message Text="Linkage-libzmq: $(Linkage-libzmq)" Importance="high" />
-    <Message Text="Linkage-uuid: $(Linkage-uuid)" Importance="high" Condition="'$(HAVE_UUID)'=='1'" />
     <Message Text="Linkage-czmq: $(Linkage-czmq)" Importance="high" />
     <Message Text="Linkage-libmicrohttpd: $(Linkage-libmicrohttpd)" Importance="high" />
     <Message Text="Linkage-libcurl: $(Linkage-libcurl)" Importance="high" Condition="'$(HAVE_LIBCURL)'=='1'" />

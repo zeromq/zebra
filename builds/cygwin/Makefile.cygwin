@@ -17,11 +17,11 @@ OBJS = xrap_msg.o zeb_handler.o xrap_traffic.o zeb_broker.o zeb_client.o zeb_mic
 all: libzebra.dll zebra_selftest.exe
 
 libzebra.dll: $(OBJS)
-	$(CC) -shared -o $@ $(OBJS) -Wl,--out-implib,$@.a $(LIBDIR) -lzmq -luuid
+	$(CC) -shared -o $@ $(OBJS) -Wl,--out-implib,$@.a $(LIBDIR) -lzmq
 
 # the test functions are not exported into the DLL
 zebra_selftest.exe: zebra_selftest.o $(OBJS)
-	$(CC) -o $@ $^ $(LIBDIR) -lzmq -luuid
+	$(CC) -o $@ $^ $(LIBDIR) -lzmq
 clean:
 	del *.o *.a *.dll *.exe
 

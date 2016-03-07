@@ -16,15 +16,7 @@ set(SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
 ########################################################################
 # options
 ########################################################################
-if (EXISTS "${SOURCE_DIR}/.git")
-    OPTION (ENABLE_DRAFTS "Build and install draft classes and methods" ON)
-else ()
-    OPTION (ENABLE_DRAFTS "Build and install draft classes and methods" OFF)
-endif ()
-
-IF (ENABLE_DRAFTS)
-    ADD_DEFINITIONS (-DZEBRA_BUILD_DRAFT_API)
-ENDIF (ENABLE_DRAFTS)
+ADD_DEFINITIONS (-DZEBRA_BUILD_DRAFT_API)
 
 ########################################################################
 # platform.h
@@ -72,7 +64,7 @@ endif()
 
 # required libraries for cygwin
 if (CYGWIN)
-    set(MORE_LIBRARIES -luuid)
+    set(MORE_LIBRARIES)
 endif()
 
 list(APPEND CMAKE_MODULE_PATH "${SOURCE_DIR}")
@@ -88,17 +80,6 @@ IF (LIBZMQ_FOUND)
 ELSE (LIBZMQ_FOUND)
     message( FATAL_ERROR "libzmq not found." )
 ENDIF (LIBZMQ_FOUND)
-
-########################################################################
-# UUID dependency
-########################################################################
-find_package(uuid)
-IF (UUID_FOUND)
-    include_directories(${UUID_INCLUDE_DIRS})
-    list(APPEND MORE_LIBRARIES ${UUID_LIBRARIES})
-    add_definitions(-DHAVE_UUID)
-    list(APPEND OPTIONAL_LIBRARIES ${UUID_LIBRARIES})
-ENDIF (UUID_FOUND)
 
 ########################################################################
 # CZMQ dependency

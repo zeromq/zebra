@@ -20,7 +20,6 @@ To build this project, first check out its dependencies, at the same level as th
 
     git clone https://github.com/zeromq/libzmq
     git clone https://github.com/zeromq/czmq
-    git clone http://ftp.gnu.org/gnu/libmicrohttpd/
 
 On Linux, build just this project in builds/gyp and it will automatically build its dependencies:
 

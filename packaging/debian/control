@@ -11,16 +11,12 @@
 Source:         zebra
 Section:        net
 Priority:       optional
-Maintainer:     John Doe <John.Doe@example.com>
-Uploaders:      John Doe <John.Doe@example.com>
-Standards-Version: 3.9.5
-Build-Depends: bison, debhelper (>= 8),
+Maintainer:     zebra Developers <zeromq-dev@lists.zeromq.org>
+Standards-Version: 3.9.7
+Build-Depends: debhelper (>= 9),
     pkg-config,
-    automake,
-    autoconf,
-    libtool,
-    libzmq4-dev,
-    uuid-dev,
+    dh-autoreconf,
+    libzmq5-dev,
     libczmq-dev,
     libmicrohttpd-dev,
     libcurl-dev,
@@ -34,12 +30,11 @@ Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: zebra
  This package contains shared library for zebra: translates rest http-request into the xrap protocol.
 
-Package: zebra-dev
-Architecture: all
+Package: libzebra-dev
+Architecture: any
 Section: libdevel
 Depends:
-    libzmq4-dev,
-    uuid-dev,
+    libzmq5-dev,
     libczmq-dev,
     libmicrohttpd-dev,
     libcurl-dev,

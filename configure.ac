@@ -54,7 +54,7 @@ PKG_PROG_PKG_CONFIG
 
 # Code coverage
 AC_ARG_WITH(gcov, [AS_HELP_STRING([--with-gcov=yes/no],
-                  [With GCC Code Coverage reporting.])],
+                  [With GCC Code Coverage reporting])],
                   [ZEBRA_GCOV="$withval"])
 
 if test "x${ZEBRA_GCOV}" == "xyes"; then
@@ -108,58 +108,12 @@ PKG_CHECK_MODULES([libzmq], [libzmq >= 0.0.0],
                 AC_SUBST([libzmq_LIBS],[${libzmq_synthetic_libs}])
                 was_libzmq_check_lib_detected=yes
             ],
-            [AC_MSG_ERROR([cannot link with -lzmq, install libzmq.])])
+            [AC_MSG_ERROR([cannot link with -lzmq, install libzmq])])
     ])
 
 if test "x$was_libzmq_check_lib_detected" = "xno"; then
     CFLAGS="${libzmq_CFLAGS} ${CFLAGS}"
     LIBS="${libzmq_LIBS} ${LIBS}"
-fi
-
-was_uuid_check_lib_detected=no
-
-PKG_CHECK_MODULES([uuid], [uuid >= 0.0.0],
-    [
-        AC_DEFINE(HAVE_UUID, 1, [The uuid library is to be used.])
-    ],
-    [
-        AC_ARG_WITH([uuid],
-            [
-                AS_HELP_STRING([--with-uuid],
-                [Specify uuid prefix])
-            ],
-            [search_uuid="yes"],
-            [])
-
-        uuid_synthetic_cflags=""
-        uuid_synthetic_libs="-luuid"
-
-        if test "x$search_uuid" = "xyes"; then
-            if test -r "${with_uuid}/include/uuid/uuid.h"; then
-                uuid_synthetic_cflags="-I${with_uuid}/include"
-                uuid_synthetic_libs="-L${with_uuid}/lib -luuid"
-            else
-                AC_MSG_ERROR([${with_uuid}/include/uuid/uuid.h not found. Please check uuid prefix])
-            fi
-        fi
-
-        AC_CHECK_LIB([uuid], [uuid_generate],
-            [
-                CFLAGS="${uuid_synthetic_cflags} ${CFLAGS}"
-                LDFLAGS="${uuid_synthetic_libs} ${LDFLAGS}"
-                LIBS="${uuid_synthetic_libs} ${LIBS}"
-
-                AC_SUBST([uuid_CFLAGS],[${uuid_synthetic_cflags}])
-                AC_SUBST([uuid_LIBS],[${uuid_synthetic_libs}])
-                was_uuid_check_lib_detected=yes
-                AC_DEFINE(HAVE_UUID, 1, [The uuid library is to be used.])
-            ],
-            [])
-    ])
-
-if test "x$was_uuid_check_lib_detected" = "xno"; then
-    CFLAGS="${uuid_CFLAGS} ${CFLAGS}"
-    LIBS="${uuid_LIBS} ${LIBS}"
 fi
 
 was_czmq_check_lib_detected=no
@@ -212,7 +166,7 @@ PKG_CHECK_MODULES([libmicrohttpd], [libmicrohttpd >= 0.0.0],
                 AC_SUBST([libmicrohttpd_LIBS],[${libmicrohttpd_synthetic_libs}])
                 was_libmicrohttpd_check_lib_detected=yes
             ],
-            [AC_MSG_ERROR([cannot link with -lmicrohttpd, install libmicrohttpd.])])
+            [AC_MSG_ERROR([cannot link with -lmicrohttpd, install libmicrohttpd])])
     ])
 
 if test "x$was_libmicrohttpd_check_lib_detected" = "xno"; then
@@ -224,7 +178,7 @@ was_libcurl_check_lib_detected=no
 
 PKG_CHECK_MODULES([libcurl], [libcurl >= 7.7.0],
     [
-        AC_DEFINE(HAVE_LIBCURL, 1, [The libcurl library is to be used.])
+        AC_DEFINE(HAVE_LIBCURL, 1, [The libcurl library is to be used])
     ],
     [
         AC_MSG_WARN([Cannot find libcurl 7.7.0 or higher])
@@ -239,7 +193,7 @@ was_libsodium_check_lib_detected=no
 
 PKG_CHECK_MODULES([libsodium], [libsodium >= 1.0.0],
     [
-        AC_DEFINE(HAVE_LIBSODIUM, 1, [The libsodium library is to be used.])
+        AC_DEFINE(HAVE_LIBSODIUM, 1, [The libsodium library is to be used])
     ],
     [
         AC_MSG_WARN([Cannot find libsodium 1.0.0 or higher])
@@ -373,7 +327,7 @@ case "${host_os}" in
         zebra_on_gnu="yes"
         ;;
     *)
-        AC_MSG_ERROR([unsupported system: ${host_os}.])
+        AC_MSG_ERROR([unsupported system: ${host_os}])
         ;;
 esac
 
@@ -418,7 +372,7 @@ AM_CONDITIONAL(BUILD_DOC, test "x$zebra_build_doc" = "xyes")
 # Check for zebra_selftest intent
 AC_ARG_ENABLE([zebra_selftest],
     AS_HELP_STRING([--enable-zebra_selftest],
-        [Compile 'zebra_selftest' in src [default=yes].]),
+        [Compile 'zebra_selftest' in src [default=yes]]),
     [enable_zebra_selftest=$enableval],
     [enable_zebra_selftest=yes])
 
@@ -439,7 +393,7 @@ AC_SUBST([pkgconfigdir])
 # enable specific system integration features
 AC_ARG_WITH([systemd-units],
     AS_HELP_STRING([--with-systemd-units],
-    [Build and install with systemd units integration [default=no].]),
+    [Build and install with systemd units integration [default=no]]),
     [with_systemd_units=$withval],
     [with_systemd_units=no])
 
@@ -450,26 +404,13 @@ AM_COND_IF([WITH_SYSTEMD_UNITS],
     AC_SUBST(WITH_SYSTEMD_UNITS)],
     [])
 
-if test "x$cross_compiling" = "xyes"; then
-    #   Enable draft by default when cross-compiling
-    gitmaster=yes
-else
-    # enable draft API by default if we're in a git repository
-    # else disable it by default; then allow --enable-drafts=yes/no override
-    AC_CHECK_FILE($srcdir/.git, [gitmaster=yes], [gitmaster=no])
-fi
-
-AC_ARG_ENABLE([drafts],
-    AS_HELP_STRING([--enable-drafts],
-        [Build and install draft classes and methods [default=yes.]]),
-    [enable_drafts=$enableval],
-    [enable_drafts=$gitmaster])
-
+#   Project has no stable classes so enable draft API by default
+enable_drafts=yes
 AM_CONDITIONAL([ENABLE_DRAFTS], [test x$enable_drafts != xno])
 
 if test "x$enable_drafts" = "xyes"; then
     AC_MSG_NOTICE([Building stable and legacy API + draft API])
-    AC_DEFINE(ZEBRA_BUILD_DRAFT_API, 1, [Provide draft classes and methods.])
+    AC_DEFINE(ZEBRA_BUILD_DRAFT_API, 1, [Provide draft classes and methods])
     AC_SUBST(pkg_config_defines, "-DZEBRA_BUILD_DRAFT_API=1")
 else
     AC_MSG_NOTICE([Building stable and legacy API (no draft API)])

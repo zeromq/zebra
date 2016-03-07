@@ -53,16 +53,6 @@ if [ ! -f czmq/builds/gyp/project.gyp ]; then
     exit
 fi
 
-#   Check dependent projects
-if [ ! -d libmicrohttpd ]; then
-    echo "I:    cloning http://ftp.gnu.org/gnu/libmicrohttpd/ into `pwd`/libmicrohttpd..."
-    git clone $QUIET http://ftp.gnu.org/gnu/libmicrohttpd/
-fi
-if [ ! -f libmicrohttpd/builds/gyp/project.gyp ]; then
-    echo "E:    `pwd`/libmicrohttpd out of date (builds/gyp/project.gyp missing)"
-    exit
-fi
-
 
 #   Check Node.js dependencies
 cd $BUILD_ROOT
@@ -88,6 +78,7 @@ export JOBS=$([[ $(uname) = 'Darwin' ]] \
     && sysctl -n hw.logicalcpu_max \
     || lscpu -p | egrep -v '^#' | wc -l)
 
-#   Build the binding using node-ninja
+#   Build the binding using node-ninja directly, not prebuild
 echo "I: building Node.js binding:"
-prebuild --all --backend=node-ninja
+node-ninja configure
+node-ninja build
