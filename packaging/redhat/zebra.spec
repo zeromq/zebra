@@ -23,7 +23,6 @@ BuildRequires:  libtool
 BuildRequires:  pkg-config
 BuildRequires:  systemd-devel
 BuildRequires:  zeromq-devel
-BuildRequires:  uuid-devel
 BuildRequires:  czmq-devel
 BuildRequires:  libmicrohttpd-devel
 BuildRequires:  libcurl-devel
@@ -54,7 +53,6 @@ Summary:        translates rest http-request into the xrap protocol.
 Group:          System/Libraries
 Requires:       libzebra0 = %{version}
 Requires:       zeromq-devel
-Requires:       uuid-devel
 Requires:       czmq-devel
 Requires:       libmicrohttpd-devel
 Requires:       libcurl-devel

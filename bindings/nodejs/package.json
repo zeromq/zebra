@@ -1,8 +1,7 @@
 {
   "name": "zebra",
-  # ???
-  "version": "0.0.0",
-  "description": "zebra",
+  "version": "0.0.1",
+  "description": "Translates REST HTTP-Request into the XRAP protocol.",
   "scripts": {
     "install": "prebuild --install",
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -14,14 +13,11 @@
   "gypfile": true,
   "repository": {
     "type": "git",
-    # ???
-    "url": "https://github.com/hintjens/zyre-nodejs"
+    "url": ""
   },
   "dependencies": {
-    "prebuild": "^3.0.3"
-  },
-  "devDependencies": {
-    "node-ninja": "^0.3.0",
+    "prebuild": "^3.0.3",
+    "node-ninja": "^1.0.1",
     "nan": "^2.2.0"
   }
 }

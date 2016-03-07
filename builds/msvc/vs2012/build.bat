@@ -16,14 +16,6 @@ IF EXIST "..\..\..\..\libzmq\builds/msvc/vs2012\libzmq.import.props" (
     ECHO Please clone from https://github.com/zeromq/libzmq, and then build.
     GOTO error
 )
-IF EXIST "..\..\..\..\uuid\builds/msvc/vs2012\uuid.import.props" (
-    COPY /Y "..\..\..\..\uuid\builds/msvc/vs2012\uuid.import.props" . > %log%
-    IF errorlevel 1 GOTO error
-    SET packages=%packages% /p:HAVE_UUID=1
-    ECHO Building with uuid
-) ELSE (
-    ECHO Building without uuid
-)
 IF EXIST "..\..\..\..\czmq\builds/msvc/vs2012\czmq.import.props" (
     COPY /Y "..\..\..\..\czmq\builds/msvc/vs2012\czmq.import.props" . > %log%
     IF errorlevel 1 GOTO error
@@ -37,7 +29,6 @@ IF EXIST "..\..\..\..\libmicrohttpd\builds/msvc/vs2012\libmicrohttpd.import.prop
     IF errorlevel 1 GOTO error
 ) ELSE (
     ECHO Did not find libmicrohttpd, aborting.
-    ECHO Please clone from http://ftp.gnu.org/gnu/libmicrohttpd/, and then build.
     GOTO error
 )
 IF EXIST "..\..\..\..\libcurl\builds/msvc/vs2012\libcurl.import.props" (

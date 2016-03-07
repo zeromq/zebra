@@ -36,9 +36,6 @@ git clone --quiet --depth 1 https://github.com/zeromq/libzmq $LIBZMQ_ROOT
 export CZMQ_ROOT="/tmp/czmq"
 git clone --quiet --depth 1 https://github.com/zeromq/czmq $CZMQ_ROOT
 
-export LIBMICROHTTPD_ROOT="/tmp/libmicrohttpd"
-git clone --quiet --depth 1 http://ftp.gnu.org/gnu/libmicrohttpd/ $LIBMICROHTTPD_ROOT
-
 export LIBCURL_ROOT="/tmp/libcurl"
 git clone --quiet --depth 1 https://github.com/bagder/curl $LIBCURL_ROOT
 

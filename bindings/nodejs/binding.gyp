@@ -12,8 +12,38 @@
       ],
       'include_dirs': [
           "<!(node -e \"require('nan')\")",
-          -- dependencies!
+          '../../../libzmq/include',
+          '../../../czmq/include',
+          '../../../libmicrohttpd/include',
           '../../include'
+      ],
+      'conditions': [
+        [ 'OS=="win"', {
+          'defines': [
+            'ZMQ_STATIC',
+            'CZMQ_STATIC',
+            'MICROHTTPD_STATIC',
+            'ZEBRA_STATIC'
+          ],
+          'libraries': [
+            'ws2_32',
+            'advapi32',
+            'iphlpapi',
+            'Rpcrt4'
+          ]
+        }],
+        [ 'OS=="mac"', {
+        }],
+        [ 'OS=="linux"', {
+          'xcode_settings': {
+            'OTHER_CFLAGS': [
+              '-fPIC'
+            ],
+          },
+          'libraries': [
+            '-lpthread'
+          ]
+        }],
       ],
       'dependencies': [
           '../../builds/gyp/project.gyp:libzebra'

@@ -1,0 +1,3 @@
+usr/include/*
+usr/lib/*/libzebra.so
+usr/lib/*/pkgconfig/libzebra.pc
