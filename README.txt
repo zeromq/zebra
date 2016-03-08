@@ -98,6 +98,10 @@ Here's how to build zebra, including libmicrohttpd, libzmq and czmq:
     sudo ldconfig
     cd ..
 
+### Getting started
+
+Checkout the zebra examples.
+
 ### User information
 
 #### User Agent Required
@@ -142,5 +146,3 @@ Do read your code after you write it and ask, "Can I make this simpler?" We do u
 Before opening a pull request read our [contribution guidelines](https://github.com/zeromq/zebra/blob/master/CONTRIBUTING.md). Thanks!
 
 ### This Document
-
-This document is originally at README.txt and is built using [gitdown](http://github.com/imatix/gitdown).
