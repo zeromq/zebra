@@ -22,7 +22,8 @@ Build-Depends: debhelper (>= 9),
     libcurl-dev,
     libsodium-dev,
     dh-autoreconf,
-    systemd
+    systemd,
+    dh-systemd
 
 Package: libzebra0
 Architecture: any

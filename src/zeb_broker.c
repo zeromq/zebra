@@ -325,6 +325,7 @@ get_message_to_deliver (client_t *self)
     assert (zmsg_is (self->msg));
     if (self->callee)
         xrap_traffic_set_sender (self->message, self->callee->id);
+
     xrap_traffic_set_content (self->message, &self->msg);
 }
 
@@ -343,6 +344,7 @@ zeb_broker_test (bool verbose)
     zactor_t *server = zactor_new (zeb_broker, "broker");
     if (verbose)
         zstr_send (server, "VERBOSE");
+
     zstr_sendx (server, "BIND", "tcp://127.0.0.1:9999", NULL);
 
     zsock_t* client = zsock_new_dealer (">tcp://127.0.0.1:9999");
