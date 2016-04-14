@@ -69,6 +69,7 @@ This is the class self test code:
     zactor_t *server = zactor_new (zeb_broker, "broker");
     if (verbose)
         zstr_send (server, "VERBOSE");
+    
     zstr_sendx (server, "BIND", "tcp://127.0.0.1:9999", NULL);
     
     zsock_t* client = zsock_new_dealer (">tcp://127.0.0.1:9999");

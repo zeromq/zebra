@@ -293,6 +293,7 @@ s_send_response (struct MHD_Connection *con, zeb_connection_t *connection, zeb_m
 
     if (!http_response)
         return MHD_NO;
+
     rc = MHD_queue_response (con, status_code, http_response);
     //  Cleanup
     MHD_destroy_response (http_response);
@@ -460,11 +461,13 @@ answer_to_connection (void *cls,
             zeb_request_t *zeb_request = zeb_connection_request (connection);
             char *user_agent =  (char *) zhash_lookup (zeb_request_header (zeb_request), "User-Agent");
             zeb_ratelimit_t *ratelimit = (zeb_ratelimit_t *)
-                                            zhashx_lookup (self->ratelimit_clients, user_agent);
+                                         zhashx_lookup (self->ratelimit_clients, user_agent);
             if (!ratelimit)
                 ratelimit = zeb_microhttpd_ratelimit_new (self, user_agent);
+
             if (XRAP_MSG_GET_EMPTY != xrap_msg_id (xresponse))
                 ratelimit->remaining--;
+
             zeb_response_set_ratelimit (zeb_response,
                                         ratelimit->limit,
                                         ratelimit->remaining,
