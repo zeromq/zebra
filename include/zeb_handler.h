@@ -24,7 +24,7 @@ extern "C" {
 #ifdef ZEBRA_BUILD_DRAFT_API
 //  To work with zeb_handler, use the CZMQ zactor API:                      
 //                                                                          
-//  Create new zeb_handler instance, passing broker endpoint:               
+//  Create new zeb_handler instance, passing the broker endpoint:           
 //                                                                          
 //      zactor_t *handler = zactor_new (zeb_handler, "inproc://broker");    
 //                                                                          
@@ -47,8 +47,8 @@ extern "C" {
 //       zsock_signal (handler, 0);                                         
 //    }                                                                     
 //                                                                          
-//    Check if a last modified timestamp is current, MUST signal 0 if true  
-//    otherwise 1.                                                          
+//  Check if a last modified timestamp is current, MUST signal 0 if true    
+//  otherwise 1.                                                            
 //                                                                          
 //    if (streq (command, "CHECK LAST MODIFIED")) {                         
 //       uint64_t last_modified;                                            
@@ -73,8 +73,13 @@ ZEBRA_EXPORT void
 //  *** Draft method, for development use, may change without warning ***
 //  Add a new offer this handler will handle. Returns 0 if successful,
 //  otherwise -1.                                                     
+//  The content type parameter is optional and is used to             
+//  filter requests upon their requested (GET) or provided (POST/PUT) 
+//  content's type. The content type parameter may be a regex. If the 
+//  request's content type does not match it is automatically rejected
+//  with the error code 406 (Not acceptable).                         
 ZEBRA_EXPORT int
-    zeb_handler_add_offer (zactor_t *self, int method, const char *uri);
+    zeb_handler_add_offer (zactor_t *self, int method, const char *uri, const char *content_type);
 
 //  *** Draft method, for development use, may change without warning ***
 //  Add a new accept type that this handler can deliver. May be a regular

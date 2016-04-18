@@ -1376,7 +1376,7 @@ zeb_client_connected (zeb_client_t *self)
 //  Get valid reply from actor; discard replies that does not match. Current
 //  implementation filters on first frame of message. Blocks until a valid
 //  reply is received, and properties can be loaded from it. Returns 0 if
-//  matched, -1 if interrupted or timed-out.
+//  matched, -1 if interrupted.
 
 static int
 s_accept_reply (zeb_client_t *self, ...)
@@ -1385,7 +1385,7 @@ s_accept_reply (zeb_client_t *self, ...)
     while (!zsys_interrupted) {
         char *reply = zstr_recv (self->actor);
         if (!reply)
-            break;              //  Interrupted or timed-out
+            break;              //  Interrupted
 
         va_list args;
         va_start (args, self);
@@ -1407,12 +1407,12 @@ s_accept_reply (zeb_client_t *self, ...)
         va_end (args);
         //  If anything was remaining on pipe, flush it
         zsock_flush (self->actor);
+        zstr_free (&reply);
         if (filter) {
-            zstr_free (&reply);
             return 0;           //  We matched one of the filters
         }
     }
-    return -1;          //  Interrupted or timed-out
+    return -1;          //  Interrupted
 }
 
 
