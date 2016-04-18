@@ -12,7 +12,7 @@
     <actor>
         To work with zeb_handler, use the CZMQ zactor API:
 
-        Create new zeb_handler instance, passing broker endpoint:
+        Create new zeb_handler instance, passing the broker endpoint:
 
             zactor_t *handler = zactor_new (zeb_handler, "inproc://broker");
 
@@ -35,8 +35,8 @@
              zsock_signal (handler, 0);
           }
 
-          Check if a last modified timestamp is current, MUST signal 0 if true
-          otherwise 1.
+        Check if a last modified timestamp is current, MUST signal 0 if true
+        otherwise 1.
 
           if (streq (command, "CHECK LAST MODIFIED")) {
              uint64_t last_modified;
@@ -60,9 +60,15 @@
     <method name = "add offer" singleton = "1">
         Add a new offer this handler will handle. Returns 0 if successful,
         otherwise -1.
+        The content type parameter is optional and is used to
+        filter requests upon their requested (GET) or provided (POST/PUT)
+        content's type. The content type parameter may be a regex. If the
+        request's content type does not match it is automatically rejected
+        with the error code 406 (Not acceptable).
         <argument name = "self" type = "zactor" />
         <argument name = "method" type = "integer" />
         <argument name = "uri" type = "string" />
+        <argument name = "content type" type = "string" />
         <return type = "integer" />
     </method>
 

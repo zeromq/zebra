@@ -29,13 +29,13 @@
 
 **<a href="#toc3-143">Usage</a>**
 *  <a href="#toc4-148">zeb_handler - Handler for XRAP requests</a>
-*  <a href="#toc4-557">zeb_microhttpd - Simple HTTP web server</a>
-*  <a href="#toc4-754">zeb_broker - zebra service broker</a>
-*  <a href="#toc4-929">zeb_client - Broker client</a>
+*  <a href="#toc4-585">zeb_microhttpd - Simple HTTP web server</a>
+*  <a href="#toc4-782">zeb_broker - zebra service broker</a>
+*  <a href="#toc4-957">zeb_client - Broker client</a>
 
-**<a href="#toc3-1129">Hints to Contributors</a>**
+**<a href="#toc3-1157">Hints to Contributors</a>**
 
-**<a href="#toc3-1138">This Document</a>**
+**<a href="#toc3-1166">This Document</a>**
 
 <A name="toc2-13" title="Overview" />
 ## Overview
@@ -161,7 +161,7 @@ This is the class interface:
     #ifdef ZEBRA_BUILD_DRAFT_API
     //  To work with zeb_handler, use the CZMQ zactor API:                      
     //                                                                          
-    //  Create new zeb_handler instance, passing broker endpoint:               
+    //  Create new zeb_handler instance, passing the broker endpoint:           
     //                                                                          
     //      zactor_t *handler = zactor_new (zeb_handler, "inproc://broker");    
     //                                                                          
@@ -184,8 +184,8 @@ This is the class interface:
     //       zsock_signal (handler, 0);                                         
     //    }                                                                     
     //                                                                          
-    //    Check if a last modified timestamp is current, MUST signal 0 if true  
-    //    otherwise 1.                                                          
+    //  Check if a last modified timestamp is current, MUST signal 0 if true    
+    //  otherwise 1.                                                            
     //                                                                          
     //    if (streq (command, "CHECK LAST MODIFIED")) {                         
     //       uint64_t last_modified;                                            
@@ -210,8 +210,13 @@ This is the class interface:
     //  *** Draft method, for development use, may change without warning ***
     //  Add a new offer this handler will handle. Returns 0 if successful,
     //  otherwise -1.                                                     
+    //  The content type parameter is optional and is used to             
+    //  filter requests upon their requested (GET) or provided (POST/PUT) 
+    //  content's type. The content type parameter may be a regex. If the 
+    //  request's content type does not match it is automatically rejected
+    //  with the error code 406 (Not acceptable).                         
     ZEBRA_EXPORT int
-        zeb_handler_add_offer (zactor_t *self, int method, const char *uri);
+        zeb_handler_add_offer (zactor_t *self, int method, const char *uri, const char *content_type);
     
     //  *** Draft method, for development use, may change without warning ***
     //  Add a new accept type that this handler can deliver. May be a regular
@@ -246,24 +251,20 @@ This is the class self test code:
     zactor_t *handler = zactor_new (zeb_handler, (void *) "tcp://127.0.0.1:9999");
     assert (handler);
     
-    //  Set accepted document formats
-    rc = zeb_handler_add_accept (handler, "application/(xml|json)");
-    assert (rc == 0);
-    
     //  Offer a service
-    rc = zeb_handler_add_offer (handler, XRAP_MSG_GET, "/dummy");
+    rc = zeb_handler_add_offer (handler, XRAP_MSG_GET, "/dummy", "application/(xml|json)");
     assert (rc == 0);
-    rc = zeb_handler_add_offer (handler, XRAP_MSG_PUT, "/dummy");
+    rc = zeb_handler_add_offer (handler, XRAP_MSG_PUT, "/dummy", "application/(xml|json)");
     assert (rc == 0);
     
     //  Provide Rubbish Offering
-    rc = zeb_handler_add_offer (handler, XRAP_MSG_GET, "/dummy");
+    rc = zeb_handler_add_offer (handler, XRAP_MSG_GET, "/dummy", NULL);
     assert (rc == -1);
     
     //  ================================
     //  GET Tests
     
-    //  Send Request
+    //  1.1 Send Request
     xrap_msg_t *xmsg = xrap_msg_new (XRAP_MSG_GET);
     xrap_msg_set_resource (xmsg, "%s", "/dummy");
     xrap_msg_set_content_type (xmsg, "application/xml");
@@ -271,14 +272,14 @@ This is the class self test code:
     rc = zeb_client_request (client, 0, &msg);
     assert (rc == 0);
     
-    //  Receive request and Echo response
+    //  1.2 Receive request and Echo response
     char *command;
     zsock_recv (handler, "sm", &command, &msg);
     assert (streq (command, "HANDLE REQUEST"));
     zstr_free (&command);
     zmsg_send (&msg, handler);
     
-    //  Receive Response (is echo)
+    //  1.3 Receive Response (is echo)
     msg = zeb_client_recv (client);
     xmsg = xrap_msg_decode (&msg);
     assert (xrap_msg_id (xmsg) == XRAP_MSG_GET);
@@ -288,14 +289,40 @@ This is the class self test code:
     zuuid_t *sender = zeb_client_sender (client);
     zuuid_destroy (&sender);
     
-    //  Send Request without ACCEPT
+    //  2.1 Send Request with default Firefox accept header
+    xmsg = xrap_msg_new (XRAP_MSG_GET);
+    xrap_msg_set_resource (xmsg, "%s", "/dummy");
+    xrap_msg_set_content_type (xmsg,
+            "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
+    msg = xrap_msg_encode (&xmsg);
+    rc = zeb_client_request (client, 0, &msg);
+    assert (rc == 0);
+    
+    //  2.2 Receive request and Echo response
+    zsock_recv (handler, "sm", &command, &msg);
+    assert (streq (command, "HANDLE REQUEST"));
+    zstr_free (&command);
+    zmsg_send (&msg, handler);
+    
+    //  2.3 Receive Response (is echo)
+    msg = zeb_client_recv (client);
+    xmsg = xrap_msg_decode (&msg);
+    assert (xrap_msg_id (xmsg) == XRAP_MSG_GET);
+    assert (streq (xrap_msg_resource (xmsg), "/dummy"));
+    assert (streq (xrap_msg_content_type (xmsg),
+                "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"));
+    xrap_msg_destroy (&xmsg);
+    sender = zeb_client_sender (client);
+    zuuid_destroy (&sender);
+    
+    //  3.1 Send Request without ACCEPT
     xmsg = xrap_msg_new (XRAP_MSG_GET);
     xrap_msg_set_resource (xmsg, "%s", "/dummy");
     msg = xrap_msg_encode (&xmsg);
     rc = zeb_client_request (client, 0, &msg);
     assert (rc == 0);
     
-    //  Receive Request without ACCEPT
+    //  3.2 Receive Request without ACCEPT
     msg = zeb_client_recv (client);
     xmsg = xrap_msg_decode (&msg);
     assert (xrap_msg_id (xmsg) == XRAP_MSG_ERROR);
@@ -304,7 +331,7 @@ This is the class self test code:
     sender = zeb_client_sender (client);
     zuuid_destroy (&sender);
     
-    //  Send Request with conditionals (not changed)
+    //  4.1 Send Request with conditionals (not changed)
     xmsg = xrap_msg_new (XRAP_MSG_GET);
     xrap_msg_set_resource (xmsg, "%s", "/dummy");
     xrap_msg_set_content_type (xmsg, "application/json");
@@ -314,7 +341,7 @@ This is the class self test code:
     rc = zeb_client_request (client, 0, &msg);
     assert (rc == 0);
     
-    //  Check etag (match)
+    //  4.2 Check etag (match)
     char *etag;
     zsock_recv (handler, "ss", &command, &etag);
     assert (streq (command, "CHECK ETAG"));
@@ -323,14 +350,14 @@ This is the class self test code:
     zstr_free (&etag);
     zsock_signal (handler, 0);
     
-    //  Check last modified (not modified)
+    //  4.3 Check last modified (not modified)
     uint64_t last_modified;
     zsock_recv (handler, "s8", &command, &last_modified);
     assert (streq (command, "CHECK LAST MODIFIED"));
     zstr_free (&command);
     zsock_signal (handler, 0);
     
-    //  Receive Request with conditionals
+    //  4.4 Receive Request with conditionals
     msg = zeb_client_recv (client);
     xmsg = xrap_msg_decode (&msg);
     assert (xrap_msg_id (xmsg) == XRAP_MSG_GET_EMPTY);
@@ -338,7 +365,7 @@ This is the class self test code:
     sender = zeb_client_sender (client);
     zuuid_destroy (&sender);
     
-    //  Send Request with conditionals (changed)
+    //  5.1 Send Request with conditionals (changed)
     xmsg = xrap_msg_new (XRAP_MSG_GET);
     xrap_msg_set_resource (xmsg, "%s", "/dummy");
     xrap_msg_set_content_type (xmsg, "application/json");
@@ -348,7 +375,7 @@ This is the class self test code:
     rc = zeb_client_request (client, 0, &msg);
     assert (rc == 0);
     
-    //  Check etag (none match)
+    //  5.2 Check etag (none match)
     zsock_recv (handler, "ss", &command, &etag);
     assert (streq (command, "CHECK ETAG"));
     zstr_free (&command);
@@ -356,20 +383,20 @@ This is the class self test code:
     zstr_free (&etag);
     zsock_signal (handler, 1);
     
-    //  Check last modified (modified)
+    //  5.3 Check last modified (modified)
     zsock_recv (handler, "s8", &command, &last_modified);
     assert (streq (command, "CHECK LAST MODIFIED"));
     zstr_free (&command);
     assert (last_modified == 20);
     zsock_signal (handler, 1);
     
-    //  Receive request and Echo response
+    //  5.4 Receive request and Echo response
     zsock_recv (handler, "sm", &command, &msg);
     assert (streq (command, "HANDLE REQUEST"));
     zstr_free (&command);
     zmsg_send (&msg, handler);
     
-    //  Receive response with conditionals
+    //  5.5 Receive response with conditionals
     msg = zeb_client_recv (client);
     xmsg = xrap_msg_decode (&msg);
     assert (xrap_msg_id (xmsg) == XRAP_MSG_GET);
@@ -382,7 +409,7 @@ This is the class self test code:
     //  ================================
     //  PUT Tests
     
-    //  Send Request
+    //  1.1 Send Request
     xmsg = xrap_msg_new (XRAP_MSG_PUT);
     xrap_msg_set_resource (xmsg, "%s", "/dummy");
     xrap_msg_set_content_type (xmsg, "application/xml");
@@ -391,13 +418,13 @@ This is the class self test code:
     rc = zeb_client_request (client, 0, &msg);
     assert (rc == 0);
     
-    //  Receive request and Echo response
+    //  1.2 Receive request and Echo response
     zsock_recv (handler, "sm", &command, &msg);
     assert (streq (command, "HANDLE REQUEST"));
     zstr_free (&command);
     zmsg_send (&msg, handler);
     
-    //  Receive response (is echo)
+    //  1.3 Receive response (is echo)
     msg = zeb_client_recv (client);
     xmsg = xrap_msg_decode (&msg);
     assert (xrap_msg_id (xmsg) == XRAP_MSG_PUT);
@@ -408,7 +435,7 @@ This is the class self test code:
     sender = zeb_client_sender (client);
     zuuid_destroy (&sender);
     
-    //  Send Request with conditionals (update, both)
+    //  2.1 Send Request with conditionals (update, both)
     xmsg = xrap_msg_new (XRAP_MSG_PUT);
     xrap_msg_set_resource (xmsg, "%s", "/dummy");
     xrap_msg_set_content_type (xmsg, "application/json");
@@ -418,7 +445,7 @@ This is the class self test code:
     rc = zeb_client_request (client, 0, &msg);
     assert (rc == 0);
     
-    //  Check etag (match)
+    //  2.2 Check etag (match)
     zsock_recv (handler, "ss", &command, &etag);
     assert (streq (command, "CHECK ETAG"));
     zstr_free (&command);
@@ -426,19 +453,19 @@ This is the class self test code:
     zstr_free (&etag);
     zsock_signal (handler, 0);
     
-    //  Check last modified (not modified)
+    //  2.3 Check last modified (not modified)
     zsock_recv (handler, "s8", &command, &last_modified);
     assert (streq (command, "CHECK LAST MODIFIED"));
     zstr_free (&command);
     zsock_signal (handler, 0);
     
-    //  Receive request and Echo response
+    //  2.4 Receive request and Echo response
     zsock_recv (handler, "sm", &command, &msg);
     assert (streq (command, "HANDLE REQUEST"));
     zstr_free (&command);
     zmsg_send (&msg, handler);
     
-    //  Receive response with conditionals (update, both)
+    //  2.5 Receive response with conditionals (update, both)
     msg = zeb_client_recv (client);
     xmsg = xrap_msg_decode (&msg);
     assert (xrap_msg_id (xmsg) == XRAP_MSG_PUT);
@@ -448,7 +475,7 @@ This is the class self test code:
     sender = zeb_client_sender (client);
     zuuid_destroy (&sender);
     
-    //  Send Request with conditionals (update, etag)
+    //  3.1 Send Request with conditionals (update, etag)
     xmsg = xrap_msg_new (XRAP_MSG_PUT);
     xrap_msg_set_resource (xmsg, "%s", "/dummy");
     xrap_msg_set_content_type (xmsg, "application/json");
@@ -457,7 +484,7 @@ This is the class self test code:
     rc = zeb_client_request (client, 0, &msg);
     assert (rc == 0);
     
-    //  Check etag (match)
+    //  3.2 Check etag (match)
     zsock_recv (handler, "ss", &command, &etag);
     assert (streq (command, "CHECK ETAG"));
     zstr_free (&command);
@@ -465,13 +492,13 @@ This is the class self test code:
     zstr_free (&etag);
     zsock_signal (handler, 0);
     
-    //  Receive request and Echo response
+    //  3.3 Receive request and Echo response
     zsock_recv (handler, "sm", &command, &msg);
     assert (streq (command, "HANDLE REQUEST"));
     zstr_free (&command);
     zmsg_send (&msg, handler);
     
-    //  Receive response with conditionals (update, etag)
+    //  3.4 Receive response with conditionals (update, etag)
     msg = zeb_client_recv (client);
     xmsg = xrap_msg_decode (&msg);
     assert (xrap_msg_id (xmsg) == XRAP_MSG_PUT);
@@ -479,7 +506,7 @@ This is the class self test code:
     sender = zeb_client_sender (client);
     zuuid_destroy (&sender);
     
-    //  Send Request with conditionals (update, last_modified)
+    //  4.1 Send Request with conditionals (update, last_modified)
     xmsg = xrap_msg_new (XRAP_MSG_PUT);
     xrap_msg_set_resource (xmsg, "%s", "/dummy");
     xrap_msg_set_content_type (xmsg, "application/json");
@@ -488,19 +515,19 @@ This is the class self test code:
     rc = zeb_client_request (client, 0, &msg);
     assert (rc == 0);
     
-    //  Check last modified (not modified)
+    //  4.2 Check last modified (not modified)
     zsock_recv (handler, "s8", &command, &last_modified);
     assert (streq (command, "CHECK LAST MODIFIED"));
     zstr_free (&command);
     zsock_signal (handler, 0);
     
-    //  Receive request and Echo response
+    //  4.3 Receive request and Echo response
     zsock_recv (handler, "sm", &command, &msg);
     assert (streq (command, "HANDLE REQUEST"));
     zstr_free (&command);
     zmsg_send (&msg, handler);
     
-    //  Receive response with conditionals (update, last_modified)
+    //  4.4 Receive response with conditionals (update, last_modified)
     msg = zeb_client_recv (client);
     xmsg = xrap_msg_decode (&msg);
     assert (xrap_msg_id (xmsg) == XRAP_MSG_PUT);
@@ -508,7 +535,7 @@ This is the class self test code:
     sender = zeb_client_sender (client);
     zuuid_destroy (&sender);
     
-    //  Send Request with conditionals (no update)
+    //  5.1 Send Request with conditionals (no update)
     xmsg = xrap_msg_new (XRAP_MSG_PUT);
     xrap_msg_set_resource (xmsg, "%s", "/dummy");
     xrap_msg_set_content_type (xmsg, "application/json");
@@ -518,7 +545,7 @@ This is the class self test code:
     rc = zeb_client_request (client, 0, &msg);
     assert (rc == 0);
     
-    //  Check etag (none match)
+    //  5.2 Check etag (none match)
     zsock_recv (handler, "ss", &command, &etag);
     assert (streq (command, "CHECK ETAG"));
     zstr_free (&command);
@@ -526,14 +553,14 @@ This is the class self test code:
     zstr_free (&etag);
     zsock_signal (handler, 1);
     
-    //  Check last modified (modified)
+    //  5.3 Check last modified (modified)
     zsock_recv (handler, "s8", &command, &last_modified);
     assert (streq (command, "CHECK LAST MODIFIED"));
     zstr_free (&command);
     assert (last_modified == 20);
     zsock_signal (handler, 1);
     
-    //  Receive Request with conditionals (no update)
+    //  5.4 Receive Request with conditionals (no update)
     msg = zeb_client_recv (client);
     xmsg = xrap_msg_decode (&msg);
     assert (xrap_msg_id (xmsg) == XRAP_MSG_ERROR);
@@ -545,19 +572,20 @@ This is the class self test code:
     //  ================================
     //  Invalid Tests
     
-    //  Send Request
+    //  1.1 Send Request
     xmsg = xrap_msg_new (XRAP_MSG_GET_EMPTY);
     msg = xrap_msg_encode (&xmsg);
     rc = zeb_client_request (client, 0, &msg);
     assert (rc == XRAP_TRAFFIC_NOT_FOUND);
     
+    //  Cleanup
     zeb_client_destroy (&client);
     zactor_destroy (&handler);
     
     //  Done, shut down
     zactor_destroy (&server);
 
-<A name="toc4-557" title="zeb_microhttpd - Simple HTTP web server" />
+<A name="toc4-585" title="zeb_microhttpd - Simple HTTP web server" />
 #### zeb_microhttpd - Simple HTTP web server
 
 Simple HTTP webserver implementation using the libmicrohttpd library.
@@ -754,7 +782,7 @@ This is the class self test code:
     
     zactor_destroy (&zeb_microhttpd);
 
-<A name="toc4-754" title="zeb_broker - zebra service broker" />
+<A name="toc4-782" title="zeb_broker - zebra service broker" />
 #### zeb_broker - zebra service broker
 
 The zeb_broker implements the zproto server. This broker connects
@@ -929,7 +957,7 @@ This is the class self test code:
     zsock_destroy (&worker);
     zactor_destroy (&server);
 
-<A name="toc4-929" title="zeb_client - Broker client" />
+<A name="toc4-957" title="zeb_client - Broker client" />
 #### zeb_client - Broker client
 
 Client implementation to communicate with the broker. This
@@ -1129,7 +1157,7 @@ This is the class self test code:
     zactor_destroy (&server);
 
 
-<A name="toc3-1129" title="Hints to Contributors" />
+<A name="toc3-1157" title="Hints to Contributors" />
 ### Hints to Contributors
 
 Read the CLASS style guide please, and write your code to make it indistinguishable from the rest of the code in the library. That is the only real criteria for good style: it's invisible.
@@ -1138,7 +1166,7 @@ Do read your code after you write it and ask, "Can I make this simpler?" We do u
 
 Before opening a pull request read our [contribution guidelines](https://github.com/zeromq/zebra/blob/master/CONTRIBUTING.md). Thanks!
 
-<A name="toc3-1138" title="This Document" />
+<A name="toc3-1166" title="This Document" />
 ### This Document
 
 _This documentation was generated from zebra/README.txt using [Gitdown](https://github.com/zeromq/gitdown)_
