@@ -31,16 +31,164 @@ except OSError:
 
 
 cdefs = '''
-typedef struct _xrap_msg_t xrap_msg_t;
-typedef struct _zmsg_t zmsg_t;
-typedef struct _zhash_t zhash_t;
-typedef struct _zeb_handler_t zeb_handler_t;
-typedef struct _zactor_t zactor_t;
-typedef struct _xrap_traffic_t xrap_traffic_t;
-typedef struct _zsock_t zsock_t;
-typedef struct _zframe_t zframe_t;
-typedef struct _zuuid_t zuuid_t;
 typedef struct _zeb_client_t zeb_client_t;
+typedef struct _zactor_t zactor_t;
+typedef struct _zsock_t zsock_t;
+typedef struct _zmsg_t zmsg_t;
+typedef struct _zuuid_t zuuid_t;
+typedef struct _zeb_handler_t zeb_handler_t;
+typedef struct _xrap_msg_t xrap_msg_t;
+typedef struct _zhash_t zhash_t;
+typedef struct _xrap_traffic_t xrap_traffic_t;
+typedef struct _zframe_t zframe_t;
+// CLASS: zeb_client
+// Create a new zeb_client, return the reference if successful,   
+// or NULL if construction failed due to lack of available memory.
+zeb_client_t *
+    zeb_client_new (void);
+
+// Destroy the zeb_client and free all memory used by the object.
+void
+    zeb_client_destroy (zeb_client_t **self_p);
+
+// Return actor, when caller wants to work with multiple actors and/or
+// input sockets asynchronously.                                      
+zactor_t *
+    zeb_client_actor (zeb_client_t *self);
+
+// Return message pipe for asynchronous message I/O. In the high-volume case,
+// we send methods and get replies to the actor, in a synchronous manner, and
+// we send/recv high volume message data to a second pipe, the msgpipe. In   
+// the low-volume case we can do everything over the actor pipe, if traffic  
+// is never ambiguous.                                                       
+zsock_t *
+    zeb_client_msgpipe (zeb_client_t *self);
+
+// Return true if client is currently connected, else false. Note that the   
+// client will automatically re-connect if the server dies and restarts after
+// a successful first connection.                                            
+bool
+    zeb_client_connected (zeb_client_t *self);
+
+// Connect to server endpoint, with specified timeout in msecs (zero means wait    
+// forever). Constructor succeeds if connection is successful. The caller may      
+// specify its address.                                                            
+// Returns >= 0 if successful, -1 if interrupted.                                  
+int
+    zeb_client_connect (zeb_client_t *self, const char *endpoint, uint32_t timeout, const char *address);
+
+// Offer to handle particular XRAP requests, where the route matches request's     
+// resource.                                                                       
+// Returns >= 0 if successful, -1 if interrupted.                                  
+int
+    zeb_client_set_handler (zeb_client_t *self, const char *method, const char *route);
+
+// No explanation                                                                  
+// Returns >= 0 if successful, -1 if interrupted.                                  
+int
+    zeb_client_request (zeb_client_t *self, uint32_t timeout, zmsg_t **content);
+
+// Send XRAP DELIVER message to server, takes ownership of message
+// and destroys message when done sending it.                     
+int
+    zeb_client_deliver (zeb_client_t *self, zuuid_t *sender, zmsg_t **content);
+
+// Receive message from server; caller destroys message when done
+zmsg_t *
+    zeb_client_recv (zeb_client_t *self);
+
+// Return last received command. Can be one of these values:
+//     "XRAP DELIVER"                                       
+const char *
+    zeb_client_command (zeb_client_t *self);
+
+// Return last received status
+int
+    zeb_client_status (zeb_client_t *self);
+
+// Return last received reason
+const char *
+    zeb_client_reason (zeb_client_t *self);
+
+// Return last received sender
+zuuid_t *
+    zeb_client_sender (zeb_client_t *self);
+
+// Return last received content
+zmsg_t *
+    zeb_client_content (zeb_client_t *self);
+
+// Enable verbose tracing (animation) of state machine activity.
+void
+    zeb_client_set_verbose (zeb_client_t *self, bool verbose);
+
+// Self test of this class.
+void
+    zeb_client_test (bool verbose);
+
+// CLASS: zeb_handler
+// To work with zeb_handler, use the CZMQ zactor API:                      
+//                                                                         
+// Create new zeb_handler instance, passing the broker endpoint:           
+//                                                                         
+//     zactor_t *handler = zactor_new (zeb_handler, "inproc://broker");    
+//                                                                         
+// Destroy zeb_handler instance                                            
+//                                                                         
+//     zactor_destroy (&handler);                                          
+//                                                                         
+// Enable verbose logging of commands and activity:                        
+//                                                                         
+//     zstr_send (handler, "VERBOSE");                                     
+//                                                                         
+// Receive API calls from zeb_handler:                                     
+//                                                                         
+//     char *command = zstr_recv (handler);                                
+//                                                                         
+// Check if an etag is current, MUST signal 0 if true otherwise 1.         
+//                                                                         
+//   if (streq (command, "CHECK ETAG")) {                                  
+//      char *etag = zstr_recv (handler);                                  
+//      zsock_signal (handler, 0);                                         
+//   }                                                                     
+//                                                                         
+// Check if a last modified timestamp is current, MUST signal 0 if true    
+// otherwise 1.                                                            
+//                                                                         
+//   if (streq (command, "CHECK LAST MODIFIED")) {                         
+//      uint64_t last_modified;                                            
+//      zsock_brecv (handler, "8", &last_modified);                        
+//      zsock_signal (handler, 0);                                         
+//   }                                                                     
+//                                                                         
+// Handle incomming request from clients. MUST return a response.          
+//                                                                         
+// if (streq (command, "HANDLE REQUEST")) {                                
+//     zmsg_t *request = zmsg_recv (handle);                               
+//     xrap_msg_t *xrequest = xrap_msg_decode (&request);                  
+//     zmsg_t *response = xrap_msg_encode (&xrequest);                     
+//     zmsg_send (&response, handler);                                     
+// }                                                                       
+//                                                                         
+// This is the handler actor which runs in its own thread and polls its two
+// sockets to process incoming messages.                                   
+ZEBRA_EXPORT void
+   zeb_handler (zsock_t *pipe, void *args);
+
+// Add a new offer this handler will handle. Returns 0 if successful,
+// otherwise -1.                                                     
+// The content type parameter is optional and is used to             
+// filter requests upon their requested (GET) or provided (POST/PUT) 
+// content's type. The content type parameter may be a regex. If the 
+// request's content type does not match it is automatically rejected
+// with the error code 406 (Not acceptable).                         
+int
+    zeb_handler_add_offer (zactor_t *self, int method, const char *uri, const char *content_type);
+
+// Self test of this class.
+void
+    zeb_handler_test (bool verbose);
+
 // CLASS: xrap msg
 // Create a new xrap_msg
 xrap_msg_t *
@@ -235,69 +383,6 @@ void
 void
     xrap_msg_test (bool verbose);
 
-// CLASS: zeb_handler
-// To work with zeb_handler, use the CZMQ zactor API:                      
-//                                                                         
-// Create new zeb_handler instance, passing broker endpoint:               
-//                                                                         
-//     zactor_t *handler = zactor_new (zeb_handler, "inproc://broker");    
-//                                                                         
-// Destroy zeb_handler instance                                            
-//                                                                         
-//     zactor_destroy (&handler);                                          
-//                                                                         
-// Enable verbose logging of commands and activity:                        
-//                                                                         
-//     zstr_send (handler, "VERBOSE");                                     
-//                                                                         
-// Receive API calls from zeb_handler:                                     
-//                                                                         
-//     char *command = zstr_recv (handler);                                
-//                                                                         
-// Check if an etag is current, MUST signal 0 if true otherwise 1.         
-//                                                                         
-//   if (streq (command, "CHECK ETAG")) {                                  
-//      char *etag = zstr_recv (handler);                                  
-//      zsock_signal (handler, 0);                                         
-//   }                                                                     
-//                                                                         
-//   Check if a last modified timestamp is current, MUST signal 0 if true  
-//   otherwise 1.                                                          
-//                                                                         
-//   if (streq (command, "CHECK LAST MODIFIED")) {                         
-//      uint64_t last_modified;                                            
-//      zsock_brecv (handler, "8", &last_modified);                        
-//      zsock_signal (handler, 0);                                         
-//   }                                                                     
-//                                                                         
-// Handle incomming request from clients. MUST return a response.          
-//                                                                         
-// if (streq (command, "HANDLE REQUEST")) {                                
-//     zmsg_t *request = zmsg_recv (handle);                               
-//     xrap_msg_t *xrequest = xrap_msg_decode (&request);                  
-//     zmsg_t *response = xrap_msg_encode (&xrequest);                     
-//     zmsg_send (&response, handler);                                     
-// }                                                                       
-//                                                                         
-// This is the handler actor which runs in its own thread and polls its two
-// sockets to process incoming messages.                                   
-ZEBRA_EXPORT void
-   zeb_handler (zsock_t *pipe, void *args);
-
-// Add a new offer this handler will handle. Returns 0 if successful,
-// otherwise -1.                                                     
-int
-    zeb_handler_add_offer (zactor_t *self, int method, const char *uri);
-
-// Add a new accept type that this handler can deliver. May be a regular
-// expression. Returns 0 if successfull, otherwise -1.                  
-int
-    zeb_handler_add_accept (zactor_t *self, const char *accept);
-
-// Self test of this class.
-void
-    zeb_handler_test (bool verbose);
-
 // CLASS: xrap_traffic
 // Create a new empty xrap_traffic
 xrap_traffic_t *
@@ -415,91 +500,6 @@ void
 // Self test of this class.
 void
     xrap_traffic_test (bool verbose);
-
-// CLASS: zeb_client
-// Create a new zeb_client, return the reference if successful,   
-// or NULL if construction failed due to lack of available memory.
-zeb_client_t *
-    zeb_client_new (void);
-
-// Destroy the zeb_client and free all memory used by the object.
-void
-    zeb_client_destroy (zeb_client_t **self_p);
-
-// Return actor, when caller wants to work with multiple actors and/or
-// input sockets asynchronously.                                      
-zactor_t *
-    zeb_client_actor (zeb_client_t *self);
-
-// Return message pipe for asynchronous message I/O. In the high-volume case,
-// we send methods and get replies to the actor, in a synchronous manner, and
-// we send/recv high volume message data to a second pipe, the msgpipe. In   
-// the low-volume case we can do everything over the actor pipe, if traffic  
-// is never ambiguous.                                                       
-zsock_t *
-    zeb_client_msgpipe (zeb_client_t *self);
-
-// Return true if client is currently connected, else false. Note that the   
-// client will automatically re-connect if the server dies and restarts after
-// a successful first connection.                                            
-bool
-    zeb_client_connected (zeb_client_t *self);
-
-// Connect to server endpoint, with specified timeout in msecs (zero means wait    
-// forever). Constructor succeeds if connection is successful. The caller may      
-// specify its address.                                                            
-// Returns >= 0 if successful, -1 if interrupted.                                  
-int
-    zeb_client_connect (zeb_client_t *self, const char *endpoint, uint32_t timeout, const char *address);
-
-// Offer to handle particular XRAP requests, where the route matches request's     
-// resource.                                                                       
-// Returns >= 0 if successful, -1 if interrupted.                                  
-int
-    zeb_client_set_handler (zeb_client_t *self, const char *method, const char *route);
-
-// No explanation                                                                  
-// Returns >= 0 if successful, -1 if interrupted.                                  
-int
-    zeb_client_request (zeb_client_t *self, uint32_t timeout, zmsg_t **content);
-
-// Send XRAP DELIVER message to server, takes ownership of message
-// and destroys message when done sending it.                     
-int
-    zeb_client_deliver (zeb_client_t *self, zuuid_t *sender, zmsg_t **content);
-
-// Receive message from server; caller destroys message when done
-zmsg_t *
-    zeb_client_recv (zeb_client_t *self);
-
-// Return last received command. Can be one of these values:
-//     "XRAP DELIVER"                                       
-const char *
-    zeb_client_command (zeb_client_t *self);
-
-// Return last received status
-int
-    zeb_client_status (zeb_client_t *self);
-
-// Return last received reason
-const char *
-    zeb_client_reason (zeb_client_t *self);
-
-// Return last received sender
-zuuid_t *
-    zeb_client_sender (zeb_client_t *self);
-
-// Return last received content
-zmsg_t *
-    zeb_client_content (zeb_client_t *self);
-
-// Enable verbose tracing (animation) of state machine activity.
-void
-    zeb_client_set_verbose (zeb_client_t *self, bool verbose);
-
-// Self test of this class.
-void
-    zeb_client_test (bool verbose);
 
 '''
 cdefs = re.sub(r';[^;]*\bva_list\b[^;]*;', ';', cdefs, flags=re.S) # we don't support anything with a va_list arg

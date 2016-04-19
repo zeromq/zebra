@@ -74,25 +74,20 @@ module Zebra
 
       # Add a new offer this handler will handle. Returns 0 if successful,
       # otherwise -1.                                                     
+      # The content type parameter is optional and is used to             
+      # filter requests upon their requested (GET) or provided (POST/PUT) 
+      # content's type. The content type parameter may be a regex. If the 
+      # request's content type does not match it is automatically rejected
+      # with the error code 406 (Not acceptable).                         
       #
       # @param self_ [::FFI::Pointer, #to_ptr]
       # @param method [Integer, #to_int, #to_i]
       # @param uri [String, #to_s, nil]
+      # @param content_type [String, #to_s, nil]
       # @return [Integer]
-      def self.add_offer(self_, method, uri)
+      def self.add_offer(self_, method, uri, content_type)
         method = Integer(method)
-        result = ::Zebra::FFI.zeb_handler_add_offer(self_, method, uri)
-        result
-      end
-
-      # Add a new accept type that this handler can deliver. May be a regular
-      # expression. Returns 0 if successfull, otherwise -1.                  
-      #
-      # @param self_ [::FFI::Pointer, #to_ptr]
-      # @param accept [String, #to_s, nil]
-      # @return [Integer]
-      def self.add_accept(self_, accept)
-        result = ::Zebra::FFI.zeb_handler_add_accept(self_, accept)
+        result = ::Zebra::FFI.zeb_handler_add_offer(self_, method, uri, content_type)
         result
       end
 

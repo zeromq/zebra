@@ -11,19 +11,19 @@
 #include <QQmlExtensionPlugin>
 #include <qqml.h>
 
-class QmlXrapMsg;
-class QmlXrapMsgAttached;
-class QmlZebHandler;
-class QmlZebHandlerAttached;
-class QmlXrapTraffic;
-class QmlXrapTrafficAttached;
 class QmlZebClient;
 class QmlZebClientAttached;
+class QmlZebHandler;
+class QmlZebHandlerAttached;
+class QmlXrapMsg;
+class QmlXrapMsgAttached;
+class QmlXrapTraffic;
+class QmlXrapTrafficAttached;
 
-#include "QmlXrapMsg.h"
-#include "QmlZebHandler.h"
-#include "QmlXrapTraffic.h"
 #include "QmlZebClient.h"
+#include "QmlZebHandler.h"
+#include "QmlXrapMsg.h"
+#include "QmlXrapTraffic.h"
 
 class QmlZebraPlugin : public QQmlExtensionPlugin
 {
@@ -33,14 +33,14 @@ class QmlZebraPlugin : public QQmlExtensionPlugin
 public:
     void registerTypes (const char *uri)
     {
-        qmlRegisterType<QmlXrapMsg> (uri, 1, 0, "QmlXrapMsg");
-        qmlRegisterType<QmlXrapMsgAttached>();
-        qmlRegisterType<QmlZebHandler> (uri, 1, 0, "QmlZebHandler");
-        qmlRegisterType<QmlZebHandlerAttached>();
-        qmlRegisterType<QmlXrapTraffic> (uri, 1, 0, "QmlXrapTraffic");
-        qmlRegisterType<QmlXrapTrafficAttached>();
         qmlRegisterType<QmlZebClient> (uri, 1, 0, "QmlZebClient");
         qmlRegisterType<QmlZebClientAttached>();
+        qmlRegisterType<QmlZebHandler> (uri, 1, 0, "QmlZebHandler");
+        qmlRegisterType<QmlZebHandlerAttached>();
+        qmlRegisterType<QmlXrapMsg> (uri, 1, 0, "QmlXrapMsg");
+        qmlRegisterType<QmlXrapMsgAttached>();
+        qmlRegisterType<QmlXrapTraffic> (uri, 1, 0, "QmlXrapTraffic");
+        qmlRegisterType<QmlXrapTrafficAttached>();
     };
 };
 

@@ -31,11 +31,11 @@ all_tests [] = {
     { "zeb_response", zeb_response_test },
     { "zeb_connection", zeb_connection_test },
 #ifdef ZEBRA_BUILD_DRAFT_API
-    { "xrap_msg", xrap_msg_test },
+    { "zeb_client", zeb_client_test },
     { "zeb_handler", zeb_handler_test },
+    { "xrap_msg", xrap_msg_test },
     { "xrap_traffic", xrap_traffic_test },
     { "zeb_broker", zeb_broker_test },
-    { "zeb_client", zeb_client_test },
     { "zeb_microhttpd", zeb_microhttpd_test },
 #endif // ZEBRA_BUILD_DRAFT_API
     {0, 0}          //  Sentinel
@@ -102,11 +102,11 @@ main (int argc, char **argv)
         if (streq (argv [argn], "--list")
         ||  streq (argv [argn], "-l")) {
             puts ("Available tests:");
-            puts ("    xrap_msg");
+            puts ("    zeb_client");
             puts ("    zeb_handler");
+            puts ("    xrap_msg");
             puts ("    xrap_traffic");
             puts ("    zeb_broker");
-            puts ("    zeb_client");
             puts ("    zeb_microhttpd");
             puts ("    zeb_request");
             puts ("    zeb_response");

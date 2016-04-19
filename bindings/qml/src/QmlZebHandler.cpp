@@ -17,15 +17,13 @@ QObject* QmlZebHandler::qmlAttachedProperties(QObject* object) {
 ///
 //  Add a new offer this handler will handle. Returns 0 if successful,
 //  otherwise -1.                                                     
-int QmlZebHandlerAttached::addOffer (zactor_t *self, int method, const QString &uri) {
-    return zeb_handler_add_offer (self, method, uri.toUtf8().data());
-};
-
-///
-//  Add a new accept type that this handler can deliver. May be a regular
-//  expression. Returns 0 if successfull, otherwise -1.                  
-int QmlZebHandlerAttached::addAccept (zactor_t *self, const QString &accept) {
-    return zeb_handler_add_accept (self, accept.toUtf8().data());
+//  The content type parameter is optional and is used to             
+//  filter requests upon their requested (GET) or provided (POST/PUT) 
+//  content's type. The content type parameter may be a regex. If the 
+//  request's content type does not match it is automatically rejected
+//  with the error code 406 (Not acceptable).                         
+int QmlZebHandlerAttached::addOffer (zactor_t *self, int method, const QString &uri, const QString &contentType) {
+    return zeb_handler_add_offer (self, method, uri.toUtf8().data(), contentType.toUtf8().data());
 };
 
 ///

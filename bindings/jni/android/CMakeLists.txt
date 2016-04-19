@@ -22,10 +22,10 @@ include_directories (${JAVA_INCLUDE_PATH} ${JAVA_INCLUDE_PATH2} ../src/native/in
 # message (STATUS "CMAKE_CURRENT_SOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR}")
 
 set (zebrajni_sources
-    ../src/main/c/org_zeromq_zebra_XrapMsg.c
-    ../src/main/c/org_zeromq_zebra_ZebHandler.c
-    ../src/main/c/org_zeromq_zebra_XrapTraffic.c
     ../src/main/c/org_zeromq_zebra_ZebClient.c
+    ../src/main/c/org_zeromq_zebra_ZebHandler.c
+    ../src/main/c/org_zeromq_zebra_XrapMsg.c
+    ../src/main/c/org_zeromq_zebra_XrapTraffic.c
 )
 
 add_library (zebrajni SHARED ${zebrajni_sources})

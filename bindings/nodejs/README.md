@@ -43,6 +43,159 @@ cd zebra/bindings/nodejs
 
 This is a wrapping of the native C libzebra library. See binding.cc for the code.
 
+### The ZebClient class - zeb_broker client implementation for both clients and handlers
+
+    Codec class for zeb_client.
+
+Constructor:
+
+```
+var zebra = require ('bindings')('zebra')
+var my_zeb_client = new zebra.ZebClient ()
+```
+
+You *must* call the destructor on every ZebClient instance:
+
+```
+my_zeb_client.destroy ()
+```
+
+Methods:
+
+```
+zactor my_zeb_client.actor ()
+```
+
+Return actor, when caller wants to work with multiple actors and/or
+input sockets asynchronously.
+
+```
+zsock my_zeb_client.msgpipe ()
+```
+
+Return message pipe for asynchronous message I/O. In the high-volume case,
+we send methods and get replies to the actor, in a synchronous manner, and
+we send/recv high volume message data to a second pipe, the msgpipe. In
+the low-volume case we can do everything over the actor pipe, if traffic
+is never ambiguous.
+
+```
+boolean my_zeb_client.connected ()
+```
+
+Return true if client is currently connected, else false. Note that the
+client will automatically re-connect if the server dies and restarts after
+a successful first connection.
+
+```
+integer my_zeb_client.connect (String, Number, String)
+```
+
+Connect to server endpoint, with specified timeout in msecs (zero means wait    
+forever). Constructor succeeds if connection is successful. The caller may      
+specify its address.                                                            
+Returns >= 0 if successful, -1 if interrupted.
+
+```
+integer my_zeb_client.setHandler (String, String)
+```
+
+Offer to handle particular XRAP requests, where the route matches request's     
+resource.                                                                       
+Returns >= 0 if successful, -1 if interrupted.
+
+```
+integer my_zeb_client.request (Number, Zmsg)
+```
+
+No explanation                                                                  
+Returns >= 0 if successful, -1 if interrupted.
+
+```
+integer my_zeb_client.deliver (Zuuid, Zmsg)
+```
+
+Send XRAP DELIVER message to server, takes ownership of message
+and destroys message when done sending it.
+
+```
+zmsg my_zeb_client.recv ()
+```
+
+Receive message from server; caller destroys message when done
+
+```
+string my_zeb_client.command ()
+```
+
+Return last received command. Can be one of these values:
+    "XRAP DELIVER"
+
+```
+integer my_zeb_client.status ()
+```
+
+Return last received status
+
+```
+string my_zeb_client.reason ()
+```
+
+Return last received reason
+
+```
+zuuid my_zeb_client.sender ()
+```
+
+Return last received sender
+
+```
+zmsg my_zeb_client.content ()
+```
+
+Return last received content
+
+```
+nothing my_zeb_client.setVerbose (Boolean)
+```
+
+Enable verbose tracing (animation) of state machine activity.
+
+```
+nothing my_zeb_client.test (Boolean)
+```
+
+Self test of this class.
+
+### The ZebHandler class - Handler for XRAP requests
+
+Constructor:
+
+```
+var zebra = require ('bindings')('zebra')
+var my_zeb_handler = new zebra.ZebHandler ()
+```
+
+Methods:
+
+```
+integer my_zeb_handler.addOffer (Zactor, Number, String, String)
+```
+
+Add a new offer this handler will handle. Returns 0 if successful,
+otherwise -1.
+The content type parameter is optional and is used to
+filter requests upon their requested (GET) or provided (POST/PUT)
+content's type. The content type parameter may be a regex. If the
+request's content type does not match it is automatically rejected
+with the error code 406 (Not acceptable).
+
+```
+nothing my_zeb_handler.test (Boolean)
+```
+
+Self test of this class.
+
 ### The XrapMsg class -     XRAP serialization over ZMTP
 
 /*  These are the xrap_msg messages:
@@ -364,37 +517,6 @@ nothing my_xrap_msg.test (Boolean)
 
 Self test of this class.
 
-### The ZebHandler class - Handler for XRAP requests
-
-Constructor:
-
-```
-var zebra = require ('bindings')('zebra')
-var my_zeb_handler = new zebra.ZebHandler ()
-```
-
-Methods:
-
-```
-integer my_zeb_handler.addOffer (Zactor, Number, String)
-```
-
-Add a new offer this handler will handle. Returns 0 if successful,
-otherwise -1.
-
-```
-integer my_zeb_handler.addAccept (Zactor, String)
-```
-
-Add a new accept type that this handler can deliver. May be a regular
-expression. Returns 0 if successfull, otherwise -1.
-
-```
-nothing my_zeb_handler.test (Boolean)
-```
-
-Self test of this class.
-
 ### The XrapTraffic class - Set the content field, transferring ownership from caller
 
 Constructor:
@@ -571,130 +693,6 @@ Set the status_reason field
 
 ```
 nothing my_xrap_traffic.test (Boolean)
-```
-
-Self test of this class.
-
-### The ZebClient class - zeb_broker client implementation for both clients and handlers
-
-    Codec class for zeb_client.
-
-Constructor:
-
-```
-var zebra = require ('bindings')('zebra')
-var my_zeb_client = new zebra.ZebClient ()
-```
-
-You *must* call the destructor on every ZebClient instance:
-
-```
-my_zeb_client.destroy ()
-```
-
-Methods:
-
-```
-zactor my_zeb_client.actor ()
-```
-
-Return actor, when caller wants to work with multiple actors and/or
-input sockets asynchronously.
-
-```
-zsock my_zeb_client.msgpipe ()
-```
-
-Return message pipe for asynchronous message I/O. In the high-volume case,
-we send methods and get replies to the actor, in a synchronous manner, and
-we send/recv high volume message data to a second pipe, the msgpipe. In
-the low-volume case we can do everything over the actor pipe, if traffic
-is never ambiguous.
-
-```
-boolean my_zeb_client.connected ()
-```
-
-Return true if client is currently connected, else false. Note that the
-client will automatically re-connect if the server dies and restarts after
-a successful first connection.
-
-```
-integer my_zeb_client.connect (String, Number, String)
-```
-
-Connect to server endpoint, with specified timeout in msecs (zero means wait    
-forever). Constructor succeeds if connection is successful. The caller may      
-specify its address.                                                            
-Returns >= 0 if successful, -1 if interrupted.
-
-```
-integer my_zeb_client.setHandler (String, String)
-```
-
-Offer to handle particular XRAP requests, where the route matches request's     
-resource.                                                                       
-Returns >= 0 if successful, -1 if interrupted.
-
-```
-integer my_zeb_client.request (Number, Zmsg)
-```
-
-No explanation                                                                  
-Returns >= 0 if successful, -1 if interrupted.
-
-```
-integer my_zeb_client.deliver (Zuuid, Zmsg)
-```
-
-Send XRAP DELIVER message to server, takes ownership of message
-and destroys message when done sending it.
-
-```
-zmsg my_zeb_client.recv ()
-```
-
-Receive message from server; caller destroys message when done
-
-```
-string my_zeb_client.command ()
-```
-
-Return last received command. Can be one of these values:
-    "XRAP DELIVER"
-
-```
-integer my_zeb_client.status ()
-```
-
-Return last received status
-
-```
-string my_zeb_client.reason ()
-```
-
-Return last received reason
-
-```
-zuuid my_zeb_client.sender ()
-```
-
-Return last received sender
-
-```
-zmsg my_zeb_client.content ()
-```
-
-Return last received content
-
-```
-nothing my_zeb_client.setVerbose (Boolean)
-```
-
-Enable verbose tracing (animation) of state machine activity.
-
-```
-nothing my_zeb_client.test (Boolean)
 ```
 
 Self test of this class.

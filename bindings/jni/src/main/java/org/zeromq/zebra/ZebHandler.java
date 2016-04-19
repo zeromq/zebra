@@ -20,18 +20,15 @@ public class ZebHandler {
     /*
     Add a new offer this handler will handle. Returns 0 if successful,
     otherwise -1.                                                     
+    The content type parameter is optional and is used to             
+    filter requests upon their requested (GET) or provided (POST/PUT) 
+    content's type. The content type parameter may be a regex. If the 
+    request's content type does not match it is automatically rejected
+    with the error code 406 (Not acceptable).                         
     */
-    native static int __addOffer (long self, int method, String uri);
-    public int addOffer (Zactor self, int method, String uri) {
-        return __addOffer (self.self, method, uri);
-    }
-    /*
-    Add a new accept type that this handler can deliver. May be a regular
-    expression. Returns 0 if successfull, otherwise -1.                  
-    */
-    native static int __addAccept (long self, String accept);
-    public int addAccept (Zactor self, String accept) {
-        return __addAccept (self.self, accept);
+    native static int __addOffer (long self, int method, String uri, String contentType);
+    public int addOffer (Zactor self, int method, String uri, String contentType) {
+        return __addOffer (self.self, method, uri, contentType);
     }
     /*
     Self test of this class.

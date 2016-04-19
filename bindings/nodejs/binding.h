@@ -27,6 +27,49 @@
 using namespace v8;
 using namespace Nan;
 
+class ZebClient: public Nan::ObjectWrap {
+    public:
+        static NAN_MODULE_INIT (Init);
+        explicit ZebClient (void);
+        explicit ZebClient (zeb_client_t *self);
+        zeb_client_t *self;
+    private:
+        ~ZebClient ();
+    static Nan::Persistent <Function> &constructor ();
+
+    static NAN_METHOD (New);
+    static NAN_METHOD (destroy);
+    static NAN_METHOD (defined);
+    static NAN_METHOD (_actor);
+    static NAN_METHOD (_msgpipe);
+    static NAN_METHOD (_connected);
+    static NAN_METHOD (_connect);
+    static NAN_METHOD (_set_handler);
+    static NAN_METHOD (_request);
+    static NAN_METHOD (_deliver);
+    static NAN_METHOD (_recv);
+    static NAN_METHOD (_command);
+    static NAN_METHOD (_status);
+    static NAN_METHOD (_reason);
+    static NAN_METHOD (_sender);
+    static NAN_METHOD (_content);
+    static NAN_METHOD (_set_verbose);
+    static NAN_METHOD (_test);
+};
+
+class ZebHandler: public Nan::ObjectWrap {
+    public:
+        static NAN_MODULE_INIT (Init);
+        explicit ZebHandler ();
+    private:
+        ~ZebHandler ();
+    static Nan::Persistent <Function> &constructor ();
+
+    static NAN_METHOD (New);
+    static NAN_METHOD (_add_offer);
+    static NAN_METHOD (_test);
+};
+
 class XrapMsg: public Nan::ObjectWrap {
     public:
         static NAN_MODULE_INIT (Init);
@@ -83,20 +126,6 @@ class XrapMsg: public Nan::ObjectWrap {
     static NAN_METHOD (_test);
 };
 
-class ZebHandler: public Nan::ObjectWrap {
-    public:
-        static NAN_MODULE_INIT (Init);
-        explicit ZebHandler ();
-    private:
-        ~ZebHandler ();
-    static Nan::Persistent <Function> &constructor ();
-
-    static NAN_METHOD (New);
-    static NAN_METHOD (_add_offer);
-    static NAN_METHOD (_add_accept);
-    static NAN_METHOD (_test);
-};
-
 class XrapTraffic: public Nan::ObjectWrap {
     public:
         static NAN_MODULE_INIT (Init);
@@ -136,36 +165,6 @@ class XrapTraffic: public Nan::ObjectWrap {
     static NAN_METHOD (_set_status_code);
     static NAN_METHOD (_status_reason);
     static NAN_METHOD (_set_status_reason);
-    static NAN_METHOD (_test);
-};
-
-class ZebClient: public Nan::ObjectWrap {
-    public:
-        static NAN_MODULE_INIT (Init);
-        explicit ZebClient (void);
-        explicit ZebClient (zeb_client_t *self);
-        zeb_client_t *self;
-    private:
-        ~ZebClient ();
-    static Nan::Persistent <Function> &constructor ();
-
-    static NAN_METHOD (New);
-    static NAN_METHOD (destroy);
-    static NAN_METHOD (defined);
-    static NAN_METHOD (_actor);
-    static NAN_METHOD (_msgpipe);
-    static NAN_METHOD (_connected);
-    static NAN_METHOD (_connect);
-    static NAN_METHOD (_set_handler);
-    static NAN_METHOD (_request);
-    static NAN_METHOD (_deliver);
-    static NAN_METHOD (_recv);
-    static NAN_METHOD (_command);
-    static NAN_METHOD (_status);
-    static NAN_METHOD (_reason);
-    static NAN_METHOD (_sender);
-    static NAN_METHOD (_content);
-    static NAN_METHOD (_set_verbose);
     static NAN_METHOD (_test);
 };
 

@@ -10,7 +10,7 @@ INCDIR=-I$(PREFIX)/include -I.
 LIBDIR=-L$(PREFIX)/lib
 CFLAGS=-Wall -Os -g -DLIBZEBRA_EXPORTS $(INCDIR)
 
-OBJS = xrap_msg.o zeb_handler.o xrap_traffic.o zeb_broker.o zeb_client.o zeb_microhttpd.o zeb_request.o zeb_response.o zeb_connection.o
+OBJS = zeb_client.o zeb_handler.o xrap_msg.o xrap_traffic.o zeb_broker.o zeb_microhttpd.o zeb_request.o zeb_response.o zeb_connection.o
 %.o: ../../src/%.c
 	$(CC) -c -o $@ $< $(CFLAGS)
 

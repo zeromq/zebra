@@ -20,6 +20,351 @@
 using namespace v8;
 using namespace Nan;
 
+NAN_MODULE_INIT (ZebClient::Init) {
+    Nan::HandleScope scope;
+
+    // Prepare constructor template
+    Local <FunctionTemplate> tpl = Nan::New <FunctionTemplate> (New);
+    tpl->SetClassName (Nan::New ("ZebClient").ToLocalChecked ());
+    tpl->InstanceTemplate ()->SetInternalFieldCount (1);
+
+    // Prototypes
+    Nan::SetPrototypeMethod (tpl, "destroy", destroy);
+    Nan::SetPrototypeMethod (tpl, "defined", defined);
+    Nan::SetPrototypeMethod (tpl, "actor", _actor);
+    Nan::SetPrototypeMethod (tpl, "msgpipe", _msgpipe);
+    Nan::SetPrototypeMethod (tpl, "connected", _connected);
+    Nan::SetPrototypeMethod (tpl, "connect", _connect);
+    Nan::SetPrototypeMethod (tpl, "setHandler", _set_handler);
+    Nan::SetPrototypeMethod (tpl, "request", _request);
+    Nan::SetPrototypeMethod (tpl, "deliver", _deliver);
+    Nan::SetPrototypeMethod (tpl, "recv", _recv);
+    Nan::SetPrototypeMethod (tpl, "command", _command);
+    Nan::SetPrototypeMethod (tpl, "status", _status);
+    Nan::SetPrototypeMethod (tpl, "reason", _reason);
+    Nan::SetPrototypeMethod (tpl, "sender", _sender);
+    Nan::SetPrototypeMethod (tpl, "content", _content);
+    Nan::SetPrototypeMethod (tpl, "setVerbose", _set_verbose);
+    Nan::SetPrototypeMethod (tpl, "test", _test);
+
+    constructor ().Reset (Nan::GetFunction (tpl).ToLocalChecked ());
+    Nan::Set (target, Nan::New ("ZebClient").ToLocalChecked (),
+    Nan::GetFunction (tpl).ToLocalChecked ());
+}
+
+ZebClient::ZebClient (void) {
+    self = zeb_client_new ();
+}
+
+ZebClient::ZebClient (zeb_client_t *self_) {
+    self = self_;
+}
+
+ZebClient::~ZebClient () {
+}
+
+NAN_METHOD (ZebClient::New) {
+    assert (info.IsConstructCall ());
+    ZebClient *zeb_client = new ZebClient ();
+    if (zeb_client) {
+        zeb_client->Wrap (info.This ());
+        info.GetReturnValue ().Set (info.This ());
+    }
+}
+
+NAN_METHOD (ZebClient::destroy) {
+    ZebClient *zeb_client = Nan::ObjectWrap::Unwrap <ZebClient> (info.Holder ());
+    zeb_client_destroy (&zeb_client->self);
+}
+
+
+NAN_METHOD (ZebClient::defined) {
+    ZebClient *zeb_client = Nan::ObjectWrap::Unwrap <ZebClient> (info.Holder ());
+    info.GetReturnValue ().Set (Nan::New (zeb_client->self != NULL));
+}
+
+NAN_METHOD (ZebClient::_actor) {
+    ZebClient *zeb_client = Nan::ObjectWrap::Unwrap <ZebClient> (info.Holder ());
+    zactor_t *result = zeb_client_actor (zeb_client->self);
+    Zactor *zactor_result = new Zactor (result);
+    if (zactor_result) {
+    //  Don't yet know how to return a new object
+    //      zactor->Wrap (info.This ());
+    //      info.GetReturnValue ().Set (info.This ());
+        info.GetReturnValue ().Set (Nan::New<Boolean>(true));
+    }
+}
+
+NAN_METHOD (ZebClient::_msgpipe) {
+    ZebClient *zeb_client = Nan::ObjectWrap::Unwrap <ZebClient> (info.Holder ());
+    zsock_t *result = zeb_client_msgpipe (zeb_client->self);
+    Zsock *zsock_result = new Zsock (result);
+    if (zsock_result) {
+    //  Don't yet know how to return a new object
+    //      zsock->Wrap (info.This ());
+    //      info.GetReturnValue ().Set (info.This ());
+        info.GetReturnValue ().Set (Nan::New<Boolean>(true));
+    }
+}
+
+NAN_METHOD (ZebClient::_connected) {
+    ZebClient *zeb_client = Nan::ObjectWrap::Unwrap <ZebClient> (info.Holder ());
+    bool result = zeb_client_connected (zeb_client->self);
+    info.GetReturnValue ().Set (Nan::New<Boolean>(result));
+}
+
+NAN_METHOD (ZebClient::_connect) {
+    ZebClient *zeb_client = Nan::ObjectWrap::Unwrap <ZebClient> (info.Holder ());
+    char *endpoint;
+    if (info [0]->IsUndefined ())
+        return Nan::ThrowTypeError ("method requires a `endpoint`");
+    else
+    if (!info [0]->IsString ())
+        return Nan::ThrowTypeError ("`endpoint` must be a string");
+    else {
+        Nan::Utf8String endpoint_utf8 (info [0].As<String>());
+        endpoint = *endpoint_utf8;
+    }
+    if (info [1]->IsUndefined ())
+        return Nan::ThrowTypeError ("method requires a `timeout`");
+
+    uint32_t timeout;
+    if (info [1]->IsNumber ())
+        timeout = Nan::To<uint32_t>(info [1]).FromJust ();
+    else
+        return Nan::ThrowTypeError ("`timeout` must be a number");
+    char *address;
+    if (info [2]->IsUndefined ())
+        return Nan::ThrowTypeError ("method requires a `address`");
+    else
+    if (!info [2]->IsString ())
+        return Nan::ThrowTypeError ("`address` must be a string");
+    else {
+        Nan::Utf8String address_utf8 (info [2].As<String>());
+        address = *address_utf8;
+    }
+    int result = zeb_client_connect (zeb_client->self, (const char *)endpoint, (uint32_t) timeout, (const char *)address);
+    info.GetReturnValue ().Set (Nan::New<Number>(result));
+}
+
+NAN_METHOD (ZebClient::_set_handler) {
+    ZebClient *zeb_client = Nan::ObjectWrap::Unwrap <ZebClient> (info.Holder ());
+    char *method;
+    if (info [0]->IsUndefined ())
+        return Nan::ThrowTypeError ("method requires a `method`");
+    else
+    if (!info [0]->IsString ())
+        return Nan::ThrowTypeError ("`method` must be a string");
+    else {
+        Nan::Utf8String method_utf8 (info [0].As<String>());
+        method = *method_utf8;
+    }
+    char *route;
+    if (info [1]->IsUndefined ())
+        return Nan::ThrowTypeError ("method requires a `route`");
+    else
+    if (!info [1]->IsString ())
+        return Nan::ThrowTypeError ("`route` must be a string");
+    else {
+        Nan::Utf8String route_utf8 (info [1].As<String>());
+        route = *route_utf8;
+    }
+    int result = zeb_client_set_handler (zeb_client->self, (const char *)method, (const char *)route);
+    info.GetReturnValue ().Set (Nan::New<Number>(result));
+}
+
+NAN_METHOD (ZebClient::_request) {
+    ZebClient *zeb_client = Nan::ObjectWrap::Unwrap <ZebClient> (info.Holder ());
+    if (info [0]->IsUndefined ())
+        return Nan::ThrowTypeError ("method requires a `timeout`");
+
+    uint32_t timeout;
+    if (info [0]->IsNumber ())
+        timeout = Nan::To<uint32_t>(info [0]).FromJust ();
+    else
+        return Nan::ThrowTypeError ("`timeout` must be a number");
+    Zmsg *content = Nan::ObjectWrap::Unwrap<Zmsg>(info [1].As<Object>());
+    int result = zeb_client_request (zeb_client->self, (uint32_t) timeout, &content->self);
+    info.GetReturnValue ().Set (Nan::New<Number>(result));
+}
+
+NAN_METHOD (ZebClient::_deliver) {
+    ZebClient *zeb_client = Nan::ObjectWrap::Unwrap <ZebClient> (info.Holder ());
+    Zuuid *sender = Nan::ObjectWrap::Unwrap<Zuuid>(info [0].As<Object>());
+    Zmsg *content = Nan::ObjectWrap::Unwrap<Zmsg>(info [1].As<Object>());
+    int result = zeb_client_deliver (zeb_client->self, sender->self, &content->self);
+    info.GetReturnValue ().Set (Nan::New<Number>(result));
+}
+
+NAN_METHOD (ZebClient::_recv) {
+    ZebClient *zeb_client = Nan::ObjectWrap::Unwrap <ZebClient> (info.Holder ());
+    zmsg_t *result = zeb_client_recv (zeb_client->self);
+    Zmsg *zmsg_result = new Zmsg (result);
+    if (zmsg_result) {
+    //  Don't yet know how to return a new object
+    //      zmsg->Wrap (info.This ());
+    //      info.GetReturnValue ().Set (info.This ());
+        info.GetReturnValue ().Set (Nan::New<Boolean>(true));
+    }
+}
+
+NAN_METHOD (ZebClient::_command) {
+    ZebClient *zeb_client = Nan::ObjectWrap::Unwrap <ZebClient> (info.Holder ());
+    char *result = (char *) zeb_client_command (zeb_client->self);
+    info.GetReturnValue ().Set (Nan::New (result).ToLocalChecked ());
+}
+
+NAN_METHOD (ZebClient::_status) {
+    ZebClient *zeb_client = Nan::ObjectWrap::Unwrap <ZebClient> (info.Holder ());
+    int result = zeb_client_status (zeb_client->self);
+    info.GetReturnValue ().Set (Nan::New<Number>(result));
+}
+
+NAN_METHOD (ZebClient::_reason) {
+    ZebClient *zeb_client = Nan::ObjectWrap::Unwrap <ZebClient> (info.Holder ());
+    char *result = (char *) zeb_client_reason (zeb_client->self);
+    info.GetReturnValue ().Set (Nan::New (result).ToLocalChecked ());
+}
+
+NAN_METHOD (ZebClient::_sender) {
+    ZebClient *zeb_client = Nan::ObjectWrap::Unwrap <ZebClient> (info.Holder ());
+    zuuid_t *result = zeb_client_sender (zeb_client->self);
+    Zuuid *zuuid_result = new Zuuid (result);
+    if (zuuid_result) {
+    //  Don't yet know how to return a new object
+    //      zuuid->Wrap (info.This ());
+    //      info.GetReturnValue ().Set (info.This ());
+        info.GetReturnValue ().Set (Nan::New<Boolean>(true));
+    }
+}
+
+NAN_METHOD (ZebClient::_content) {
+    ZebClient *zeb_client = Nan::ObjectWrap::Unwrap <ZebClient> (info.Holder ());
+    zmsg_t *result = zeb_client_content (zeb_client->self);
+    Zmsg *zmsg_result = new Zmsg (result);
+    if (zmsg_result) {
+    //  Don't yet know how to return a new object
+    //      zmsg->Wrap (info.This ());
+    //      info.GetReturnValue ().Set (info.This ());
+        info.GetReturnValue ().Set (Nan::New<Boolean>(true));
+    }
+}
+
+NAN_METHOD (ZebClient::_set_verbose) {
+    ZebClient *zeb_client = Nan::ObjectWrap::Unwrap <ZebClient> (info.Holder ());
+    if (info [0]->IsUndefined ())
+        return Nan::ThrowTypeError ("method requires a `verbose`");
+
+    bool verbose;
+    if (info [0]->IsBoolean ())
+        verbose = Nan::To<bool>(info [0]).FromJust ();
+    else
+        return Nan::ThrowTypeError ("`verbose` must be a Boolean");
+    zeb_client_set_verbose (zeb_client->self, (bool) verbose);
+}
+
+NAN_METHOD (ZebClient::_test) {
+    if (info [0]->IsUndefined ())
+        return Nan::ThrowTypeError ("method requires a `verbose`");
+
+    bool verbose;
+    if (info [0]->IsBoolean ())
+        verbose = Nan::To<bool>(info [0]).FromJust ();
+    else
+        return Nan::ThrowTypeError ("`verbose` must be a Boolean");
+    zeb_client_test ((bool) verbose);
+}
+
+Nan::Persistent <Function> &ZebClient::constructor () {
+    static Nan::Persistent <Function> my_constructor;
+    return my_constructor;
+}
+
+
+NAN_MODULE_INIT (ZebHandler::Init) {
+    Nan::HandleScope scope;
+
+    // Prepare constructor template
+    Local <FunctionTemplate> tpl = Nan::New <FunctionTemplate> (New);
+    tpl->SetClassName (Nan::New ("ZebHandler").ToLocalChecked ());
+    tpl->InstanceTemplate ()->SetInternalFieldCount (1);
+
+    // Prototypes
+    Nan::SetPrototypeMethod (tpl, "addOffer", _add_offer);
+    Nan::SetPrototypeMethod (tpl, "test", _test);
+
+    constructor ().Reset (Nan::GetFunction (tpl).ToLocalChecked ());
+    Nan::Set (target, Nan::New ("ZebHandler").ToLocalChecked (),
+    Nan::GetFunction (tpl).ToLocalChecked ());
+}
+
+ZebHandler::ZebHandler () {
+}
+
+ZebHandler::~ZebHandler () {
+}
+
+NAN_METHOD (ZebHandler::New) {
+    assert (info.IsConstructCall ());
+    ZebHandler *zeb_handler = new ZebHandler ();
+    if (zeb_handler) {
+        zeb_handler->Wrap (info.This ());
+        info.GetReturnValue ().Set (info.This ());
+    }
+}
+
+NAN_METHOD (ZebHandler::_add_offer) {
+    Zactor *self = Nan::ObjectWrap::Unwrap<Zactor>(info [0].As<Object>());
+    if (info [1]->IsUndefined ())
+        return Nan::ThrowTypeError ("method requires a `method`");
+
+    int method;
+    if (info [1]->IsNumber ())
+        method = Nan::To<int>(info [1]).FromJust ();
+    else
+        return Nan::ThrowTypeError ("`method` must be a number");
+    char *uri;
+    if (info [2]->IsUndefined ())
+        return Nan::ThrowTypeError ("method requires a `uri`");
+    else
+    if (!info [2]->IsString ())
+        return Nan::ThrowTypeError ("`uri` must be a string");
+    else {
+        Nan::Utf8String uri_utf8 (info [2].As<String>());
+        uri = *uri_utf8;
+    }
+    char *content_type;
+    if (info [3]->IsUndefined ())
+        return Nan::ThrowTypeError ("method requires a `content type`");
+    else
+    if (!info [3]->IsString ())
+        return Nan::ThrowTypeError ("`content type` must be a string");
+    else {
+        Nan::Utf8String content_type_utf8 (info [3].As<String>());
+        content_type = *content_type_utf8;
+    }
+    int result = zeb_handler_add_offer (self->self, (int) method, (const char *)uri, (const char *)content_type);
+    info.GetReturnValue ().Set (Nan::New<Number>(result));
+}
+
+NAN_METHOD (ZebHandler::_test) {
+    if (info [0]->IsUndefined ())
+        return Nan::ThrowTypeError ("method requires a `verbose`");
+
+    bool verbose;
+    if (info [0]->IsBoolean ())
+        verbose = Nan::To<bool>(info [0]).FromJust ();
+    else
+        return Nan::ThrowTypeError ("`verbose` must be a Boolean");
+    zeb_handler_test ((bool) verbose);
+}
+
+Nan::Persistent <Function> &ZebHandler::constructor () {
+    static Nan::Persistent <Function> my_constructor;
+    return my_constructor;
+}
+
+
 NAN_MODULE_INIT (XrapMsg::Init) {
     Nan::HandleScope scope;
 
@@ -605,97 +950,6 @@ Nan::Persistent <Function> &XrapMsg::constructor () {
 }
 
 
-NAN_MODULE_INIT (ZebHandler::Init) {
-    Nan::HandleScope scope;
-
-    // Prepare constructor template
-    Local <FunctionTemplate> tpl = Nan::New <FunctionTemplate> (New);
-    tpl->SetClassName (Nan::New ("ZebHandler").ToLocalChecked ());
-    tpl->InstanceTemplate ()->SetInternalFieldCount (1);
-
-    // Prototypes
-    Nan::SetPrototypeMethod (tpl, "addOffer", _add_offer);
-    Nan::SetPrototypeMethod (tpl, "addAccept", _add_accept);
-    Nan::SetPrototypeMethod (tpl, "test", _test);
-
-    constructor ().Reset (Nan::GetFunction (tpl).ToLocalChecked ());
-    Nan::Set (target, Nan::New ("ZebHandler").ToLocalChecked (),
-    Nan::GetFunction (tpl).ToLocalChecked ());
-}
-
-ZebHandler::ZebHandler () {
-}
-
-ZebHandler::~ZebHandler () {
-}
-
-NAN_METHOD (ZebHandler::New) {
-    assert (info.IsConstructCall ());
-    ZebHandler *zeb_handler = new ZebHandler ();
-    if (zeb_handler) {
-        zeb_handler->Wrap (info.This ());
-        info.GetReturnValue ().Set (info.This ());
-    }
-}
-
-NAN_METHOD (ZebHandler::_add_offer) {
-    Zactor *self = Nan::ObjectWrap::Unwrap<Zactor>(info [0].As<Object>());
-    if (info [1]->IsUndefined ())
-        return Nan::ThrowTypeError ("method requires a `method`");
-
-    int method;
-    if (info [1]->IsNumber ())
-        method = Nan::To<int>(info [1]).FromJust ();
-    else
-        return Nan::ThrowTypeError ("`method` must be a number");
-    char *uri;
-    if (info [2]->IsUndefined ())
-        return Nan::ThrowTypeError ("method requires a `uri`");
-    else
-    if (!info [2]->IsString ())
-        return Nan::ThrowTypeError ("`uri` must be a string");
-    else {
-        Nan::Utf8String uri_utf8 (info [2].As<String>());
-        uri = *uri_utf8;
-    }
-    int result = zeb_handler_add_offer (self->self, (int) method, (const char *)uri);
-    info.GetReturnValue ().Set (Nan::New<Number>(result));
-}
-
-NAN_METHOD (ZebHandler::_add_accept) {
-    Zactor *self = Nan::ObjectWrap::Unwrap<Zactor>(info [0].As<Object>());
-    char *accept;
-    if (info [1]->IsUndefined ())
-        return Nan::ThrowTypeError ("method requires a `accept`");
-    else
-    if (!info [1]->IsString ())
-        return Nan::ThrowTypeError ("`accept` must be a string");
-    else {
-        Nan::Utf8String accept_utf8 (info [1].As<String>());
-        accept = *accept_utf8;
-    }
-    int result = zeb_handler_add_accept (self->self, (const char *)accept);
-    info.GetReturnValue ().Set (Nan::New<Number>(result));
-}
-
-NAN_METHOD (ZebHandler::_test) {
-    if (info [0]->IsUndefined ())
-        return Nan::ThrowTypeError ("method requires a `verbose`");
-
-    bool verbose;
-    if (info [0]->IsBoolean ())
-        verbose = Nan::To<bool>(info [0]).FromJust ();
-    else
-        return Nan::ThrowTypeError ("`verbose` must be a Boolean");
-    zeb_handler_test ((bool) verbose);
-}
-
-Nan::Persistent <Function> &ZebHandler::constructor () {
-    static Nan::Persistent <Function> my_constructor;
-    return my_constructor;
-}
-
-
 NAN_MODULE_INIT (XrapTraffic::Init) {
     Nan::HandleScope scope;
 
@@ -1033,273 +1287,12 @@ Nan::Persistent <Function> &XrapTraffic::constructor () {
 }
 
 
-NAN_MODULE_INIT (ZebClient::Init) {
-    Nan::HandleScope scope;
-
-    // Prepare constructor template
-    Local <FunctionTemplate> tpl = Nan::New <FunctionTemplate> (New);
-    tpl->SetClassName (Nan::New ("ZebClient").ToLocalChecked ());
-    tpl->InstanceTemplate ()->SetInternalFieldCount (1);
-
-    // Prototypes
-    Nan::SetPrototypeMethod (tpl, "destroy", destroy);
-    Nan::SetPrototypeMethod (tpl, "defined", defined);
-    Nan::SetPrototypeMethod (tpl, "actor", _actor);
-    Nan::SetPrototypeMethod (tpl, "msgpipe", _msgpipe);
-    Nan::SetPrototypeMethod (tpl, "connected", _connected);
-    Nan::SetPrototypeMethod (tpl, "connect", _connect);
-    Nan::SetPrototypeMethod (tpl, "setHandler", _set_handler);
-    Nan::SetPrototypeMethod (tpl, "request", _request);
-    Nan::SetPrototypeMethod (tpl, "deliver", _deliver);
-    Nan::SetPrototypeMethod (tpl, "recv", _recv);
-    Nan::SetPrototypeMethod (tpl, "command", _command);
-    Nan::SetPrototypeMethod (tpl, "status", _status);
-    Nan::SetPrototypeMethod (tpl, "reason", _reason);
-    Nan::SetPrototypeMethod (tpl, "sender", _sender);
-    Nan::SetPrototypeMethod (tpl, "content", _content);
-    Nan::SetPrototypeMethod (tpl, "setVerbose", _set_verbose);
-    Nan::SetPrototypeMethod (tpl, "test", _test);
-
-    constructor ().Reset (Nan::GetFunction (tpl).ToLocalChecked ());
-    Nan::Set (target, Nan::New ("ZebClient").ToLocalChecked (),
-    Nan::GetFunction (tpl).ToLocalChecked ());
-}
-
-ZebClient::ZebClient (void) {
-    self = zeb_client_new ();
-}
-
-ZebClient::ZebClient (zeb_client_t *self_) {
-    self = self_;
-}
-
-ZebClient::~ZebClient () {
-}
-
-NAN_METHOD (ZebClient::New) {
-    assert (info.IsConstructCall ());
-    ZebClient *zeb_client = new ZebClient ();
-    if (zeb_client) {
-        zeb_client->Wrap (info.This ());
-        info.GetReturnValue ().Set (info.This ());
-    }
-}
-
-NAN_METHOD (ZebClient::destroy) {
-    ZebClient *zeb_client = Nan::ObjectWrap::Unwrap <ZebClient> (info.Holder ());
-    zeb_client_destroy (&zeb_client->self);
-}
-
-
-NAN_METHOD (ZebClient::defined) {
-    ZebClient *zeb_client = Nan::ObjectWrap::Unwrap <ZebClient> (info.Holder ());
-    info.GetReturnValue ().Set (Nan::New (zeb_client->self != NULL));
-}
-
-NAN_METHOD (ZebClient::_actor) {
-    ZebClient *zeb_client = Nan::ObjectWrap::Unwrap <ZebClient> (info.Holder ());
-    zactor_t *result = zeb_client_actor (zeb_client->self);
-    Zactor *zactor_result = new Zactor (result);
-    if (zactor_result) {
-    //  Don't yet know how to return a new object
-    //      zactor->Wrap (info.This ());
-    //      info.GetReturnValue ().Set (info.This ());
-        info.GetReturnValue ().Set (Nan::New<Boolean>(true));
-    }
-}
-
-NAN_METHOD (ZebClient::_msgpipe) {
-    ZebClient *zeb_client = Nan::ObjectWrap::Unwrap <ZebClient> (info.Holder ());
-    zsock_t *result = zeb_client_msgpipe (zeb_client->self);
-    Zsock *zsock_result = new Zsock (result);
-    if (zsock_result) {
-    //  Don't yet know how to return a new object
-    //      zsock->Wrap (info.This ());
-    //      info.GetReturnValue ().Set (info.This ());
-        info.GetReturnValue ().Set (Nan::New<Boolean>(true));
-    }
-}
-
-NAN_METHOD (ZebClient::_connected) {
-    ZebClient *zeb_client = Nan::ObjectWrap::Unwrap <ZebClient> (info.Holder ());
-    bool result = zeb_client_connected (zeb_client->self);
-    info.GetReturnValue ().Set (Nan::New<Boolean>(result));
-}
-
-NAN_METHOD (ZebClient::_connect) {
-    ZebClient *zeb_client = Nan::ObjectWrap::Unwrap <ZebClient> (info.Holder ());
-    char *endpoint;
-    if (info [0]->IsUndefined ())
-        return Nan::ThrowTypeError ("method requires a `endpoint`");
-    else
-    if (!info [0]->IsString ())
-        return Nan::ThrowTypeError ("`endpoint` must be a string");
-    else {
-        Nan::Utf8String endpoint_utf8 (info [0].As<String>());
-        endpoint = *endpoint_utf8;
-    }
-    if (info [1]->IsUndefined ())
-        return Nan::ThrowTypeError ("method requires a `timeout`");
-
-    uint32_t timeout;
-    if (info [1]->IsNumber ())
-        timeout = Nan::To<uint32_t>(info [1]).FromJust ();
-    else
-        return Nan::ThrowTypeError ("`timeout` must be a number");
-    char *address;
-    if (info [2]->IsUndefined ())
-        return Nan::ThrowTypeError ("method requires a `address`");
-    else
-    if (!info [2]->IsString ())
-        return Nan::ThrowTypeError ("`address` must be a string");
-    else {
-        Nan::Utf8String address_utf8 (info [2].As<String>());
-        address = *address_utf8;
-    }
-    int result = zeb_client_connect (zeb_client->self, (const char *)endpoint, (uint32_t) timeout, (const char *)address);
-    info.GetReturnValue ().Set (Nan::New<Number>(result));
-}
-
-NAN_METHOD (ZebClient::_set_handler) {
-    ZebClient *zeb_client = Nan::ObjectWrap::Unwrap <ZebClient> (info.Holder ());
-    char *method;
-    if (info [0]->IsUndefined ())
-        return Nan::ThrowTypeError ("method requires a `method`");
-    else
-    if (!info [0]->IsString ())
-        return Nan::ThrowTypeError ("`method` must be a string");
-    else {
-        Nan::Utf8String method_utf8 (info [0].As<String>());
-        method = *method_utf8;
-    }
-    char *route;
-    if (info [1]->IsUndefined ())
-        return Nan::ThrowTypeError ("method requires a `route`");
-    else
-    if (!info [1]->IsString ())
-        return Nan::ThrowTypeError ("`route` must be a string");
-    else {
-        Nan::Utf8String route_utf8 (info [1].As<String>());
-        route = *route_utf8;
-    }
-    int result = zeb_client_set_handler (zeb_client->self, (const char *)method, (const char *)route);
-    info.GetReturnValue ().Set (Nan::New<Number>(result));
-}
-
-NAN_METHOD (ZebClient::_request) {
-    ZebClient *zeb_client = Nan::ObjectWrap::Unwrap <ZebClient> (info.Holder ());
-    if (info [0]->IsUndefined ())
-        return Nan::ThrowTypeError ("method requires a `timeout`");
-
-    uint32_t timeout;
-    if (info [0]->IsNumber ())
-        timeout = Nan::To<uint32_t>(info [0]).FromJust ();
-    else
-        return Nan::ThrowTypeError ("`timeout` must be a number");
-    Zmsg *content = Nan::ObjectWrap::Unwrap<Zmsg>(info [1].As<Object>());
-    int result = zeb_client_request (zeb_client->self, (uint32_t) timeout, &content->self);
-    info.GetReturnValue ().Set (Nan::New<Number>(result));
-}
-
-NAN_METHOD (ZebClient::_deliver) {
-    ZebClient *zeb_client = Nan::ObjectWrap::Unwrap <ZebClient> (info.Holder ());
-    Zuuid *sender = Nan::ObjectWrap::Unwrap<Zuuid>(info [0].As<Object>());
-    Zmsg *content = Nan::ObjectWrap::Unwrap<Zmsg>(info [1].As<Object>());
-    int result = zeb_client_deliver (zeb_client->self, sender->self, &content->self);
-    info.GetReturnValue ().Set (Nan::New<Number>(result));
-}
-
-NAN_METHOD (ZebClient::_recv) {
-    ZebClient *zeb_client = Nan::ObjectWrap::Unwrap <ZebClient> (info.Holder ());
-    zmsg_t *result = zeb_client_recv (zeb_client->self);
-    Zmsg *zmsg_result = new Zmsg (result);
-    if (zmsg_result) {
-    //  Don't yet know how to return a new object
-    //      zmsg->Wrap (info.This ());
-    //      info.GetReturnValue ().Set (info.This ());
-        info.GetReturnValue ().Set (Nan::New<Boolean>(true));
-    }
-}
-
-NAN_METHOD (ZebClient::_command) {
-    ZebClient *zeb_client = Nan::ObjectWrap::Unwrap <ZebClient> (info.Holder ());
-    char *result = (char *) zeb_client_command (zeb_client->self);
-    info.GetReturnValue ().Set (Nan::New (result).ToLocalChecked ());
-}
-
-NAN_METHOD (ZebClient::_status) {
-    ZebClient *zeb_client = Nan::ObjectWrap::Unwrap <ZebClient> (info.Holder ());
-    int result = zeb_client_status (zeb_client->self);
-    info.GetReturnValue ().Set (Nan::New<Number>(result));
-}
-
-NAN_METHOD (ZebClient::_reason) {
-    ZebClient *zeb_client = Nan::ObjectWrap::Unwrap <ZebClient> (info.Holder ());
-    char *result = (char *) zeb_client_reason (zeb_client->self);
-    info.GetReturnValue ().Set (Nan::New (result).ToLocalChecked ());
-}
-
-NAN_METHOD (ZebClient::_sender) {
-    ZebClient *zeb_client = Nan::ObjectWrap::Unwrap <ZebClient> (info.Holder ());
-    zuuid_t *result = zeb_client_sender (zeb_client->self);
-    Zuuid *zuuid_result = new Zuuid (result);
-    if (zuuid_result) {
-    //  Don't yet know how to return a new object
-    //      zuuid->Wrap (info.This ());
-    //      info.GetReturnValue ().Set (info.This ());
-        info.GetReturnValue ().Set (Nan::New<Boolean>(true));
-    }
-}
-
-NAN_METHOD (ZebClient::_content) {
-    ZebClient *zeb_client = Nan::ObjectWrap::Unwrap <ZebClient> (info.Holder ());
-    zmsg_t *result = zeb_client_content (zeb_client->self);
-    Zmsg *zmsg_result = new Zmsg (result);
-    if (zmsg_result) {
-    //  Don't yet know how to return a new object
-    //      zmsg->Wrap (info.This ());
-    //      info.GetReturnValue ().Set (info.This ());
-        info.GetReturnValue ().Set (Nan::New<Boolean>(true));
-    }
-}
-
-NAN_METHOD (ZebClient::_set_verbose) {
-    ZebClient *zeb_client = Nan::ObjectWrap::Unwrap <ZebClient> (info.Holder ());
-    if (info [0]->IsUndefined ())
-        return Nan::ThrowTypeError ("method requires a `verbose`");
-
-    bool verbose;
-    if (info [0]->IsBoolean ())
-        verbose = Nan::To<bool>(info [0]).FromJust ();
-    else
-        return Nan::ThrowTypeError ("`verbose` must be a Boolean");
-    zeb_client_set_verbose (zeb_client->self, (bool) verbose);
-}
-
-NAN_METHOD (ZebClient::_test) {
-    if (info [0]->IsUndefined ())
-        return Nan::ThrowTypeError ("method requires a `verbose`");
-
-    bool verbose;
-    if (info [0]->IsBoolean ())
-        verbose = Nan::To<bool>(info [0]).FromJust ();
-    else
-        return Nan::ThrowTypeError ("`verbose` must be a Boolean");
-    zeb_client_test ((bool) verbose);
-}
-
-Nan::Persistent <Function> &ZebClient::constructor () {
-    static Nan::Persistent <Function> my_constructor;
-    return my_constructor;
-}
-
-
 extern "C" NAN_MODULE_INIT (zebra_initialize)
 {
-    XrapMsg::Init (target);
-    ZebHandler::Init (target);
-    XrapTraffic::Init (target);
     ZebClient::Init (target);
+    ZebHandler::Init (target);
+    XrapMsg::Init (target);
+    XrapTraffic::Init (target);
 }
 
 NODE_MODULE (zebra, zebra_initialize)

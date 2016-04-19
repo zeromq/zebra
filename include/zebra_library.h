@@ -54,16 +54,16 @@
 //  These classes are stable or legacy and built in all releases
 //  Draft classes are by default not built in stable releases
 #ifdef ZEBRA_BUILD_DRAFT_API
-typedef struct _xrap_msg_t xrap_msg_t;
-#define XRAP_MSG_T_DEFINED
+typedef struct _zeb_client_t zeb_client_t;
+#define ZEB_CLIENT_T_DEFINED
 typedef struct _zeb_handler_t zeb_handler_t;
 #define ZEB_HANDLER_T_DEFINED
+typedef struct _xrap_msg_t xrap_msg_t;
+#define XRAP_MSG_T_DEFINED
 typedef struct _xrap_traffic_t xrap_traffic_t;
 #define XRAP_TRAFFIC_T_DEFINED
 typedef struct _zeb_broker_t zeb_broker_t;
 #define ZEB_BROKER_T_DEFINED
-typedef struct _zeb_client_t zeb_client_t;
-#define ZEB_CLIENT_T_DEFINED
 typedef struct _zeb_microhttpd_t zeb_microhttpd_t;
 #define ZEB_MICROHTTPD_T_DEFINED
 #endif // ZEBRA_BUILD_DRAFT_API
@@ -71,11 +71,11 @@ typedef struct _zeb_microhttpd_t zeb_microhttpd_t;
 
 //  Public classes, each with its own header file
 #ifdef ZEBRA_BUILD_DRAFT_API
-#include "xrap_msg.h"
+#include "zeb_client.h"
 #include "zeb_handler.h"
+#include "xrap_msg.h"
 #include "xrap_traffic.h"
 #include "zeb_broker.h"
-#include "zeb_client.h"
 #include "zeb_microhttpd.h"
 #endif // ZEBRA_BUILD_DRAFT_API
 

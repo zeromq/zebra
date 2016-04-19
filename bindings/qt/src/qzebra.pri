@@ -11,29 +11,29 @@ qzebra-uselib:!qzebra-buildlib {
 } else {
     HEADERS       += \
                      $$PWD/qzebra.h \
-                     $$PWD/qxrapmsg.h \
-                     $$PWD/qzebhandler.h \
-                     $$PWD/qxraptraffic.h \
                      $$PWD/qzebclient.h \
-                     $$PWD/qzmsg.h \
-                     $$PWD/qzhash.h \
+                     $$PWD/qzebhandler.h \
+                     $$PWD/qxrapmsg.h \
+                     $$PWD/qxraptraffic.h \
                      $$PWD/qzactor.h \
                      $$PWD/qzsock.h \
-                     $$PWD/qzframe.h \
+                     $$PWD/qzmsg.h \
                      $$PWD/qzuuid.h \
+                     $$PWD/qzhash.h \
+                     $$PWD/qzframe.h \
                      $$PWD/qzlist.h
 
     SOURCES       += \
-                     $$PWD/qxrapmsg.cpp \
-                     $$PWD/qzebhandler.cpp \
-                     $$PWD/qxraptraffic.cpp \
                      $$PWD/qzebclient.cpp \
-                     $$PWD/qzmsg.cpp \
-                     $$PWD/qzhash.cpp \
+                     $$PWD/qzebhandler.cpp \
+                     $$PWD/qxrapmsg.cpp \
+                     $$PWD/qxraptraffic.cpp \
                      $$PWD/qzactor.cpp \
                      $$PWD/qzsock.cpp \
-                     $$PWD/qzframe.cpp \
+                     $$PWD/qzmsg.cpp \
                      $$PWD/qzuuid.cpp \
+                     $$PWD/qzhash.cpp \
+                     $$PWD/qzframe.cpp \
                      $$PWD/qzlist.cpp
 }
 
