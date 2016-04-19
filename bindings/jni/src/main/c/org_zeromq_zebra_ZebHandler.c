@@ -11,21 +11,14 @@
 #include "org_zeromq_zebra_ZebHandler.h"
 
 JNIEXPORT jint JNICALL
-Java_org_zeromq_zebra_ZebHandler__1_1addOffer (JNIEnv *env, jclass c, jlong self, jint method, jstring uri)
+Java_org_zeromq_zebra_ZebHandler__1_1addOffer (JNIEnv *env, jclass c, jlong self, jint method, jstring uri, jstring content_type)
 {
     char *uri_ = (char *) (*env)->GetStringUTFChars (env, uri, NULL);
-    jint add_offer_ = (jint) zeb_handler_add_offer ((zactor_t *) (intptr_t) self, (int) method, uri_);
+    char *content_type_ = (char *) (*env)->GetStringUTFChars (env, content_type, NULL);
+    jint add_offer_ = (jint) zeb_handler_add_offer ((zactor_t *) (intptr_t) self, (int) method, uri_, content_type_);
     (*env)->ReleaseStringUTFChars (env, uri, uri_);
+    (*env)->ReleaseStringUTFChars (env, content_type, content_type_);
     return add_offer_;
-}
-
-JNIEXPORT jint JNICALL
-Java_org_zeromq_zebra_ZebHandler__1_1addAccept (JNIEnv *env, jclass c, jlong self, jstring accept)
-{
-    char *accept_ = (char *) (*env)->GetStringUTFChars (env, accept, NULL);
-    jint add_accept_ = (jint) zeb_handler_add_accept ((zactor_t *) (intptr_t) self, accept_);
-    (*env)->ReleaseStringUTFChars (env, accept, accept_);
-    return add_accept_;
 }
 
 JNIEXPORT void JNICALL

@@ -42,11 +42,12 @@ public:
 public slots:
     //  Add a new offer this handler will handle. Returns 0 if successful,
     //  otherwise -1.                                                     
-    int addOffer (zactor_t *self, int method, const QString &uri);
-
-    //  Add a new accept type that this handler can deliver. May be a regular
-    //  expression. Returns 0 if successfull, otherwise -1.                  
-    int addAccept (zactor_t *self, const QString &accept);
+    //  The content type parameter is optional and is used to             
+    //  filter requests upon their requested (GET) or provided (POST/PUT) 
+    //  content's type. The content type parameter may be a regex. If the 
+    //  request's content type does not match it is automatically rejected
+    //  with the error code 406 (Not acceptable).                         
+    int addOffer (zactor_t *self, int method, const QString &uri, const QString &contentType);
 
     //  Self test of this class.
     void test (bool verbose);

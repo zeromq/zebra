@@ -143,11 +143,11 @@ set (zebra_headers
 
 IF (ENABLE_DRAFTS)
     list(APPEND zebra_headers
-        include/xrap_msg.h
+        include/zeb_client.h
         include/zeb_handler.h
+        include/xrap_msg.h
         include/xrap_traffic.h
         include/zeb_broker.h
-        include/zeb_client.h
         include/zeb_microhttpd.h
     )
 ENDIF (ENABLE_DRAFTS)
@@ -167,11 +167,11 @@ set (zebra_sources
 
 IF (ENABLE_DRAFTS)
     list (APPEND zebra_sources
-        src/xrap_msg.c
+        src/zeb_client.c
         src/zeb_handler.c
+        src/xrap_msg.c
         src/xrap_traffic.c
         src/zeb_broker.c
-        src/zeb_client.c
         src/zeb_microhttpd.c
     )
 ENDIF (ENABLE_DRAFTS)
@@ -254,11 +254,11 @@ set(TEST_CLASSES
 
 IF (ENABLE_DRAFTS)
     list (APPEND TEST_CLASSES
-    xrap_msg
+    zeb_client
     zeb_handler
+    xrap_msg
     xrap_traffic
     zeb_broker
-    zeb_client
     zeb_microhttpd
     )
 ENDIF (ENABLE_DRAFTS)

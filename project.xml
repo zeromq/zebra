@@ -15,13 +15,13 @@
     <target name = "*" />
 
     <!-- These classes have an API model -->
-    <class name = "xrap_msg">XRAP data protocol</class>
+    <class name = "zeb_client" >Client to interact with zeb_broker</class>
     <class name = "zeb_handler">Handler for XRAP requests</class>
+    <class name = "xrap_msg">XRAP data protocol</class>
 
     <!-- These classes have no API model -->
     <class name = "xrap_traffic">XRAP exchange protocol</class>
     <class name = "zeb_broker" >XRAP service broker</class>
-    <class name = "zeb_client" >Client to interact with zeb_broker</class>
     <class name = "zeb_microhttpd">HTTP web server backend using libmicrohttpd.</class>
     <class name = "zeb_request" private = "1">Representation of a HTTP request.</class>
     <class name = "zeb_response" private = "1">Representation of a HTTP response.</class>

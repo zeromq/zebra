@@ -28,10 +28,10 @@ task generateJniHeaders(type: Exec, dependsOn: 'classes') {
     def appclasspath = configurations.runtime.files*.getAbsolutePath().join(":")
     def nativeIncludes = "src/native/include"
     def jniClasses = [
-            'org.zeromq.zebra.XrapMsg',
+            'org.zeromq.zebra.ZebClient',
             'org.zeromq.zebra.ZebHandler',
-            'org.zeromq.zebra.XrapTraffic',
-            'org.zeromq.zebra.ZebClient'
+            'org.zeromq.zebra.XrapMsg',
+            'org.zeromq.zebra.XrapTraffic'
     ]
     commandLine("javah", "-d", "$nativeIncludes", "-classpath", "$classpath:$appclasspath", *jniClasses)
 }

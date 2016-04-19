@@ -29,7 +29,6 @@ typedef struct {
     //  Declare properties
     zeb_client_t *client;       //  Client that communicates with the zeb_broker
     ztrie_t *offers;            //  Holds the offers the handler handles
-    zlistx_t *accepts;          //  Response formats this handler can deliver
 } s_handler_t;
 
 //  Local helper functions
@@ -68,8 +67,6 @@ s_concat (int method, const char *s2)
     return result;
 }
 
-static void
-s_destroy_accept_item (void **item_p);
 
 //  --------------------------------------------------------------------------
 //  Create a new zeb_handler.
@@ -89,24 +86,13 @@ s_handler_new (zsock_t *pipe, char *endpoint)
     int rc = zeb_client_connect (self->client, endpoint, 1000, "zeb_handler");
     assert (rc == 0);
     self->offers = ztrie_new ('/');
-    self->accepts = zlistx_new ();
-    zlistx_set_destructor (self->accepts, s_destroy_accept_item);
 
     return self;
 }
 
+
 //  --------------------------------------------------------------------------
 //  Destroy the zeb_handler.
-
-static void
-s_destroy_accept_item (void **item_p)
-{
-    assert (item_p);
-    if (*item_p) {
-        zrex_t *self = (zrex_t *) *item_p;
-        zrex_destroy (&self);
-    }
-}
 
 static void
 s_handler_destroy (s_handler_t **self_p)
@@ -119,7 +105,6 @@ s_handler_destroy (s_handler_t **self_p)
         // Free class properties
         zeb_client_destroy (&self->client);
         ztrie_destroy (&self->offers);
-        zlistx_destroy (&self->accepts);
 
         //  Free object itself
         free (self);
@@ -172,31 +157,6 @@ s_handler_add_offer (s_handler_t *self)
         rc = zeb_client_set_handler (self->client, s_xrap_command (method) + 1, uri);
 
     return rc == -1? 1: rc;
-}
-
-
-//  --------------------------------------------------------------------------
-//  Add a new accept type that this handler can deliver. May be a regular
-//  expression.
-
-int
-s_handler_add_accept (s_handler_t *self)
-{
-    assert (self);
-
-    char *accept = zstr_recv (self->pipe);
-    assert (accept);
-    zrex_t *rex = zrex_new (accept);
-    assert (rex);
-
-    zstr_free (&accept);
-
-    //  Invalid expression
-    if (!zrex_valid (rex))
-        return 1;
-
-    zlistx_add_end (self->accepts, rex);
-    return 0;
 }
 
 
@@ -391,9 +351,6 @@ s_handler_recv_api (s_handler_t *self)
         zsock_signal (self->pipe, 0);
     }
     else
-    if (streq (command, "ADD ACCEPT"))
-        zsock_signal (self->pipe, s_handler_add_accept (self));
-    else
     if (streq (command, "ADD OFFER"))
         zsock_signal (self->pipe, s_handler_add_offer (self));
     else
@@ -436,22 +393,6 @@ zeb_handler (zsock_t *pipe, void *args)
     }
 
     s_handler_destroy (&self);
-}
-
-
-//  ---------------------------------------------------------------------------
-//  Add a new accept type that this handler can deliver. May be a regular
-//  expression. Returns 0 if successful, otherwise -1.
-
-int
-zeb_handler_add_accept (zactor_t *self, const char *accept)
-{
-    assert (self);
-    assert (accept);
-    int rc = zstr_sendx (self, "ADD ACCEPT", accept, NULL);
-    if (rc == 0)
-        rc = zsock_wait (self);
-    return rc == 1? -1: rc;
 }
 
 

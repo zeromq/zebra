@@ -39,6 +39,164 @@ module Zebra
       }
 
       begin # DRAFT method
+        attach_function :zeb_client_new, [], :pointer, **opts
+      rescue ::FFI::NotFoundError
+        if $VERBOSE || $DEBUG
+          warn "The function zeb_client_new() can't be used through " +
+               "this Ruby binding because it's not available."
+        end
+      end
+      begin # DRAFT method
+        attach_function :zeb_client_destroy, [:pointer], :void, **opts
+      rescue ::FFI::NotFoundError
+        if $VERBOSE || $DEBUG
+          warn "The function zeb_client_destroy() can't be used through " +
+               "this Ruby binding because it's not available."
+        end
+      end
+      begin # DRAFT method
+        attach_function :zeb_client_actor, [:pointer], :pointer, **opts
+      rescue ::FFI::NotFoundError
+        if $VERBOSE || $DEBUG
+          warn "The function zeb_client_actor() can't be used through " +
+               "this Ruby binding because it's not available."
+        end
+      end
+      begin # DRAFT method
+        attach_function :zeb_client_msgpipe, [:pointer], :pointer, **opts
+      rescue ::FFI::NotFoundError
+        if $VERBOSE || $DEBUG
+          warn "The function zeb_client_msgpipe() can't be used through " +
+               "this Ruby binding because it's not available."
+        end
+      end
+      begin # DRAFT method
+        attach_function :zeb_client_connected, [:pointer], :bool, **opts
+      rescue ::FFI::NotFoundError
+        if $VERBOSE || $DEBUG
+          warn "The function zeb_client_connected() can't be used through " +
+               "this Ruby binding because it's not available."
+        end
+      end
+      begin # DRAFT method
+        attach_function :zeb_client_connect, [:pointer, :string, :uint32, :string], :int, **opts
+      rescue ::FFI::NotFoundError
+        if $VERBOSE || $DEBUG
+          warn "The function zeb_client_connect() can't be used through " +
+               "this Ruby binding because it's not available."
+        end
+      end
+      begin # DRAFT method
+        attach_function :zeb_client_set_handler, [:pointer, :string, :string], :int, **opts
+      rescue ::FFI::NotFoundError
+        if $VERBOSE || $DEBUG
+          warn "The function zeb_client_set_handler() can't be used through " +
+               "this Ruby binding because it's not available."
+        end
+      end
+      begin # DRAFT method
+        attach_function :zeb_client_request, [:pointer, :uint32, :pointer], :int, **opts
+      rescue ::FFI::NotFoundError
+        if $VERBOSE || $DEBUG
+          warn "The function zeb_client_request() can't be used through " +
+               "this Ruby binding because it's not available."
+        end
+      end
+      begin # DRAFT method
+        attach_function :zeb_client_deliver, [:pointer, :pointer, :pointer], :int, **opts
+      rescue ::FFI::NotFoundError
+        if $VERBOSE || $DEBUG
+          warn "The function zeb_client_deliver() can't be used through " +
+               "this Ruby binding because it's not available."
+        end
+      end
+      begin # DRAFT method
+        attach_function :zeb_client_recv, [:pointer], :pointer, **opts
+      rescue ::FFI::NotFoundError
+        if $VERBOSE || $DEBUG
+          warn "The function zeb_client_recv() can't be used through " +
+               "this Ruby binding because it's not available."
+        end
+      end
+      begin # DRAFT method
+        attach_function :zeb_client_command, [:pointer], :string, **opts
+      rescue ::FFI::NotFoundError
+        if $VERBOSE || $DEBUG
+          warn "The function zeb_client_command() can't be used through " +
+               "this Ruby binding because it's not available."
+        end
+      end
+      begin # DRAFT method
+        attach_function :zeb_client_status, [:pointer], :int, **opts
+      rescue ::FFI::NotFoundError
+        if $VERBOSE || $DEBUG
+          warn "The function zeb_client_status() can't be used through " +
+               "this Ruby binding because it's not available."
+        end
+      end
+      begin # DRAFT method
+        attach_function :zeb_client_reason, [:pointer], :string, **opts
+      rescue ::FFI::NotFoundError
+        if $VERBOSE || $DEBUG
+          warn "The function zeb_client_reason() can't be used through " +
+               "this Ruby binding because it's not available."
+        end
+      end
+      begin # DRAFT method
+        attach_function :zeb_client_sender, [:pointer], :pointer, **opts
+      rescue ::FFI::NotFoundError
+        if $VERBOSE || $DEBUG
+          warn "The function zeb_client_sender() can't be used through " +
+               "this Ruby binding because it's not available."
+        end
+      end
+      begin # DRAFT method
+        attach_function :zeb_client_content, [:pointer], :pointer, **opts
+      rescue ::FFI::NotFoundError
+        if $VERBOSE || $DEBUG
+          warn "The function zeb_client_content() can't be used through " +
+               "this Ruby binding because it's not available."
+        end
+      end
+      begin # DRAFT method
+        attach_function :zeb_client_set_verbose, [:pointer, :bool], :void, **opts
+      rescue ::FFI::NotFoundError
+        if $VERBOSE || $DEBUG
+          warn "The function zeb_client_set_verbose() can't be used through " +
+               "this Ruby binding because it's not available."
+        end
+      end
+      begin # DRAFT method
+        attach_function :zeb_client_test, [:bool], :void, **opts
+      rescue ::FFI::NotFoundError
+        if $VERBOSE || $DEBUG
+          warn "The function zeb_client_test() can't be used through " +
+               "this Ruby binding because it's not available."
+        end
+      end
+
+      require_relative 'ffi/zeb_client'
+
+      begin # DRAFT method
+        attach_function :zeb_handler_add_offer, [:pointer, :int, :string, :string], :int, **opts
+      rescue ::FFI::NotFoundError
+        if $VERBOSE || $DEBUG
+          warn "The function zeb_handler_add_offer() can't be used through " +
+               "this Ruby binding because it's not available."
+        end
+      end
+      begin # DRAFT method
+        attach_function :zeb_handler_test, [:bool], :void, **opts
+      rescue ::FFI::NotFoundError
+        if $VERBOSE || $DEBUG
+          warn "The function zeb_handler_test() can't be used through " +
+               "this Ruby binding because it's not available."
+        end
+      end
+
+      require_relative 'ffi/zeb_handler'
+
+      begin # DRAFT method
         attach_function :xrap_msg_new, [:int], :pointer, **opts
       rescue ::FFI::NotFoundError
         if $VERBOSE || $DEBUG
@@ -418,33 +576,6 @@ module Zebra
       require_relative 'ffi/xrap_msg'
 
       begin # DRAFT method
-        attach_function :zeb_handler_add_offer, [:pointer, :int, :string], :int, **opts
-      rescue ::FFI::NotFoundError
-        if $VERBOSE || $DEBUG
-          warn "The function zeb_handler_add_offer() can't be used through " +
-               "this Ruby binding because it's not available."
-        end
-      end
-      begin # DRAFT method
-        attach_function :zeb_handler_add_accept, [:pointer, :string], :int, **opts
-      rescue ::FFI::NotFoundError
-        if $VERBOSE || $DEBUG
-          warn "The function zeb_handler_add_accept() can't be used through " +
-               "this Ruby binding because it's not available."
-        end
-      end
-      begin # DRAFT method
-        attach_function :zeb_handler_test, [:bool], :void, **opts
-      rescue ::FFI::NotFoundError
-        if $VERBOSE || $DEBUG
-          warn "The function zeb_handler_test() can't be used through " +
-               "this Ruby binding because it's not available."
-        end
-      end
-
-      require_relative 'ffi/zeb_handler'
-
-      begin # DRAFT method
         attach_function :xrap_traffic_new, [], :pointer, **opts
       rescue ::FFI::NotFoundError
         if $VERBOSE || $DEBUG
@@ -678,145 +809,6 @@ module Zebra
       end
 
       require_relative 'ffi/xrap_traffic'
-
-      begin # DRAFT method
-        attach_function :zeb_client_new, [], :pointer, **opts
-      rescue ::FFI::NotFoundError
-        if $VERBOSE || $DEBUG
-          warn "The function zeb_client_new() can't be used through " +
-               "this Ruby binding because it's not available."
-        end
-      end
-      begin # DRAFT method
-        attach_function :zeb_client_destroy, [:pointer], :void, **opts
-      rescue ::FFI::NotFoundError
-        if $VERBOSE || $DEBUG
-          warn "The function zeb_client_destroy() can't be used through " +
-               "this Ruby binding because it's not available."
-        end
-      end
-      begin # DRAFT method
-        attach_function :zeb_client_actor, [:pointer], :pointer, **opts
-      rescue ::FFI::NotFoundError
-        if $VERBOSE || $DEBUG
-          warn "The function zeb_client_actor() can't be used through " +
-               "this Ruby binding because it's not available."
-        end
-      end
-      begin # DRAFT method
-        attach_function :zeb_client_msgpipe, [:pointer], :pointer, **opts
-      rescue ::FFI::NotFoundError
-        if $VERBOSE || $DEBUG
-          warn "The function zeb_client_msgpipe() can't be used through " +
-               "this Ruby binding because it's not available."
-        end
-      end
-      begin # DRAFT method
-        attach_function :zeb_client_connected, [:pointer], :bool, **opts
-      rescue ::FFI::NotFoundError
-        if $VERBOSE || $DEBUG
-          warn "The function zeb_client_connected() can't be used through " +
-               "this Ruby binding because it's not available."
-        end
-      end
-      begin # DRAFT method
-        attach_function :zeb_client_connect, [:pointer, :string, :uint32, :string], :int, **opts
-      rescue ::FFI::NotFoundError
-        if $VERBOSE || $DEBUG
-          warn "The function zeb_client_connect() can't be used through " +
-               "this Ruby binding because it's not available."
-        end
-      end
-      begin # DRAFT method
-        attach_function :zeb_client_set_handler, [:pointer, :string, :string], :int, **opts
-      rescue ::FFI::NotFoundError
-        if $VERBOSE || $DEBUG
-          warn "The function zeb_client_set_handler() can't be used through " +
-               "this Ruby binding because it's not available."
-        end
-      end
-      begin # DRAFT method
-        attach_function :zeb_client_request, [:pointer, :uint32, :pointer], :int, **opts
-      rescue ::FFI::NotFoundError
-        if $VERBOSE || $DEBUG
-          warn "The function zeb_client_request() can't be used through " +
-               "this Ruby binding because it's not available."
-        end
-      end
-      begin # DRAFT method
-        attach_function :zeb_client_deliver, [:pointer, :pointer, :pointer], :int, **opts
-      rescue ::FFI::NotFoundError
-        if $VERBOSE || $DEBUG
-          warn "The function zeb_client_deliver() can't be used through " +
-               "this Ruby binding because it's not available."
-        end
-      end
-      begin # DRAFT method
-        attach_function :zeb_client_recv, [:pointer], :pointer, **opts
-      rescue ::FFI::NotFoundError
-        if $VERBOSE || $DEBUG
-          warn "The function zeb_client_recv() can't be used through " +
-               "this Ruby binding because it's not available."
-        end
-      end
-      begin # DRAFT method
-        attach_function :zeb_client_command, [:pointer], :string, **opts
-      rescue ::FFI::NotFoundError
-        if $VERBOSE || $DEBUG
-          warn "The function zeb_client_command() can't be used through " +
-               "this Ruby binding because it's not available."
-        end
-      end
-      begin # DRAFT method
-        attach_function :zeb_client_status, [:pointer], :int, **opts
-      rescue ::FFI::NotFoundError
-        if $VERBOSE || $DEBUG
-          warn "The function zeb_client_status() can't be used through " +
-               "this Ruby binding because it's not available."
-        end
-      end
-      begin # DRAFT method
-        attach_function :zeb_client_reason, [:pointer], :string, **opts
-      rescue ::FFI::NotFoundError
-        if $VERBOSE || $DEBUG
-          warn "The function zeb_client_reason() can't be used through " +
-               "this Ruby binding because it's not available."
-        end
-      end
-      begin # DRAFT method
-        attach_function :zeb_client_sender, [:pointer], :pointer, **opts
-      rescue ::FFI::NotFoundError
-        if $VERBOSE || $DEBUG
-          warn "The function zeb_client_sender() can't be used through " +
-               "this Ruby binding because it's not available."
-        end
-      end
-      begin # DRAFT method
-        attach_function :zeb_client_content, [:pointer], :pointer, **opts
-      rescue ::FFI::NotFoundError
-        if $VERBOSE || $DEBUG
-          warn "The function zeb_client_content() can't be used through " +
-               "this Ruby binding because it's not available."
-        end
-      end
-      begin # DRAFT method
-        attach_function :zeb_client_set_verbose, [:pointer, :bool], :void, **opts
-      rescue ::FFI::NotFoundError
-        if $VERBOSE || $DEBUG
-          warn "The function zeb_client_set_verbose() can't be used through " +
-               "this Ruby binding because it's not available."
-        end
-      end
-      begin # DRAFT method
-        attach_function :zeb_client_test, [:bool], :void, **opts
-      rescue ::FFI::NotFoundError
-        if $VERBOSE || $DEBUG
-          warn "The function zeb_client_test() can't be used through " +
-               "this Ruby binding because it's not available."
-        end
-      end
-
-      require_relative 'ffi/zeb_client'
     end
   end
 end

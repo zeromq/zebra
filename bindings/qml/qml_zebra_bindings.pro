@@ -38,16 +38,16 @@ LIBS += -lzebra
 
 HEADERS += \
   $$SRCDIR/qml_zebra_plugin.h \
-  $$SRCDIR/QmlXrapMsg.h \
+  $$SRCDIR/QmlZebClient.h \
   $$SRCDIR/QmlZebHandler.h \
-  $$SRCDIR/QmlXrapTraffic.h \
-  $$SRCDIR/QmlZebClient.h 
+  $$SRCDIR/QmlXrapMsg.h \
+  $$SRCDIR/QmlXrapTraffic.h 
 
 SOURCES += \
-  $$SRCDIR/QmlXrapMsg.cpp \
+  $$SRCDIR/QmlZebClient.cpp \
   $$SRCDIR/QmlZebHandler.cpp \
-  $$SRCDIR/QmlXrapTraffic.cpp \
-  $$SRCDIR/QmlZebClient.cpp 
+  $$SRCDIR/QmlXrapMsg.cpp \
+  $$SRCDIR/QmlXrapTraffic.cpp 
 
 OBJECTS_DIR = $$BUILDDIR/.obj
 MOC_DIR     = $$BUILDDIR/.moc

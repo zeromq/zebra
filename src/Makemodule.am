@@ -18,11 +18,11 @@ include_HEADERS = \
 
 if ENABLE_DRAFTS
 include_HEADERS += \
-    include/xrap_msg.h \
+    include/zeb_client.h \
     include/zeb_handler.h \
+    include/xrap_msg.h \
     include/xrap_traffic.h \
     include/zeb_broker.h \
-    include/zeb_client.h \
     include/zeb_microhttpd.h
 
 endif
@@ -36,11 +36,11 @@ src_libzebra_la_SOURCES = \
 
 if ENABLE_DRAFTS
 src_libzebra_la_SOURCES += \
-    src/xrap_msg.c \
+    src/zeb_client.c \
     src/zeb_handler.c \
+    src/xrap_msg.c \
     src/xrap_traffic.c \
     src/zeb_broker.c \
-    src/zeb_client.c \
     src/zeb_microhttpd.c
 
 endif
@@ -76,10 +76,10 @@ endif #ENABLE_ZEBRA_SELFTEST
 # Install api files into /usr/local/share/zproject
 apidir = @datadir@/zproject/zebra
 dist_api_DATA = \
+    api/zeb_client.api \
+    api/zeb_handler.api \
     api/xrap_msg.xml \
-    api/zeb_handler.xml \
-    api/xrap_traffic.api \
-    api/zeb_client.api
+    api/xrap_traffic.api
 
 # define custom target for all products of /src
 src:
@@ -92,7 +92,7 @@ code:
 	cd $(srcdir)/src; gsl -topdir:.. -zproject:1 -q xrap_traffic.xml
 	cd $(srcdir)/src; gsl -topdir:.. -zproject:1 -q zeb_broker.xml
 	cd $(srcdir)/src; gsl -topdir:.. -zproject:1 -q zeb_client.xml
-	gsl -target:- project.xml
+	cd $(srcdir); gsl -target:- project.xml
 
 check-local: src/zebra_selftest
 	$(LIBTOOL) --mode=execute $(srcdir)/src/zebra_selftest

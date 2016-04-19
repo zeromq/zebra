@@ -72,13 +72,5 @@
         <return type = "integer" />
     </method>
 
-    <method name = "add accept" singleton = "1">
-        Add a new accept type that this handler can deliver. May be a regular
-        expression. Returns 0 if successfull, otherwise -1.
-        <argument name = "self" type = "zactor" />
-        <argument name = "accept" type = "string" />
-        <return type = "integer" />
-    </method>
-
 </class>
 

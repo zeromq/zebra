@@ -26,6 +26,10 @@ except OSError:
         raise ImportError("Unable to find libzebra")
     lib = cdll.LoadLibrary(libpath)
 
+class zeb_client_t(Structure):
+    pass # Empty - only for type checking
+zeb_client_p = POINTER(zeb_client_t)
+
 class xrap_msg_t(Structure):
     pass # Empty - only for type checking
 xrap_msg_p = POINTER(xrap_msg_t)
@@ -34,9 +38,252 @@ class xrap_traffic_t(Structure):
     pass # Empty - only for type checking
 xrap_traffic_p = POINTER(xrap_traffic_t)
 
-class zeb_client_t(Structure):
-    pass # Empty - only for type checking
-zeb_client_p = POINTER(zeb_client_t)
+
+# zeb_client
+lib.zeb_client_new.restype = zeb_client_p
+lib.zeb_client_new.argtypes = []
+lib.zeb_client_destroy.restype = None
+lib.zeb_client_destroy.argtypes = [POINTER(zeb_client_p)]
+lib.zeb_client_actor.restype = czmq.zactor_p
+lib.zeb_client_actor.argtypes = [zeb_client_p]
+lib.zeb_client_msgpipe.restype = czmq.zsock_p
+lib.zeb_client_msgpipe.argtypes = [zeb_client_p]
+lib.zeb_client_connected.restype = c_bool
+lib.zeb_client_connected.argtypes = [zeb_client_p]
+lib.zeb_client_connect.restype = c_int
+lib.zeb_client_connect.argtypes = [zeb_client_p, c_char_p, c_int, c_char_p]
+lib.zeb_client_set_handler.restype = c_int
+lib.zeb_client_set_handler.argtypes = [zeb_client_p, c_char_p, c_char_p]
+lib.zeb_client_request.restype = c_int
+lib.zeb_client_request.argtypes = [zeb_client_p, c_int, POINTER(czmq.zmsg_p)]
+lib.zeb_client_deliver.restype = c_int
+lib.zeb_client_deliver.argtypes = [zeb_client_p, czmq.zuuid_p, POINTER(czmq.zmsg_p)]
+lib.zeb_client_recv.restype = czmq.zmsg_p
+lib.zeb_client_recv.argtypes = [zeb_client_p]
+lib.zeb_client_command.restype = c_char_p
+lib.zeb_client_command.argtypes = [zeb_client_p]
+lib.zeb_client_status.restype = c_int
+lib.zeb_client_status.argtypes = [zeb_client_p]
+lib.zeb_client_reason.restype = c_char_p
+lib.zeb_client_reason.argtypes = [zeb_client_p]
+lib.zeb_client_sender.restype = czmq.zuuid_p
+lib.zeb_client_sender.argtypes = [zeb_client_p]
+lib.zeb_client_content.restype = czmq.zmsg_p
+lib.zeb_client_content.argtypes = [zeb_client_p]
+lib.zeb_client_set_verbose.restype = None
+lib.zeb_client_set_verbose.argtypes = [zeb_client_p, c_bool]
+lib.zeb_client_test.restype = None
+lib.zeb_client_test.argtypes = [c_bool]
+
+class ZebClient(object):
+    """
+    zeb_broker client implementation for both clients and handlers
+
+    Codec class for zeb_client.
+    """
+
+    allow_destruct = False
+    def __init__(self, *args):
+        """
+        Create a new zeb_client, return the reference if successful,
+or NULL if construction failed due to lack of available memory.
+        """
+        if len(args) == 2 and type(args[0]) is c_void_p and isinstance(args[1], bool):
+            self._as_parameter_ = cast(args[0], zeb_client_p) # Conversion from raw type to binding
+            self.allow_destruct = args[1] # This is a 'fresh' value, owned by us
+        elif len(args) == 2 and type(args[0]) is zeb_client_p and isinstance(args[1], bool):
+            self._as_parameter_ = args[0] # Conversion from raw type to binding
+            self.allow_destruct = args[1] # This is a 'fresh' value, owned by us
+        else:
+            assert(len(args) == 0)
+            self._as_parameter_ = lib.zeb_client_new() # Creation of new raw type
+            self.allow_destruct = True
+
+    def __del__(self):
+        """
+        Destroy the zeb_client and free all memory used by the object.
+        """
+        if self.allow_destruct:
+            lib.zeb_client_destroy(byref(self._as_parameter_))
+
+    def __eq__(self, other):
+        if type(other) == type(self):
+            return other.c_address() == self.c_address()
+        elif type(other) == c_void_p:
+            return other.value == self.c_address()
+
+    def c_address(self):
+        """
+        Return the address of the object pointer in c.  Useful for comparison.
+        """
+        return addressof(self._as_parameter_.contents)
+
+    def __bool__(self):
+        "Determine whether the object is valid by converting to boolean" # Python 3
+        return self._as_parameter_.__bool__()
+
+    def __nonzero__(self):
+        "Determine whether the object is valid by converting to boolean" # Python 2
+        return self._as_parameter_.__nonzero__()
+
+    def actor(self):
+        """
+        Return actor, when caller wants to work with multiple actors and/or
+input sockets asynchronously.
+        """
+        return czmq.Zactor(lib.zeb_client_actor(self._as_parameter_), False)
+
+    def msgpipe(self):
+        """
+        Return message pipe for asynchronous message I/O. In the high-volume case,
+we send methods and get replies to the actor, in a synchronous manner, and
+we send/recv high volume message data to a second pipe, the msgpipe. In
+the low-volume case we can do everything over the actor pipe, if traffic
+is never ambiguous.
+        """
+        return czmq.Zsock(lib.zeb_client_msgpipe(self._as_parameter_), False)
+
+    def connected(self):
+        """
+        Return true if client is currently connected, else false. Note that the
+client will automatically re-connect if the server dies and restarts after
+a successful first connection.
+        """
+        return lib.zeb_client_connected(self._as_parameter_)
+
+    def connect(self, endpoint, timeout, address):
+        """
+        Connect to server endpoint, with specified timeout in msecs (zero means wait    
+forever). Constructor succeeds if connection is successful. The caller may      
+specify its address.                                                            
+Returns >= 0 if successful, -1 if interrupted.
+        """
+        return lib.zeb_client_connect(self._as_parameter_, endpoint, timeout, address)
+
+    def set_handler(self, method, route):
+        """
+        Offer to handle particular XRAP requests, where the route matches request's     
+resource.                                                                       
+Returns >= 0 if successful, -1 if interrupted.
+        """
+        return lib.zeb_client_set_handler(self._as_parameter_, method, route)
+
+    def request(self, timeout, content):
+        """
+        No explanation                                                                  
+Returns >= 0 if successful, -1 if interrupted.
+        """
+        return lib.zeb_client_request(self._as_parameter_, timeout, byref(czmq.zmsg_p.from_param(content)))
+
+    def deliver(self, sender, content):
+        """
+        Send XRAP DELIVER message to server, takes ownership of message
+and destroys message when done sending it.
+        """
+        return lib.zeb_client_deliver(self._as_parameter_, sender, byref(czmq.zmsg_p.from_param(content)))
+
+    def recv(self):
+        """
+        Receive message from server; caller destroys message when done
+        """
+        return czmq.Zmsg(lib.zeb_client_recv(self._as_parameter_), False)
+
+    def command(self):
+        """
+        Return last received command. Can be one of these values:
+    "XRAP DELIVER"
+        """
+        return lib.zeb_client_command(self._as_parameter_)
+
+    def status(self):
+        """
+        Return last received status
+        """
+        return lib.zeb_client_status(self._as_parameter_)
+
+    def reason(self):
+        """
+        Return last received reason
+        """
+        return lib.zeb_client_reason(self._as_parameter_)
+
+    def sender(self):
+        """
+        Return last received sender
+        """
+        return czmq.Zuuid(lib.zeb_client_sender(self._as_parameter_), False)
+
+    def content(self):
+        """
+        Return last received content
+        """
+        return czmq.Zmsg(lib.zeb_client_content(self._as_parameter_), False)
+
+    def set_verbose(self, verbose):
+        """
+        Enable verbose tracing (animation) of state machine activity.
+        """
+        return lib.zeb_client_set_verbose(self._as_parameter_, verbose)
+
+    @staticmethod
+    def test(verbose):
+        """
+        Self test of this class.
+        """
+        return lib.zeb_client_test(verbose)
+
+
+# zeb_handler
+lib.zeb_handler_add_offer.restype = c_int
+lib.zeb_handler_add_offer.argtypes = [czmq.zactor_p, c_int, c_char_p, c_char_p]
+lib.zeb_handler_test.restype = None
+lib.zeb_handler_test.argtypes = [c_bool]
+
+class ZebHandler(object):
+    """
+    Handler for XRAP requests
+    """
+
+    allow_destruct = False
+    def __eq__(self, other):
+        if type(other) == type(self):
+            return other.c_address() == self.c_address()
+        elif type(other) == c_void_p:
+            return other.value == self.c_address()
+
+    def c_address(self):
+        """
+        Return the address of the object pointer in c.  Useful for comparison.
+        """
+        return addressof(self._as_parameter_.contents)
+
+    def __bool__(self):
+        "Determine whether the object is valid by converting to boolean" # Python 3
+        return self._as_parameter_.__bool__()
+
+    def __nonzero__(self):
+        "Determine whether the object is valid by converting to boolean" # Python 2
+        return self._as_parameter_.__nonzero__()
+
+    @staticmethod
+    def add_offer(self, method, uri, content_type):
+        """
+        Add a new offer this handler will handle. Returns 0 if successful,
+otherwise -1.
+The content type parameter is optional and is used to
+filter requests upon their requested (GET) or provided (POST/PUT)
+content's type. The content type parameter may be a regex. If the
+request's content type does not match it is automatically rejected
+with the error code 406 (Not acceptable).
+        """
+        return lib.zeb_handler_add_offer(self, method, uri, content_type)
+
+    @staticmethod
+    def test(verbose):
+        """
+        Self test of this class.
+        """
+        return lib.zeb_handler_test(verbose)
 
 
 # xrap msg
@@ -530,64 +777,6 @@ or NULL either if there was no input waiting, or the recv was interrupted.
         return lib.xrap_msg_test(verbose)
 
 
-# zeb_handler
-lib.zeb_handler_add_offer.restype = c_int
-lib.zeb_handler_add_offer.argtypes = [czmq.zactor_p, c_int, c_char_p]
-lib.zeb_handler_add_accept.restype = c_int
-lib.zeb_handler_add_accept.argtypes = [czmq.zactor_p, c_char_p]
-lib.zeb_handler_test.restype = None
-lib.zeb_handler_test.argtypes = [c_bool]
-
-class ZebHandler(object):
-    """
-    Handler for XRAP requests
-    """
-
-    allow_destruct = False
-    def __eq__(self, other):
-        if type(other) == type(self):
-            return other.c_address() == self.c_address()
-        elif type(other) == c_void_p:
-            return other.value == self.c_address()
-
-    def c_address(self):
-        """
-        Return the address of the object pointer in c.  Useful for comparison.
-        """
-        return addressof(self._as_parameter_.contents)
-
-    def __bool__(self):
-        "Determine whether the object is valid by converting to boolean" # Python 3
-        return self._as_parameter_.__bool__()
-
-    def __nonzero__(self):
-        "Determine whether the object is valid by converting to boolean" # Python 2
-        return self._as_parameter_.__nonzero__()
-
-    @staticmethod
-    def add_offer(self, method, uri):
-        """
-        Add a new offer this handler will handle. Returns 0 if successful,
-otherwise -1.
-        """
-        return lib.zeb_handler_add_offer(self, method, uri)
-
-    @staticmethod
-    def add_accept(self, accept):
-        """
-        Add a new accept type that this handler can deliver. May be a regular
-expression. Returns 0 if successfull, otherwise -1.
-        """
-        return lib.zeb_handler_add_accept(self, accept)
-
-    @staticmethod
-    def test(verbose):
-        """
-        Self test of this class.
-        """
-        return lib.zeb_handler_test(verbose)
-
-
 # xrap_traffic
 lib.xrap_traffic_new.restype = xrap_traffic_p
 lib.xrap_traffic_new.argtypes = []
@@ -887,200 +1076,6 @@ there was an error. Blocks if there is no message waiting.
         Self test of this class.
         """
         return lib.xrap_traffic_test(verbose)
-
-
-# zeb_client
-lib.zeb_client_new.restype = zeb_client_p
-lib.zeb_client_new.argtypes = []
-lib.zeb_client_destroy.restype = None
-lib.zeb_client_destroy.argtypes = [POINTER(zeb_client_p)]
-lib.zeb_client_actor.restype = czmq.zactor_p
-lib.zeb_client_actor.argtypes = [zeb_client_p]
-lib.zeb_client_msgpipe.restype = czmq.zsock_p
-lib.zeb_client_msgpipe.argtypes = [zeb_client_p]
-lib.zeb_client_connected.restype = c_bool
-lib.zeb_client_connected.argtypes = [zeb_client_p]
-lib.zeb_client_connect.restype = c_int
-lib.zeb_client_connect.argtypes = [zeb_client_p, c_char_p, c_int, c_char_p]
-lib.zeb_client_set_handler.restype = c_int
-lib.zeb_client_set_handler.argtypes = [zeb_client_p, c_char_p, c_char_p]
-lib.zeb_client_request.restype = c_int
-lib.zeb_client_request.argtypes = [zeb_client_p, c_int, POINTER(czmq.zmsg_p)]
-lib.zeb_client_deliver.restype = c_int
-lib.zeb_client_deliver.argtypes = [zeb_client_p, czmq.zuuid_p, POINTER(czmq.zmsg_p)]
-lib.zeb_client_recv.restype = czmq.zmsg_p
-lib.zeb_client_recv.argtypes = [zeb_client_p]
-lib.zeb_client_command.restype = c_char_p
-lib.zeb_client_command.argtypes = [zeb_client_p]
-lib.zeb_client_status.restype = c_int
-lib.zeb_client_status.argtypes = [zeb_client_p]
-lib.zeb_client_reason.restype = c_char_p
-lib.zeb_client_reason.argtypes = [zeb_client_p]
-lib.zeb_client_sender.restype = czmq.zuuid_p
-lib.zeb_client_sender.argtypes = [zeb_client_p]
-lib.zeb_client_content.restype = czmq.zmsg_p
-lib.zeb_client_content.argtypes = [zeb_client_p]
-lib.zeb_client_set_verbose.restype = None
-lib.zeb_client_set_verbose.argtypes = [zeb_client_p, c_bool]
-lib.zeb_client_test.restype = None
-lib.zeb_client_test.argtypes = [c_bool]
-
-class ZebClient(object):
-    """
-    zeb_broker client implementation for both clients and handlers
-
-    Codec class for zeb_client.
-    """
-
-    allow_destruct = False
-    def __init__(self, *args):
-        """
-        Create a new zeb_client, return the reference if successful,
-or NULL if construction failed due to lack of available memory.
-        """
-        if len(args) == 2 and type(args[0]) is c_void_p and isinstance(args[1], bool):
-            self._as_parameter_ = cast(args[0], zeb_client_p) # Conversion from raw type to binding
-            self.allow_destruct = args[1] # This is a 'fresh' value, owned by us
-        elif len(args) == 2 and type(args[0]) is zeb_client_p and isinstance(args[1], bool):
-            self._as_parameter_ = args[0] # Conversion from raw type to binding
-            self.allow_destruct = args[1] # This is a 'fresh' value, owned by us
-        else:
-            assert(len(args) == 0)
-            self._as_parameter_ = lib.zeb_client_new() # Creation of new raw type
-            self.allow_destruct = True
-
-    def __del__(self):
-        """
-        Destroy the zeb_client and free all memory used by the object.
-        """
-        if self.allow_destruct:
-            lib.zeb_client_destroy(byref(self._as_parameter_))
-
-    def __eq__(self, other):
-        if type(other) == type(self):
-            return other.c_address() == self.c_address()
-        elif type(other) == c_void_p:
-            return other.value == self.c_address()
-
-    def c_address(self):
-        """
-        Return the address of the object pointer in c.  Useful for comparison.
-        """
-        return addressof(self._as_parameter_.contents)
-
-    def __bool__(self):
-        "Determine whether the object is valid by converting to boolean" # Python 3
-        return self._as_parameter_.__bool__()
-
-    def __nonzero__(self):
-        "Determine whether the object is valid by converting to boolean" # Python 2
-        return self._as_parameter_.__nonzero__()
-
-    def actor(self):
-        """
-        Return actor, when caller wants to work with multiple actors and/or
-input sockets asynchronously.
-        """
-        return czmq.Zactor(lib.zeb_client_actor(self._as_parameter_), False)
-
-    def msgpipe(self):
-        """
-        Return message pipe for asynchronous message I/O. In the high-volume case,
-we send methods and get replies to the actor, in a synchronous manner, and
-we send/recv high volume message data to a second pipe, the msgpipe. In
-the low-volume case we can do everything over the actor pipe, if traffic
-is never ambiguous.
-        """
-        return czmq.Zsock(lib.zeb_client_msgpipe(self._as_parameter_), False)
-
-    def connected(self):
-        """
-        Return true if client is currently connected, else false. Note that the
-client will automatically re-connect if the server dies and restarts after
-a successful first connection.
-        """
-        return lib.zeb_client_connected(self._as_parameter_)
-
-    def connect(self, endpoint, timeout, address):
-        """
-        Connect to server endpoint, with specified timeout in msecs (zero means wait    
-forever). Constructor succeeds if connection is successful. The caller may      
-specify its address.                                                            
-Returns >= 0 if successful, -1 if interrupted.
-        """
-        return lib.zeb_client_connect(self._as_parameter_, endpoint, timeout, address)
-
-    def set_handler(self, method, route):
-        """
-        Offer to handle particular XRAP requests, where the route matches request's     
-resource.                                                                       
-Returns >= 0 if successful, -1 if interrupted.
-        """
-        return lib.zeb_client_set_handler(self._as_parameter_, method, route)
-
-    def request(self, timeout, content):
-        """
-        No explanation                                                                  
-Returns >= 0 if successful, -1 if interrupted.
-        """
-        return lib.zeb_client_request(self._as_parameter_, timeout, byref(czmq.zmsg_p.from_param(content)))
-
-    def deliver(self, sender, content):
-        """
-        Send XRAP DELIVER message to server, takes ownership of message
-and destroys message when done sending it.
-        """
-        return lib.zeb_client_deliver(self._as_parameter_, sender, byref(czmq.zmsg_p.from_param(content)))
-
-    def recv(self):
-        """
-        Receive message from server; caller destroys message when done
-        """
-        return czmq.Zmsg(lib.zeb_client_recv(self._as_parameter_), False)
-
-    def command(self):
-        """
-        Return last received command. Can be one of these values:
-    "XRAP DELIVER"
-        """
-        return lib.zeb_client_command(self._as_parameter_)
-
-    def status(self):
-        """
-        Return last received status
-        """
-        return lib.zeb_client_status(self._as_parameter_)
-
-    def reason(self):
-        """
-        Return last received reason
-        """
-        return lib.zeb_client_reason(self._as_parameter_)
-
-    def sender(self):
-        """
-        Return last received sender
-        """
-        return czmq.Zuuid(lib.zeb_client_sender(self._as_parameter_), False)
-
-    def content(self):
-        """
-        Return last received content
-        """
-        return czmq.Zmsg(lib.zeb_client_content(self._as_parameter_), False)
-
-    def set_verbose(self, verbose):
-        """
-        Enable verbose tracing (animation) of state machine activity.
-        """
-        return lib.zeb_client_set_verbose(self._as_parameter_, verbose)
-
-    @staticmethod
-    def test(verbose):
-        """
-        Self test of this class.
-        """
-        return lib.zeb_client_test(verbose)
 
 ################################################################################
 #  THIS FILE IS 100% GENERATED BY ZPROJECT; DO NOT EDIT EXCEPT EXPERIMENTALLY  #
