@@ -45,7 +45,6 @@ This package contains shared library.
 
 %files -n libzebra0
 %defattr(-,root,root)
-%doc COPYING
 %{_libdir}/libzebra.so.*
 
 %package devel

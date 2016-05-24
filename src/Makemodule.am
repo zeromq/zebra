@@ -95,31 +95,31 @@ code:
 	cd $(srcdir); gsl -target:- project.xml
 
 check-local: src/zebra_selftest
-	$(LIBTOOL) --mode=execute $(srcdir)/src/zebra_selftest
+	$(LIBTOOL) --mode=execute $(builddir)/src/zebra_selftest
 
 check-verbose: src/zebra_selftest
-	$(LIBTOOL) --mode=execute $(srcdir)/src/zebra_selftest -v
+	$(LIBTOOL) --mode=execute $(builddir)/src/zebra_selftest -v
 
 # Run the selftest binary under valgrind to check for memory leaks
 memcheck: src/zebra_selftest
 	$(LIBTOOL) --mode=execute valgrind --tool=memcheck \
 		--leak-check=full --show-reachable=yes --error-exitcode=1 \
 		--suppressions=$(srcdir)/src/.valgrind.supp \
-		$(srcdir)/src/zebra_selftest
+		$(builddir)/src/zebra_selftest
 
 # Run the selftest binary under valgrind to check for performance leaks
 callcheck: src/zebra_selftest
 	$(LIBTOOL) --mode=execute valgrind --tool=callgrind \
-		$(srcdir)/src/zebra_selftest
+		$(builddir)/src/zebra_selftest
 
 # Run the selftest binary under gdb for debugging
 debug: src/zebra_selftest
 	$(LIBTOOL) --mode=execute gdb -q \
-		$(srcdir)/src/zebra_selftest
+		$(builddir)/src/zebra_selftest
 
 # Run the selftest binary with verbose switch for tracing
 animate: src/zebra_selftest
-	$(LIBTOOL) --mode=execute $(srcdir)/src/zebra_selftest -v
+	$(LIBTOOL) --mode=execute $(builddir)/src/zebra_selftest -v
 
 if WITH_GCOV
 coverage: src/zebra_selftest
