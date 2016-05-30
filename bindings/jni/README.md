@@ -9,6 +9,11 @@ Ensure you have gradle and cmake installed, then run:
     gradle build jar
     gradle test
 
+If you don't like to install gradle beforehand just use the gradle wrapper
+
+    ./gradlew build jar
+    ./gradlew test
+
 This calls javah to build the headers in src/native/include, and then compiles the C and Java pieces to create a jar file a sharable library (.so).
 
 ## Building the JNI Layer for Android
@@ -20,8 +25,9 @@ You need the Android Native Development Kit (NDK) installed.
 Set these environment variables, e.g:
 
     ANDROID_NDK_ROOT=$HOME/android-ndk-r10e
-    TOOLCHAIN_NAME=arm-linux-androideabi-4.9
+    TOOLCHAIN_VERSION=4.9
     TOOLCHAIN_HOST=arm-linux-androideabi
+    TOOLCHAIN_NAME=$TOOLCHAIN_HOST-$TOOLCHAIN_VERSION
     TOOLCHAIN_ARCH=arm
     TOOLCHAIN_PATH=$ANDROID_NDK_ROOT/toolchains/$TOOLCHAIN_NAME/prebuilt/linux-x86_64/bin
 
@@ -48,6 +54,14 @@ You need the Java SDK. Set the JAVA_HOME environment to the installation locatio
 3. In this project, open a console in bindings/jni/msvc/vs2010 and run the build.bat batch file.
 
 The resulting libraries (zebrajni.dll, zebrajni.lib) are created in bindings/jni/msvc/bin.
+
+## Building the gradle wrapper (for maintainers)
+
+The gradle wrapper is a tool that allows to use gradle on multiple platforms without installing it beforehand. As maintainers make sure you have gradle installed. Then just run
+
+    gradle wrapper
+
+Now commit all generated files to the project. Users will now be able to call the gradle wrapper which will install gradle for them.
 
 ## Using the JNI API
 

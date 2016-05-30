@@ -12,7 +12,7 @@ AC_INIT([zebra],[0.2.0],[zeromq-dev@lists.zeromq.org])
 AC_CONFIG_AUX_DIR(config)
 AC_CONFIG_MACRO_DIR(config)
 AC_CONFIG_HEADERS([src/platform.h])
-AM_INIT_AUTOMAKE([subdir-objects tar-ustar foreign])
+AM_INIT_AUTOMAKE([subdir-objects tar-ustar dist-zip foreign])
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
 # This defines PACKAGE_VERSION_... in src/platform.h
@@ -99,7 +99,7 @@ PKG_CHECK_MODULES([libzmq], [libzmq >= 0.0.0],
         fi
 
 
-        AC_CHECK_LIB([libzmq], [zmq_init],
+        AC_CHECK_LIB([zmq], [zmq_init],
             [
                 CFLAGS="${libzmq_synthetic_cflags} ${CFLAGS}"
                 LDFLAGS="${libzmq_synthetic_libs} ${LDFLAGS}"
@@ -158,7 +158,7 @@ PKG_CHECK_MODULES([libmicrohttpd], [libmicrohttpd >= 0.0.0],
         fi
 
 
-        AC_CHECK_LIB([libmicrohttpd], [MHD_start_daemon],
+        AC_CHECK_LIB([microhttpd], [MHD_start_daemon],
             [
                 CFLAGS="${libmicrohttpd_synthetic_cflags} ${CFLAGS}"
                 LDFLAGS="${libmicrohttpd_synthetic_libs} ${LDFLAGS}"

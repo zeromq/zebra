@@ -1,5 +1,5 @@
 # Travis CI script
-language: c
+language: java
 
 os:
 - linux
@@ -18,19 +18,20 @@ addons:
     - valgrind
 
 env:
-- BUILD_TYPE=default
-- BUILD_TYPE=qt-android
-- BUILD_TYPE=check_zproto
-- BUILD_TYPE=check_zproject
+  - BUILD_TYPE=default
+  - BUILD_TYPE=check_zproto
+  - BUILD_TYPE=check_zproject
+  - BUILD_TYPE=bindings BINDING=jni
 
-# Build and check this project according to the BUILD_TYPE
-script: ./ci_build.sh
-
-
-# osx environment does not have docker
 matrix:
   exclude:
+  - env: BUILD_TYPE=bindings BINDING=jni
+    os: osx
+  # osx environment does not have docker
   - os: osx
     env: BUILD_TYPE=check_zproto
   - os: osx
     env: BUILD_TYPE=check_zproject
+
+# Build and check this project according to the BUILD_TYPE
+script: ./ci_build.sh
