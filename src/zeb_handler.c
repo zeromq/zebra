@@ -116,7 +116,7 @@ s_handler_destroy (s_handler_t **self_p)
 //  --------------------------------------------------------------------------
 //  Helper method to destroy the content_type data inserted into the ztrie.
 
-void
+static void
 s_destroy_content_type (void **self_p)
 {
     assert (self_p);
@@ -131,7 +131,7 @@ s_destroy_content_type (void **self_p)
 //  Add a new offer this handler will handle. Returns 0 if successfull,
 //  otherwise 1;
 
-int
+static int
 s_handler_add_offer (s_handler_t *self)
 {
     assert (self);
@@ -163,7 +163,7 @@ s_handler_add_offer (s_handler_t *self)
 //  --------------------------------------------------------------------------
 //
 
-char *
+static char *
 s_strndup (const char *s, size_t size) {
     char *dup;
     char *end = (char *) memchr (s, '\0', size);
@@ -182,7 +182,7 @@ s_strndup (const char *s, size_t size) {
 //  --------------------------------------------------------------------------
 //
 
-static bool
+static char *
 s_handler_check_content_type (zrex_t *valid_type, const char *content_type)
 {
     assert (valid_type);
@@ -204,7 +204,9 @@ s_handler_check_content_type (zrex_t *valid_type, const char *content_type)
         //  Check if type matches
         char *type = s_strndup (start, pos - start);
         if (zrex_matches (valid_type, type))
-            return true;
+            return type;
+        else
+            zstr_free (&type);
 
         //  Discard quality and level attributes
         if (*pos == ';')
@@ -216,7 +218,7 @@ s_handler_check_content_type (zrex_t *valid_type, const char *content_type)
 
         start = pos;
     }
-    return false;
+    return NULL;
 }
 
 
@@ -247,11 +249,20 @@ s_handler_recv_client (s_handler_t *self)
         char *joined_uri = s_concat (xrap_id, xrap_msg_resource (xrequest));
         (void) ztrie_matches (self->offers, joined_uri);
         zrex_t *content_regex = (zrex_t *) ztrie_hit_data (self->offers);
+        zstr_free (&joined_uri);
         //  Proceed if a regex has been provided
         if (content_regex) {
             const char *content_type = xrap_msg_content_type (xrequest);
-            if (!content_type || !strlen (content_type) ||
-                !s_handler_check_content_type (content_regex, content_type)) {
+            char *accepted_content_type = NULL;
+            if (content_type && strlen (content_type))
+                accepted_content_type = s_handler_check_content_type (content_regex, content_type);
+
+            if (accepted_content_type) {
+                //  Apply the excepted content type back to the request
+                xrap_msg_set_content_type (xrequest, "%s", accepted_content_type);
+                zstr_free (&accepted_content_type);
+            }
+            else {
                 xrap_msg_t *xresponse = xrap_msg_new (XRAP_MSG_ERROR);
                 xrap_msg_set_status_code (xresponse, XRAP_TRAFFIC_NOT_ACCEPTABLE);
                 xrap_msg_set_status_text (xresponse, "Ressource accept format is not valid!");
@@ -260,7 +271,6 @@ s_handler_recv_client (s_handler_t *self)
                 goto cleanup;
             }
         }
-        free (joined_uri);
     }
 
     {   // Jump scoping needed for c++
@@ -501,8 +511,8 @@ zeb_handler_test (bool verbose)
     xmsg = xrap_msg_decode (&msg);
     assert (xrap_msg_id (xmsg) == XRAP_MSG_GET);
     assert (streq (xrap_msg_resource (xmsg), "/dummy"));
-    assert (streq (xrap_msg_content_type (xmsg),
-                "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"));
+    //  zeb_handler choose the first matching accept type
+    assert (streq (xrap_msg_content_type (xmsg), "application/xml"));
     xrap_msg_destroy (&xmsg);
     sender = zeb_client_sender (client);
     zuuid_destroy (&sender);

@@ -37,6 +37,12 @@
 #if defined (__WINDOWS__)
 #   if defined ZEBRA_STATIC
 #       define ZEBRA_EXPORT
+#   elif defined ZEBRA_INTERNAL_BUILD
+#       if defined DLL_EXPORT
+#           define ZEBRA_EXPORT __declspec(dllexport)
+#       else
+#           define ZEBRA_EXPORT
+#       endif
 #   elif defined ZEBRA_EXPORTS
 #       define ZEBRA_EXPORT __declspec(dllexport)
 #   else
