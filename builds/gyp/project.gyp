@@ -78,6 +78,7 @@
         '../../src/zeb_response.c',
         '../../src/zeb_response.h',
         '../../src/zeb_broker_engine.inc',
+        '../../src/zeb_client.cfg',
         '../../src/zeb_client_engine.inc',
         '../../include/zebra_library.h',
         '../../src/zebra_selftest.c',

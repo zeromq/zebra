@@ -48,6 +48,9 @@
     <ClInclude Include="..\..\..\..\src\zeb_client_engine.inc">
       <Filter>src</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\src\zeb_client.cfg">
+      <Filter>src</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\platform.h">

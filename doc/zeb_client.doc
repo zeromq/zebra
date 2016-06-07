@@ -1,4 +1,4 @@
-#### zeb_client - Broker client
+####  - Broker client
 
 Client implementation to communicate with the broker. This
 implementation is used by both clients (i.e. zeb_microhttpd) and the

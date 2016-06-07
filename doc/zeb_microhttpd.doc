@@ -1,4 +1,4 @@
-#### zeb_microhttpd - Simple HTTP web server
+####  - Simple HTTP web server
 
 Simple HTTP webserver implementation using the libmicrohttpd library.
 Incomming HTTP request are converted to XRAP and send to the broker.

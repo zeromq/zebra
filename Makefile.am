@@ -29,8 +29,15 @@ noinst_LTLIBRARIES =
 TESTS =
 
 EXTRA_DIST = \
+    CMakeLists.txt \
+    Findlibzmq.cmake \
+    Findczmq.cmake \
+    Findlibmicrohttpd.cmake \
+    Findlibcurl.cmake \
+    Findlibsodium.cmake \
     src/zeb_broker_engine.inc \
     src/zeb_client_engine.inc \
+    src/zeb_client.cfg \
     src/zeb_request.h \
     src/zeb_response.h \
     src/zeb_connection.h \

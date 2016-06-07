@@ -81,6 +81,7 @@
     <ClInclude Include="..\..\..\..\include\zebra.h" />
     <ClInclude Include="..\..\..\..\src\zeb_broker_engine.inc" />
     <ClInclude Include="..\..\..\..\src\zeb_client_engine.inc" />
+    <ClInclude Include="..\..\..\..\src\zeb_client.cfg" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\src\zeb_client.c">

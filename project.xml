@@ -3,6 +3,7 @@
     description = "Translates REST HTTP-Request into the XRAP protocol."
     script = "zproject.gsl"
     email = "zeromq-dev@lists.zeromq.org"
+    url = "https://github.com/zeromq/zebra"
     >
 
     <include filename = "license.xml" />
@@ -36,5 +37,6 @@
     <!-- Other source files in src that we need to package -->
     <extra name = "zeb_broker_engine.inc" />
     <extra name = "zeb_client_engine.inc" />
+    <extra name = "zeb_client.cfg" />
 
 </project>

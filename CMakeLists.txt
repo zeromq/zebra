@@ -139,6 +139,7 @@ set (zebra_headers
     src/zeb_connection.h
     src/zeb_broker_engine.inc
     src/zeb_client_engine.inc
+    src/zeb_client.cfg
 )
 
 IF (ENABLE_DRAFTS)
