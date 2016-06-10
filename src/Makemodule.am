@@ -32,6 +32,7 @@ src_libzebra_la_SOURCES = \
     src/zeb_connection.c \
     src/zeb_broker_engine.inc \
     src/zeb_client_engine.inc \
+    src/zeb_client.cfg \
     src/platform.h
 
 if ENABLE_DRAFTS

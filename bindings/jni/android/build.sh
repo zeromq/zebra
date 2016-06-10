@@ -53,7 +53,7 @@ make $MAKE_OPTIONS
 
 echo "********  Building zebra.jar for Android"
 #   Copy class files into org/zeromq/etc.
-unzip -q ../../build/libs/zebra*.jar
+unzip -q ../../build/libs/zebra-jni-0.2.0.jar
 unzip -q -o ../../../../../czmq/bindings/jni/android/czmq-android.jar
 
 #   Copy native libraries into lib/armeabi

@@ -502,6 +502,7 @@
       <File RelativePath="..\..\..\..\include\zebra.h" />
       <File RelativePath="..\..\..\..\src\zeb_broker_engine.inc" />
       <File RelativePath="..\..\..\..\src\zeb_client_engine.inc" />
+      <File RelativePath="..\..\..\..\src\zeb_client.cfg" />
     </Filter>
   </Files>
   <Globals />

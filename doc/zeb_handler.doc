@@ -1,4 +1,4 @@
-#### zeb_handler - Handler for XRAP requests
+####  - Handler for XRAP requests
 
 zeb_handler - Handler for XRAP requests
 
@@ -57,13 +57,16 @@ This is the class interface:
         zeb_handler (zsock_t *pipe, void *args);
     
     //  *** Draft method, for development use, may change without warning ***
-    //  Add a new offer this handler will handle. Returns 0 if successful,
-    //  otherwise -1.                                                     
-    //  The content type parameter is optional and is used to             
-    //  filter requests upon their requested (GET) or provided (POST/PUT) 
-    //  content's type. The content type parameter may be a regex. If the 
-    //  request's content type does not match it is automatically rejected
-    //  with the error code 406 (Not acceptable).                         
+    //  Add a new offer this handler will handle. Returns 0 if successful,      
+    //  otherwise -1.                                                           
+    //  The content type parameter is optional and is used to                   
+    //  filter requests upon their requested (GET) or provided (POST/PUT)       
+    //  content's type. The content type parameter may be a regex which is      
+    //  useful for GET offers that can suplly ressources in different formats.  
+    //  If the client did request multiple content types then the first match   
+    //  will be choosen and applied to the request. All other content types are 
+    //  droped. If the request's content type does not match it is automatically
+    //  rejected with the error code 406 (Not acceptable).                      
     ZEBRA_EXPORT int
         zeb_handler_add_offer (zactor_t *self, int method, const char *uri, const char *content_type);
     
@@ -152,8 +155,8 @@ This is the class self test code:
     xmsg = xrap_msg_decode (&msg);
     assert (xrap_msg_id (xmsg) == XRAP_MSG_GET);
     assert (streq (xrap_msg_resource (xmsg), "/dummy"));
-    assert (streq (xrap_msg_content_type (xmsg),
-                "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"));
+    //  zeb_handler choose the first matching accept type
+    assert (streq (xrap_msg_content_type (xmsg), "application/xml"));
     xrap_msg_destroy (&xmsg);
     sender = zeb_client_sender (client);
     zuuid_destroy (&sender);

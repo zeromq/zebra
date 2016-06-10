@@ -14,14 +14,16 @@ Version:        0.2.0
 Release:        1
 Summary:        translates rest http-request into the xrap protocol.
 License:        MIT
-URL:            http://example.com/
+URL:            https://github.com/zeromq/zebra
 Source0:        %{name}-%{version}.tar.gz
 Group:          System/Libraries
+BuildRequires:  asciidoc
 BuildRequires:  automake
 BuildRequires:  autoconf
 BuildRequires:  libtool
 BuildRequires:  pkg-config
 BuildRequires:  systemd-devel
+BuildRequires:  xmlto
 BuildRequires:  zeromq-devel
 BuildRequires:  czmq-devel
 BuildRequires:  libmicrohttpd-devel
@@ -66,6 +68,8 @@ This package contains development files.
 %{_includedir}/*
 %{_libdir}/libzebra.so
 %{_libdir}/pkgconfig/libzebra.pc
+%{_mandir}/man3/*
+%{_mandir}/man7/*
 
 %prep
 %setup -q

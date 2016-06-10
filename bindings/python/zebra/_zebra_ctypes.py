@@ -272,9 +272,12 @@ class ZebHandler(object):
 otherwise -1.
 The content type parameter is optional and is used to
 filter requests upon their requested (GET) or provided (POST/PUT)
-content's type. The content type parameter may be a regex. If the
-request's content type does not match it is automatically rejected
-with the error code 406 (Not acceptable).
+content's type. The content type parameter may be a regex which is
+useful for GET offers that can supply resources in different formats.
+If the client did request multiple content types then the first match
+will be chosen and applied to the request. All other content types are
+drooped. If the request's content type does not match it is automatically
+rejected with the error code 406 (Not acceptable).
         """
         return lib.zeb_handler_add_offer(self, method, uri, content_type)
 

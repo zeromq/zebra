@@ -1,4 +1,4 @@
-#### zeb_broker - zebra service broker
+####  - zebra service broker
 
 The zeb_broker implements the zproto server. This broker connects
 client requests to handler offers.

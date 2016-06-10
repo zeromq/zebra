@@ -16,13 +16,16 @@ QZebHandler::QZebHandler (zeb_handler_t *self, QObject *qObjParent) : QObject (q
 
 
 ///
-//  Add a new offer this handler will handle. Returns 0 if successful,
-//  otherwise -1.                                                     
-//  The content type parameter is optional and is used to             
-//  filter requests upon their requested (GET) or provided (POST/PUT) 
-//  content's type. The content type parameter may be a regex. If the 
-//  request's content type does not match it is automatically rejected
-//  with the error code 406 (Not acceptable).                         
+//  Add a new offer this handler will handle. Returns 0 if successful,       
+//  otherwise -1.                                                            
+//  The content type parameter is optional and is used to                    
+//  filter requests upon their requested (GET) or provided (POST/PUT)        
+//  content's type. The content type parameter may be a regex which is       
+//  useful for GET offers that can supply resources in different formats.    
+//  If the client did request multiple content types then the first match    
+//  will be chosen and applied to the request. All other content types are   
+//  drooped. If the request's content type does not match it is automatically
+//  rejected with the error code 406 (Not acceptable).                       
 int QZebHandler::addOffer (QZactor *self, int method, const QString &uri, const QString &contentType)
 {
     int rv = zeb_handler_add_offer (self->self, method, uri.toUtf8().data(), contentType.toUtf8().data());

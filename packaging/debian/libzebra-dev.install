@@ -1,3 +1,5 @@
 usr/include/*
 usr/lib/*/libzebra.so
 usr/lib/*/pkgconfig/libzebra.pc
+usr/share/man/man3/*
+usr/share/man/man7/*
