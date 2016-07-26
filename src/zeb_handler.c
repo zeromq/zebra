@@ -246,7 +246,12 @@ s_handler_recv_client (s_handler_t *self)
 
     {   // Jump scoping needed for c++
         //  Check if content type is valid
-        char *joined_uri = s_concat (xrap_id, xrap_msg_resource (xrequest));
+        char *joined_uri;
+        if (xrap_id == XRAP_MSG_POST)
+            joined_uri = s_concat (xrap_id, xrap_msg_parent (xrequest));
+        else
+            joined_uri = s_concat (xrap_id, xrap_msg_resource (xrequest));
+
         (void) ztrie_matches (self->offers, joined_uri);
         zrex_t *content_regex = (zrex_t *) ztrie_hit_data (self->offers);
         zstr_free (&joined_uri);
