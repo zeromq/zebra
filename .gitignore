@@ -68,6 +68,15 @@ builds/android/e2fsprogs
 builds/android/zyre
 src/app/jni/output
 
+# CMake cache
+compile_commands.json
+CMakeCache.txt
+CMakeFiles/
+CTestTestfile.cmake
+cmake_install.cmake
+install_manifest.txt
+Testing/
+
 # Temporary files
 *.swp
 *.bak
