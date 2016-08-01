@@ -66,8 +66,8 @@ zeb_curl_client_destroy (zeb_curl_client_t **self_p)
         curl_multi_cleanup (self->multi_handle);
 
         //  Free object itself
-        free (self);
         zstr_free (&self->data);
+        free (self);
         *self_p = NULL;
     }
 }

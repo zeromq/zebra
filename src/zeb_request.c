@@ -26,7 +26,7 @@ struct _zeb_request_t {
     const char *path;
     const char *action;
     const char *version;
-    const char *data;
+    char *data;
     size_t data_size;
     zhash_t *header;
     zhash_t *query;
@@ -69,6 +69,7 @@ zeb_request_destroy (zeb_request_t **self_p)
         zeb_request_t *self = *self_p;
 
         //  Free class properties
+        zstr_free (&self->data);
         zhash_destroy (&self->header);
         zhash_destroy (&self->query);
 
@@ -132,7 +133,7 @@ zeb_request_data (zeb_request_t *self)
 //  Set request data from POST or PUT
 
 void
-zeb_request_set_data (zeb_request_t *self, const char *data, size_t data_size)
+zeb_request_set_data (zeb_request_t *self, char *data, size_t data_size)
 {
     assert (self);
     self->data = data;

@@ -316,6 +316,7 @@ s_append_connection_value (void *cls, enum MHD_ValueKind kind, const char *key, 
         mapping = zeb_request_query (request);
     else
         return MHD_NO;
+
     zhash_insert (mapping, (char *) key, (char *) value);
     return MHD_YES;
 }
@@ -424,13 +425,32 @@ answer_to_connection (void *cls,
     else {
         connection = (zeb_connection_t *) *con_cls;
     }
-    //  DEBUG: debug print of http request
-    /*zeb_request_print (zeb_connection_request (connection));*/
+
+    if (self->verbose)
+        zeb_request_print (zeb_connection_request (connection));
 
     //  Start request processing
     if ((0 == strcmp (method, MHD_HTTP_METHOD_POST) ||
          0 == strcmp (method, MHD_HTTP_METHOD_PUT)) && *uploaded_data_size != 0) {
-            zeb_request_set_data (zeb_connection_request (connection),  uploaded_data, *uploaded_data_size);
+            //  Handle fragments of uploaded data
+            zeb_request_t *request = zeb_connection_request (connection);
+            char *data = (char *) zeb_request_data (zeb_connection_request (connection));
+            if (!data) {
+                data = (char *) zmalloc (*uploaded_data_size + 1);  //  +1 for \0
+                assert (data);
+                //  Copy data fragment to newly allocated data string
+                char *data_p = strncat (data, uploaded_data, *uploaded_data_size);
+                assert (data_p);
+                zeb_request_set_data (request,  data, *uploaded_data_size);
+            }
+            else {
+                data = (char *) realloc (data, zeb_request_data_size (request) * (*uploaded_data_size) + 1); //  +1 for \0
+                assert (data);
+                //  Copy data fragment to re-allocated data string
+                char *data_p = strncat (data, uploaded_data, *uploaded_data_size);
+                assert (data_p);
+                zeb_request_set_data (request, data, zeb_request_data_size (request) + *uploaded_data_size);
+            }
             *uploaded_data_size = 0;
             return MHD_YES;
     }
@@ -800,6 +820,8 @@ zeb_microhttpd_test (bool verbose)
     assert (request);
     xrap_msg = xrap_msg_decode (&request);
     assert (xrap_msg_id (xrap_msg) == XRAP_MSG_POST);
+    assert (streq (xrap_msg_content_type (xrap_msg), "text/plain"));
+    assert (streq (xrap_msg_content_body (xrap_msg), "abc"));
     assert (streq ("/foo/bar", xrap_msg_parent (xrap_msg)));
     xrap_msg_destroy (&xrap_msg);
 
@@ -817,7 +839,7 @@ zeb_microhttpd_test (bool verbose)
     zuuid_destroy (&sender);
 
     //  Give response time to arrive
-    usleep (250);
+    zclock_sleep (250);
 
     zeb_curl_client_verify_response (curl, 201, "Hello World!");
     zeb_curl_client_destroy (&curl);
