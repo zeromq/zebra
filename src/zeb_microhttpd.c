@@ -425,8 +425,9 @@ answer_to_connection (void *cls,
     else {
         connection = (zeb_connection_t *) *con_cls;
     }
-    //  DEBUG: debug print of http request
-    /*zeb_request_print (zeb_connection_request (connection));*/
+
+    if (self->verbose)
+        zeb_request_print (zeb_connection_request (connection));
 
     //  Start request processing
     if ((0 == strcmp (method, MHD_HTTP_METHOD_POST) ||
@@ -819,6 +820,8 @@ zeb_microhttpd_test (bool verbose)
     assert (request);
     xrap_msg = xrap_msg_decode (&request);
     assert (xrap_msg_id (xrap_msg) == XRAP_MSG_POST);
+    assert (streq (xrap_msg_content_type (xrap_msg), "text/plain"));
+    assert (streq (xrap_msg_content_body (xrap_msg), "abc"));
     assert (streq ("/foo/bar", xrap_msg_parent (xrap_msg)));
     xrap_msg_destroy (&xrap_msg);
 
@@ -836,7 +839,7 @@ zeb_microhttpd_test (bool verbose)
     zuuid_destroy (&sender);
 
     //  Give response time to arrive
-    usleep (250);
+    zclock_sleep (250);
 
     zeb_curl_client_verify_response (curl, 201, "Hello World!");
     zeb_curl_client_destroy (&curl);
