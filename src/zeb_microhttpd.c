@@ -316,6 +316,7 @@ s_append_connection_value (void *cls, enum MHD_ValueKind kind, const char *key, 
         mapping = zeb_request_query (request);
     else
         return MHD_NO;
+
     zhash_insert (mapping, (char *) key, (char *) value);
     return MHD_YES;
 }
@@ -430,7 +431,25 @@ answer_to_connection (void *cls,
     //  Start request processing
     if ((0 == strcmp (method, MHD_HTTP_METHOD_POST) ||
          0 == strcmp (method, MHD_HTTP_METHOD_PUT)) && *uploaded_data_size != 0) {
-            zeb_request_set_data (zeb_connection_request (connection),  uploaded_data, *uploaded_data_size);
+            //  Handle fragments of uploaded data
+            zeb_request_t *request = zeb_connection_request (connection);
+            char *data = (char *) zeb_request_data (zeb_connection_request (connection));
+            if (!data) {
+                data = (char *) zmalloc (*uploaded_data_size + 1);  //  +1 for \0
+                assert (data);
+                //  Copy data fragment to newly allocated data string
+                char *data_p = strncat (data, uploaded_data, *uploaded_data_size);
+                assert (data_p);
+                zeb_request_set_data (request,  data, *uploaded_data_size);
+            }
+            else {
+                data = (char *) realloc (data, zeb_request_data_size (request) * (*uploaded_data_size) + 1); //  +1 for \0
+                assert (data);
+                //  Copy data fragment to re-allocated data string
+                char *data_p = strncat (data, uploaded_data, *uploaded_data_size);
+                assert (data_p);
+                zeb_request_set_data (request, data, zeb_request_data_size (request) + *uploaded_data_size);
+            }
             *uploaded_data_size = 0;
             return MHD_YES;
     }

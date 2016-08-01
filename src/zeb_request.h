@@ -53,7 +53,7 @@ ZEBRA_EXPORT const char *
 
 //  Set request data from POST or PUT
 ZEBRA_EXPORT void
-    zeb_request_set_data (zeb_request_t *self, const char *data, size_t data_size);
+    zeb_request_set_data (zeb_request_t *self, char *data, size_t data_size);
 
 //  Get the request's data size, if data NULL then returns 0
 ZEBRA_EXPORT size_t
