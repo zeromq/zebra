@@ -234,8 +234,7 @@ s_send_response (struct MHD_Connection *con, zeb_connection_t *connection, zeb_m
     int status_code = xrap_msg_status_code (response);
     //  Create new http response
     if (XRAP_MSG_GET_OK  == xrap_msg_id (response) ||
-        XRAP_MSG_POST_OK == xrap_msg_id (response) ||
-        XRAP_MSG_PUT_OK  == xrap_msg_id (response)) {
+        XRAP_MSG_POST_OK == xrap_msg_id (response)) {
         const char *content_type = xrap_msg_content_type (response);
         const char *content_body = xrap_msg_content_body (response);
         size_t content_length = strlen (content_body);
@@ -243,6 +242,11 @@ s_send_response (struct MHD_Connection *con, zeb_connection_t *connection, zeb_m
                                                          (void *) content_body,
                                                          MHD_RESPMEM_PERSISTENT);
         MHD_add_response_header (http_response, MHD_HTTP_HEADER_CONTENT_TYPE, content_type);
+        MHD_add_response_header (http_response, MHD_HTTP_HEADER_ETAG, xrap_msg_etag (response));
+    }
+    else
+    if (XRAP_MSG_PUT_OK  == xrap_msg_id (response)) {
+        http_response = MHD_create_response_from_buffer (0, NULL, MHD_RESPMEM_PERSISTENT);
         MHD_add_response_header (http_response, MHD_HTTP_HEADER_ETAG, xrap_msg_etag (response));
     }
     else
@@ -254,7 +258,6 @@ s_send_response (struct MHD_Connection *con, zeb_connection_t *connection, zeb_m
                                                          MHD_RESPMEM_PERSISTENT);
         MHD_add_response_header (http_response, MHD_HTTP_HEADER_CONTENT_TYPE, "text/plain");
     }
-
     else {
         http_response = MHD_create_response_from_buffer (0, NULL, MHD_RESPMEM_PERSISTENT);
     }
