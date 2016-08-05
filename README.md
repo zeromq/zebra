@@ -28,14 +28,14 @@
 *  <a href="#toc4-138">Conditional requests</a>
 
 **<a href="#toc3-143">Usage</a>**
-*  <a href="#toc4-148">zeb_handler - Handler for XRAP requests</a>
-*  <a href="#toc4-585">zeb_microhttpd - Simple HTTP web server</a>
-*  <a href="#toc4-782">zeb_broker - zebra service broker</a>
-*  <a href="#toc4-957">zeb_client - Broker client</a>
+*  <a href="#toc4-148"> - Handler for XRAP requests</a>
+*  <a href="#toc4-582"> - Simple HTTP web server</a>
+*  <a href="#toc4-831"> - zebra service broker</a>
+*  <a href="#toc4-1006"> - Broker client</a>
 
-**<a href="#toc3-1157">Hints to Contributors</a>**
+**<a href="#toc3-1206">Hints to Contributors</a>**
 
-**<a href="#toc3-1166">This Document</a>**
+**<a href="#toc3-1215">This Document</a>**
 
 <A name="toc2-13" title="Overview" />
 ## Overview
@@ -148,8 +148,8 @@ XRAP allows responses to return an ETag header as well as a Last-Modified header
 
 This is the API provided by zebra v0.x, in alphabetical order.
 
-<A name="toc4-148" title="zeb_handler - Handler for XRAP requests" />
-#### zeb_handler - Handler for XRAP requests
+<A name="toc4-148" title=" - Handler for XRAP requests" />
+####  - Handler for XRAP requests
 
 zeb_handler - Handler for XRAP requests
 
@@ -208,21 +208,18 @@ This is the class interface:
         zeb_handler (zsock_t *pipe, void *args);
     
     //  *** Draft method, for development use, may change without warning ***
-    //  Add a new offer this handler will handle. Returns 0 if successful,
-    //  otherwise -1.                                                     
-    //  The content type parameter is optional and is used to             
-    //  filter requests upon their requested (GET) or provided (POST/PUT) 
-    //  content's type. The content type parameter may be a regex. If the 
-    //  request's content type does not match it is automatically rejected
-    //  with the error code 406 (Not acceptable).                         
+    //  Add a new offer this handler will handle. Returns 0 if successful,       
+    //  otherwise -1.                                                            
+    //  The content type parameter is optional and is used to                    
+    //  filter requests upon their requested (GET) or provided (POST/PUT)        
+    //  content's type. The content type parameter may be a regex which is       
+    //  useful for GET offers that can supply resources in different formats.    
+    //  If the client did request multiple content types then the first match    
+    //  will be chosen and applied to the request. All other content types are   
+    //  drooped. If the request's content type does not match it is automatically
+    //  rejected with the error code 406 (Not acceptable).                       
     ZEBRA_EXPORT int
         zeb_handler_add_offer (zactor_t *self, int method, const char *uri, const char *content_type);
-    
-    //  *** Draft method, for development use, may change without warning ***
-    //  Add a new accept type that this handler can deliver. May be a regular
-    //  expression. Returns 0 if successfull, otherwise -1.                  
-    ZEBRA_EXPORT int
-        zeb_handler_add_accept (zactor_t *self, const char *accept);
     
     //  *** Draft method, for development use, may change without warning ***
     //  Self test of this class.
@@ -309,8 +306,8 @@ This is the class self test code:
     xmsg = xrap_msg_decode (&msg);
     assert (xrap_msg_id (xmsg) == XRAP_MSG_GET);
     assert (streq (xrap_msg_resource (xmsg), "/dummy"));
-    assert (streq (xrap_msg_content_type (xmsg),
-                "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"));
+    //  zeb_handler choose the first matching accept type
+    assert (streq (xrap_msg_content_type (xmsg), "application/xml"));
     xrap_msg_destroy (&xmsg);
     sender = zeb_client_sender (client);
     zuuid_destroy (&sender);
@@ -585,8 +582,8 @@ This is the class self test code:
     //  Done, shut down
     zactor_destroy (&server);
 
-<A name="toc4-585" title="zeb_microhttpd - Simple HTTP web server" />
-#### zeb_microhttpd - Simple HTTP web server
+<A name="toc4-582" title=" - Simple HTTP web server" />
+####  - Simple HTTP web server
 
 Simple HTTP webserver implementation using the libmicrohttpd library.
 Incomming HTTP request are converted to XRAP and send to the broker.
@@ -667,7 +664,8 @@ This is the class interface:
 
 This is the class self test code:
 
-    //  Simple create/destroy test
+    //  Start and configure http server and broker
+    //  ------------------------------------------
     zactor_t *zeb_microhttpd = zactor_new (zeb_microhttpd_actor, NULL);
     
     zstr_send (zeb_microhttpd, "START");
@@ -692,7 +690,8 @@ This is the class self test code:
         zstr_send (broker, "VERBOSE");
     zstr_sendx (broker, "BIND", "inproc://http_broker", NULL);
     
-    //  Create handler
+    //  Create a XRAP hander and connect it to broker
+    //  ---------------------------------------------
     zeb_client_t *handler = zeb_client_new ();
     assert (handler);
     
@@ -704,6 +703,9 @@ This is the class self test code:
     //  Provide GET Offering
     rc = zeb_client_set_handler (handler, "GET", "/foo/{[^/]}");
     assert (rc == 0);
+    
+    //  Simple GET example
+    //  ------------------
     
     //  Send GET Request
     zeb_curl_client_t *curl = zeb_curl_client_new ();
@@ -731,6 +733,9 @@ This is the class self test code:
     zeb_curl_client_verify_response (curl, 200, "Hello World!");
     zeb_curl_client_destroy (&curl);
     
+    //  Simple GET not found example
+    //  ----------------------------
+    
     //  Send GET Request 2
     curl = zeb_curl_client_new ();
     zeb_curl_client_send_get (curl, "http://localhost:8081/foo/bar/baz");
@@ -738,6 +743,9 @@ This is the class self test code:
     //  Receive GET Response 2
     zeb_curl_client_verify_response (curl, 404, PAGE_NOT_FOUND);
     zeb_curl_client_destroy (&curl);
+    
+    //  Simple POST example
+    //  -------------------
     
     //  Provide POST Offering
     rc = zeb_client_set_handler (handler, "POST", "/foo/{[^/]}");
@@ -751,6 +759,8 @@ This is the class self test code:
     assert (request);
     xrap_msg = xrap_msg_decode (&request);
     assert (xrap_msg_id (xrap_msg) == XRAP_MSG_POST);
+    assert (streq (xrap_msg_content_type (xrap_msg), "text/plain"));
+    assert (streq (xrap_msg_content_body (xrap_msg), "abc"));
     assert (streq ("/foo/bar", xrap_msg_parent (xrap_msg)));
     xrap_msg_destroy (&xrap_msg);
     
@@ -768,11 +778,50 @@ This is the class self test code:
     zuuid_destroy (&sender);
     
     //  Give response time to arrive
-    usleep (250);
+    zclock_sleep (250);
     
     zeb_curl_client_verify_response (curl, 201, "Hello World!");
     zeb_curl_client_destroy (&curl);
     
+    //  Simple PUT example
+    //  ------------------
+    
+    //  Provide PUT Offering
+    rc = zeb_client_set_handler (handler, "PUT", "/foo/{[^/]}");
+    assert (rc == 0);
+    
+    curl = zeb_curl_client_new ();
+    zeb_curl_client_send_put (curl, "http://localhost:8081/foo/bar", "abc");
+    
+    //  Receive Request
+    request = zeb_client_recv (handler);
+    assert (request);
+    xrap_msg = xrap_msg_decode (&request);
+    assert (xrap_msg_id (xrap_msg) == XRAP_MSG_PUT);
+    assert (streq (xrap_msg_content_type (xrap_msg), "text/plain"));
+    assert (streq (xrap_msg_content_body (xrap_msg), "abc"));
+    assert (streq ("/foo/bar", xrap_msg_resource (xrap_msg)));
+    xrap_msg_destroy (&xrap_msg);
+    
+    //  Send Response
+    xrap_msg = xrap_msg_new (XRAP_MSG_POST_OK);
+    xrap_msg_set_status_code (xrap_msg, 200);
+    xrap_msg_set_location (xrap_msg, "/foo/bar");
+    xrap_msg_set_etag (xrap_msg, "a3fsd3");
+    xrap_msg_set_date_modified (xrap_msg, 0);
+    response = xrap_msg_encode (&xrap_msg);
+    zeb_client_deliver (handler, zeb_client_sender (handler), &response);
+    sender = zeb_client_sender (handler);
+    zuuid_destroy (&sender);
+    
+    //  Give response time to arrive
+    zclock_sleep (250);
+    
+    zeb_curl_client_verify_response (curl, 200, NULL);
+    zeb_curl_client_destroy (&curl);
+    
+    //  Cleanup
+    //  -------
     zeb_client_destroy (&handler);
     zactor_destroy (&broker);
     
@@ -782,8 +831,8 @@ This is the class self test code:
     
     zactor_destroy (&zeb_microhttpd);
 
-<A name="toc4-782" title="zeb_broker - zebra service broker" />
-#### zeb_broker - zebra service broker
+<A name="toc4-831" title=" - zebra service broker" />
+####  - zebra service broker
 
 The zeb_broker implements the zproto server. This broker connects
 client requests to handler offers.
@@ -957,8 +1006,8 @@ This is the class self test code:
     zsock_destroy (&worker);
     zactor_destroy (&server);
 
-<A name="toc4-957" title="zeb_client - Broker client" />
-#### zeb_client - Broker client
+<A name="toc4-1006" title=" - Broker client" />
+####  - Broker client
 
 Client implementation to communicate with the broker. This
 implementation is used by both clients (i.e. zeb_microhttpd) and the
@@ -1157,7 +1206,7 @@ This is the class self test code:
     zactor_destroy (&server);
 
 
-<A name="toc3-1157" title="Hints to Contributors" />
+<A name="toc3-1206" title="Hints to Contributors" />
 ### Hints to Contributors
 
 Read the CLASS style guide please, and write your code to make it indistinguishable from the rest of the code in the library. That is the only real criteria for good style: it's invisible.
@@ -1166,7 +1215,7 @@ Do read your code after you write it and ask, "Can I make this simpler?" We do u
 
 Before opening a pull request read our [contribution guidelines](https://github.com/zeromq/zebra/blob/master/CONTRIBUTING.md). Thanks!
 
-<A name="toc3-1166" title="This Document" />
+<A name="toc3-1215" title="This Document" />
 ### This Document
 
 _This documentation was generated from zebra/README.txt using [Gitdown](https://github.com/zeromq/gitdown)_

@@ -57,16 +57,16 @@ This is the class interface:
         zeb_handler (zsock_t *pipe, void *args);
     
     //  *** Draft method, for development use, may change without warning ***
-    //  Add a new offer this handler will handle. Returns 0 if successful,      
-    //  otherwise -1.                                                           
-    //  The content type parameter is optional and is used to                   
-    //  filter requests upon their requested (GET) or provided (POST/PUT)       
-    //  content's type. The content type parameter may be a regex which is      
-    //  useful for GET offers that can suplly ressources in different formats.  
-    //  If the client did request multiple content types then the first match   
-    //  will be choosen and applied to the request. All other content types are 
-    //  droped. If the request's content type does not match it is automatically
-    //  rejected with the error code 406 (Not acceptable).                      
+    //  Add a new offer this handler will handle. Returns 0 if successful,       
+    //  otherwise -1.                                                            
+    //  The content type parameter is optional and is used to                    
+    //  filter requests upon their requested (GET) or provided (POST/PUT)        
+    //  content's type. The content type parameter may be a regex which is       
+    //  useful for GET offers that can supply resources in different formats.    
+    //  If the client did request multiple content types then the first match    
+    //  will be chosen and applied to the request. All other content types are   
+    //  drooped. If the request's content type does not match it is automatically
+    //  rejected with the error code 406 (Not acceptable).                       
     ZEBRA_EXPORT int
         zeb_handler_add_offer (zactor_t *self, int method, const char *uri, const char *content_type);
     
