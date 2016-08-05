@@ -4,15 +4,15 @@
     script = "zproject.gsl"
     email = "zeromq-dev@lists.zeromq.org"
     url = "https://github.com/zeromq/zebra"
+    repository = "https://github.com/zeromq/zebra"
     >
 
     <include filename = "license.xml" />
     <version major = "0" minor = "2" patch = "0" />
     <use project = "czmq" min_major= "3" min_minor = "0" min_patch = "0" />
-    <use project = "libmicrohttpd" prefix = "microhttpd"
+    <use project = "libmicrohttpd" prefix = "microhttpd" repository = ""
          tarball = "http://ftp.gnu.org/gnu/libmicrohttpd/libmicrohttpd-0.9.48.tar.gz" test = "MHD_start_daemon" />
-    <use project = "libcurl" min_major= "7" min_minor = "7" min_patch = "0" optional = "1" implied = "1" />
-    <use project = "libsodium" min_major= "1" min_minor = "0" min_patch = "0" optional = "1" implied = "1" />
+    <use project = "libcurl" min_major= "7" min_minor = "7" min_patch = "0" optional = "1" repository = "https://github.com/curl/curl" />
     <target name = "*" />
 
     <!-- These classes have an API model -->
@@ -27,6 +27,7 @@
     <class name = "zeb_request" private = "1">Representation of a HTTP request.</class>
     <class name = "zeb_response" private = "1">Representation of a HTTP response.</class>
     <class name = "zeb_connection" private = "1">Wrapper for zeb_request and zeb_response.</class>
+    <class name = "zeb_curl_client" private = "1">Curl client to test the http server</class>
 
     <!-- Models that we build using GSL -->
     <model name = "xrap_msg" />

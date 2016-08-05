@@ -27,6 +27,7 @@
 #include "zeb_request.h"
 #include "zeb_response.h"
 #include "zeb_connection.h"
+#include "zeb_curl_client.h"
 
 //  *** To avoid double-definitions, only define if building without draft ***
 #ifndef ZEBRA_BUILD_DRAFT_API
@@ -45,6 +46,11 @@ ZEBRA_EXPORT void
 //  Self test of this class.
 ZEBRA_EXPORT void
     zeb_connection_test (bool verbose);
+
+//  *** Draft method, defined for internal use only ***
+//  Self test of this class.
+ZEBRA_EXPORT void
+    zeb_curl_client_test (bool verbose);
 
 #endif // ZEBRA_BUILD_DRAFT_API
 

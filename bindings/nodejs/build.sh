@@ -58,6 +58,16 @@ if [ ! -f czmq/builds/gyp/project.gyp ]; then
     exit
 fi
 
+#   Check dependent projects
+if [ ! -d libmicrohttpd ]; then
+    echo "I:    cloning  into `pwd`/libmicrohttpd..."
+    git clone $QUIET 
+fi
+if [ ! -f libmicrohttpd/builds/gyp/project.gyp ]; then
+    echo "E:    `pwd`/libmicrohttpd out of date (builds/gyp/project.gyp missing)"
+    exit
+fi
+
 
 #   Check Node.js dependencies
 cd $BUILD_ROOT

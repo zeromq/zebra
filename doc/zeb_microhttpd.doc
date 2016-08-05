@@ -1,4 +1,4 @@
-####  - Simple HTTP web server
+#### zeb_microhttpd - Simple HTTP web server
 
 Simple HTTP webserver implementation using the libmicrohttpd library.
 Incomming HTTP request are converted to XRAP and send to the broker.
@@ -8,6 +8,7 @@ Please add @discuss section in ../src/zeb_microhttpd.c.
 
 This is the class interface:
 
+```h
     //  Create new zeb_microhttpd actor instance. It will start a HTTP webserver
     //  and convert incomming request from HTTP to XRAP.
     //
@@ -76,9 +77,11 @@ This is the class interface:
     //  Self test of this actor
     ZEBRA_EXPORT void
         zeb_microhttpd_test (bool verbose);
+```
 
 This is the class self test code:
 
+```c
     //  Start and configure http server and broker
     //  ------------------------------------------
     zactor_t *zeb_microhttpd = zactor_new (zeb_microhttpd_actor, NULL);
@@ -245,4 +248,5 @@ This is the class self test code:
     assert (rc == 0);
     
     zactor_destroy (&zeb_microhttpd);
+```
 

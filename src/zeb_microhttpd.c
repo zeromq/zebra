@@ -21,9 +21,6 @@
 
 #include "platform.h"
 #include "zebra_classes.h"
-#if defined (HAVE_LIBCURL)
-#include "zeb_curl_client.c"
-#endif
 
 #define X_RATELIMIT_LIMIT 10
 #define X_RATELIMIT_INTERVAL 60000

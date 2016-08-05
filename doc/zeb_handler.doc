@@ -1,4 +1,4 @@
-####  - Handler for XRAP requests
+#### zeb_handler - Handler for XRAP requests
 
 zeb_handler - Handler for XRAP requests
 
@@ -6,6 +6,7 @@ Please add @discuss section in ../src/zeb_handler.c.
 
 This is the class interface:
 
+```h
     //  This API is a draft, and may change without notice.
     #ifdef ZEBRA_BUILD_DRAFT_API
     //  To work with zeb_handler, use the CZMQ zactor API:                      
@@ -76,9 +77,11 @@ This is the class interface:
         zeb_handler_test (bool verbose);
     
     #endif // ZEBRA_BUILD_DRAFT_API
+```
 
 This is the class self test code:
 
+```c
     //  Simple create/destroy test
     
     //  Start a server to test against, and bind to endpoint
@@ -430,4 +433,5 @@ This is the class self test code:
     
     //  Done, shut down
     zactor_destroy (&server);
+```
 

@@ -14,10 +14,9 @@ AM_CPPFLAGS = \
     ${czmq_CFLAGS} \
     ${libmicrohttpd_CFLAGS} \
     ${libcurl_CFLAGS} \
-    ${libsodium_CFLAGS} \
     -I$(srcdir)/include
 
-project_libs = ${libzmq_LIBS} ${czmq_LIBS} ${libmicrohttpd_LIBS} ${libcurl_LIBS} ${libsodium_LIBS}
+project_libs = ${libzmq_LIBS} ${czmq_LIBS} ${libmicrohttpd_LIBS} ${libcurl_LIBS}
 
 SUBDIRS = doc
 DIST_SUBDIRS = doc
@@ -34,13 +33,13 @@ EXTRA_DIST = \
     Findczmq.cmake \
     Findlibmicrohttpd.cmake \
     Findlibcurl.cmake \
-    Findlibsodium.cmake \
     src/zeb_broker_engine.inc \
     src/zeb_client_engine.inc \
     src/zeb_client.cfg \
     src/zeb_request.h \
     src/zeb_response.h \
     src/zeb_connection.h \
+    src/zeb_curl_client.h \
     LICENSE \
     README.txt \
     README.md \

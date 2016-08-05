@@ -191,21 +191,6 @@ if test "x$was_libcurl_check_lib_detected" = "xno"; then
     LIBS="${libcurl_LIBS} ${LIBS}"
 fi
 
-was_libsodium_check_lib_detected=no
-
-PKG_CHECK_MODULES([libsodium], [libsodium >= 1.0.0],
-    [
-        AC_DEFINE(HAVE_LIBSODIUM, 1, [The libsodium library is to be used])
-    ],
-    [
-        AC_MSG_WARN([Cannot find libsodium 1.0.0 or higher])
-    ])
-
-if test "x$was_libsodium_check_lib_detected" = "xno"; then
-    CFLAGS="${libsodium_CFLAGS} ${CFLAGS}"
-    LIBS="${libsodium_LIBS} ${LIBS}"
-fi
-
 CFLAGS="${PREVIOUS_CFLAGS}"
 LIBS="${PREVIOUS_LIBS}"
 

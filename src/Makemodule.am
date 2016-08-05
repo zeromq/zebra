@@ -30,6 +30,7 @@ src_libzebra_la_SOURCES = \
     src/zeb_request.c \
     src/zeb_response.c \
     src/zeb_connection.c \
+    src/zeb_curl_client.c \
     src/zeb_broker_engine.inc \
     src/zeb_client_engine.inc \
     src/zeb_client.cfg \

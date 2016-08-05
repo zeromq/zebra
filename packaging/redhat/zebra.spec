@@ -17,18 +17,21 @@ License:        MIT
 URL:            https://github.com/zeromq/zebra
 Source0:        %{name}-%{version}.tar.gz
 Group:          System/Libraries
+# Note: ghostscript is required by graphviz which is required by
+#       asciidoc. On Fedora 24 the ghostscript dependencies cannot
+#       be resolved automatically. Thus add working dependency here!
+BuildRequires:  ghostscript
 BuildRequires:  asciidoc
 BuildRequires:  automake
 BuildRequires:  autoconf
 BuildRequires:  libtool
-BuildRequires:  pkg-config
+BuildRequires:  pkgconfig
 BuildRequires:  systemd-devel
 BuildRequires:  xmlto
 BuildRequires:  zeromq-devel
 BuildRequires:  czmq-devel
 BuildRequires:  libmicrohttpd-devel
 BuildRequires:  libcurl-devel
-BuildRequires:  libsodium-devel
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 
 %description
@@ -57,7 +60,6 @@ Requires:       zeromq-devel
 Requires:       czmq-devel
 Requires:       libmicrohttpd-devel
 Requires:       libcurl-devel
-Requires:       libsodium-devel
 
 %description devel
 zebra translates rest http-request into the xrap protocol..
@@ -70,6 +72,8 @@ This package contains development files.
 %{_libdir}/pkgconfig/libzebra.pc
 %{_mandir}/man3/*
 %{_mandir}/man7/*
+%{_datadir}/zproject/
+%{_datadir}/zproject/zebra/
 
 %prep
 %setup -q

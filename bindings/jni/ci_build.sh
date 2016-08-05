@@ -59,8 +59,8 @@ make install
 ( cd bindings/jni && TERM=dumb PKG_CONFIG_PATH=$BUILD_PREFIX/lib/pkgconfig ./gradlew publishToMavenLocal )
 cd ..
 
-git clone --quiet --depth 1 https://github.com/bagder/curl libcurl
-cd libcurl
+git clone --quiet --depth 1  libmicrohttpd
+cd libmicrohttpd
 git --no-pager log --oneline -n1
 if [ -e autogen.sh ]; then
     ./autogen.sh 2> /dev/null
@@ -73,8 +73,8 @@ make -j4
 make install
 cd ..
 
-git clone --quiet --depth 1 -b stable https://github.com/jedisct1/libsodium libsodium
-cd libsodium
+git clone --quiet --depth 1 https://github.com/curl/curl libcurl
+cd libcurl
 git --no-pager log --oneline -n1
 if [ -e autogen.sh ]; then
     ./autogen.sh 2> /dev/null

@@ -4,6 +4,7 @@ set -ex
 cd $REPO_DIR/..
 git clone --quiet --depth 1 https://github.com/zeromq/libzmq libzmq
 git clone --quiet --depth 1 https://github.com/zeromq/czmq czmq
+git clone --quiet --depth 1  libmicrohttpd
 cd -
 
 cd $REPO_DIR/..

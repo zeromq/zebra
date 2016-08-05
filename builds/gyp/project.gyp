@@ -69,6 +69,8 @@
         '../../include/zeb_client.h',
         '../../src/zeb_connection.c',
         '../../src/zeb_connection.h',
+        '../../src/zeb_curl_client.c',
+        '../../src/zeb_curl_client.h',
         '../../src/zeb_handler.c',
         '../../include/zeb_handler.h',
         '../../src/zeb_microhttpd.c',

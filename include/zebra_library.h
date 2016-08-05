@@ -23,6 +23,9 @@
 //  External dependencies
 #include <czmq.h>
 #include <microhttpd.h>
+#if defined (HAVE_LIBCURL)
+#include <curl/curl.h>
+#endif
 
 //  ZEBRA version macros for compile-time API detection
 #define ZEBRA_VERSION_MAJOR 0
