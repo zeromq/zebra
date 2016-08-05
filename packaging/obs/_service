@@ -1,0 +1,71 @@
+<services>
+  <service name="tar_scm">
+    <param name="url">https://github.com/zeromq/zebra</param>
+    <param name="scm">git</param>
+    <!--<param name="version">git</param>-->
+    <!-- extract redhat packaging -->
+    <param name="extract">packaging/redhat/zebra.spec</param>
+    <param name="changesgenerate">enable</param>
+  </service>
+
+  <!-- extract debian packaging -->
+  <service name="extract_file">
+    <param name="archive">*.tar</param>
+    <param name="files">*/packaging/debian/zebra.dsc.obs</param>
+    <param name="outfilename">zebra.dsc</param>
+  </service>
+  <service name="extract_file">
+    <param name="archive">*.tar</param>
+  	<param name="files">*/packaging/debian/changelog</param>
+    <param name="outfilename">debian.changelog</param>
+  </service>
+  <service name="extract_file">
+    <param name="archive">*.tar</param>
+    <param name="files">*/packaging/debian/compat</param>
+    <param name="outfilename">debian.compat</param>
+  </service>
+  <service name="extract_file">
+    <param name="archive">*.tar</param>
+    <param name="files">*/packaging/debian/control</param>
+    <param name="outfilename">debian.control</param>
+  </service>
+  <service name="extract_file">
+    <param name="archive">*.tar</param>
+    <param name="files">*/packaging/debian/copyright</param>
+    <param name="outfilename">debian.copyright</param>
+  </service>
+  <service name="extract_file">
+    <param name="archive">*.tar</param>
+    <param name="files">*/packaging/debian/zebra.install</param>
+    <param name="outfilename">debian.zebra.install</param>
+  </service>
+  <service name="extract_file">
+    <param name="archive">*.tar</param>
+    <param name="files">*/packaging/debian/format</param>
+    <param name="outfilename">debian.format</param>
+  </service>
+  <service name="extract_file">
+    <param name="archive">*.tar</param>
+    <param name="files">*/packaging/debian/libzebra0.install</param>
+    <param name="outfilename">debian.libzebra0.install</param>
+  </service>
+  <service name="extract_file">
+    <param name="archive">*.tar</param>
+    <param name="files">*/packaging/debian/libzebra-dev.install</param>
+    <param name="outfilename">debian.libzebra-dev.install</param>
+  </service>
+  <service name="extract_file">
+    <param name="archive">*.tar</param>
+    <param name="files">*/packaging/debian/rules</param>
+    <param name="outfilename">debian.rules</param>
+  </service>
+
+  <service name="recompress" mode="buildtime">
+    <param name="file">zebra-*.tar</param>
+    <param name="compression">gz</param>
+  </service>
+
+  <service name="set_version" mode="buildtime">
+    <param name="basename">zebra</param>
+  </service>
+</services>
