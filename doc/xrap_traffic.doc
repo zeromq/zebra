@@ -1,4 +1,4 @@
-####  - zebra protocol
+#### xrap_traffic - zebra protocol
 
 xrap_traffic - zebra protocol
 
@@ -6,6 +6,7 @@ Please add @discuss section in ../src/xrap_traffic.c.
 
 This is the class interface:
 
+```h
     //  This API is a draft, and may change without notice.
     #ifdef ZEBRA_BUILD_DRAFT_API
     #define XRAP_TRAFFIC_SUCCESS 200            // 
@@ -184,9 +185,11 @@ This is the class interface:
         xrap_traffic_test (bool verbose);
     
     #endif // ZEBRA_BUILD_DRAFT_API
+```
 
 This is the class self test code:
 
+```c
     //  Simple create/destroy test
     xrap_traffic_t *self = xrap_traffic_new ();
     assert (self);
@@ -354,4 +357,5 @@ This is the class self test code:
     xrap_traffic_destroy (&self);
     zsock_destroy (&input);
     zsock_destroy (&output);
+```
 

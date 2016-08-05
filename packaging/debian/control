@@ -16,11 +16,10 @@ Standards-Version: 3.9.7
 Build-Depends: debhelper (>= 9),
     pkg-config,
     dh-autoreconf,
-    libzmq5-dev,
+    libzmq3-dev,
     libczmq-dev,
     libmicrohttpd-dev,
     libcurl-dev,
-    libsodium-dev,
     dh-autoreconf,
     systemd,
     dh-systemd
@@ -37,11 +36,10 @@ Package: libzebra-dev
 Architecture: any
 Section: libdevel
 Depends:
-    libzmq5-dev,
+    libzmq3-dev,
     libczmq-dev,
     libmicrohttpd-dev,
     libcurl-dev,
-    libsodium-dev,
     libzebra0 (= ${binary:Version})
 Description: development files for zebra
  This package contains development files for zebra: translates rest http-request into the xrap protocol.

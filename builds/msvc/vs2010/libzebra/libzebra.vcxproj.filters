@@ -34,6 +34,9 @@
     <ClCompile Include="..\..\..\..\src\zeb_connection.c">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\src\zeb_curl_client.c">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\include\zebra_library.h">

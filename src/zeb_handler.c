@@ -245,35 +245,37 @@ s_handler_recv_client (s_handler_t *self)
     }
 
     {   // Jump scoping needed for c++
-        //  Check if content type is valid
-        char *joined_uri;
-        if (xrap_id == XRAP_MSG_POST)
-            joined_uri = s_concat (xrap_id, xrap_msg_parent (xrequest));
-        else
-            joined_uri = s_concat (xrap_id, xrap_msg_resource (xrequest));
+        //  Check if content type is valid. DELETE has not content type!
+        if (! (xrap_id == XRAP_MSG_DELETE)) {
+            char *joined_uri;
+            if (xrap_id == XRAP_MSG_POST)
+                joined_uri = s_concat (xrap_id, xrap_msg_parent (xrequest));
+            else
+                joined_uri = s_concat (xrap_id, xrap_msg_resource (xrequest));
 
-        (void) ztrie_matches (self->offers, joined_uri);
-        zrex_t *content_regex = (zrex_t *) ztrie_hit_data (self->offers);
-        zstr_free (&joined_uri);
-        //  Proceed if a regex has been provided
-        if (content_regex) {
-            const char *content_type = xrap_msg_content_type (xrequest);
-            char *accepted_content_type = NULL;
-            if (content_type && strlen (content_type))
-                accepted_content_type = s_handler_check_content_type (content_regex, content_type);
+            (void) ztrie_matches (self->offers, joined_uri);
+            zrex_t *content_regex = (zrex_t *) ztrie_hit_data (self->offers);
+            zstr_free (&joined_uri);
+            //  Proceed if a regex has been provided
+            if (content_regex) {
+                const char *content_type = xrap_msg_content_type (xrequest);
+                char *accepted_content_type = NULL;
+                if (content_type && strlen (content_type))
+                    accepted_content_type = s_handler_check_content_type (content_regex, content_type);
 
-            if (accepted_content_type) {
-                //  Apply the excepted content type back to the request
-                xrap_msg_set_content_type (xrequest, "%s", accepted_content_type);
-                zstr_free (&accepted_content_type);
-            }
-            else {
-                xrap_msg_t *xresponse = xrap_msg_new (XRAP_MSG_ERROR);
-                xrap_msg_set_status_code (xresponse, XRAP_TRAFFIC_NOT_ACCEPTABLE);
-                xrap_msg_set_status_text (xresponse, "Ressource accept format is not valid!");
-                zmsg_t *response = xrap_msg_encode (&xresponse);
-                zeb_client_deliver (self->client, zeb_client_sender (self->client), &response);
-                goto cleanup;
+                if (accepted_content_type) {
+                    //  Apply the excepted content type back to the request
+                    xrap_msg_set_content_type (xrequest, "%s", accepted_content_type);
+                    zstr_free (&accepted_content_type);
+                }
+                else {
+                    xrap_msg_t *xresponse = xrap_msg_new (XRAP_MSG_ERROR);
+                    xrap_msg_set_status_code (xresponse, XRAP_TRAFFIC_NOT_ACCEPTABLE);
+                    xrap_msg_set_status_text (xresponse, "Ressource accept format is not valid!");
+                    zmsg_t *response = xrap_msg_encode (&xresponse);
+                    zeb_client_deliver (self->client, zeb_client_sender (self->client), &response);
+                    goto cleanup;
+                }
             }
         }
     }

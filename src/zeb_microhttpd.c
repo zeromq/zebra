@@ -21,9 +21,6 @@
 
 #include "platform.h"
 #include "zebra_classes.h"
-#if defined (HAVE_LIBCURL)
-#include "zeb_curl_client.c"
-#endif
 
 #define X_RATELIMIT_LIMIT 10
 #define X_RATELIMIT_INTERVAL 60000
@@ -234,8 +231,7 @@ s_send_response (struct MHD_Connection *con, zeb_connection_t *connection, zeb_m
     int status_code = xrap_msg_status_code (response);
     //  Create new http response
     if (XRAP_MSG_GET_OK  == xrap_msg_id (response) ||
-        XRAP_MSG_POST_OK == xrap_msg_id (response) ||
-        XRAP_MSG_PUT_OK  == xrap_msg_id (response)) {
+        XRAP_MSG_POST_OK == xrap_msg_id (response)) {
         const char *content_type = xrap_msg_content_type (response);
         const char *content_body = xrap_msg_content_body (response);
         size_t content_length = strlen (content_body);
@@ -243,6 +239,11 @@ s_send_response (struct MHD_Connection *con, zeb_connection_t *connection, zeb_m
                                                          (void *) content_body,
                                                          MHD_RESPMEM_PERSISTENT);
         MHD_add_response_header (http_response, MHD_HTTP_HEADER_CONTENT_TYPE, content_type);
+        MHD_add_response_header (http_response, MHD_HTTP_HEADER_ETAG, xrap_msg_etag (response));
+    }
+    else
+    if (XRAP_MSG_PUT_OK  == xrap_msg_id (response)) {
+        http_response = MHD_create_response_from_buffer (0, NULL, MHD_RESPMEM_PERSISTENT);
         MHD_add_response_header (http_response, MHD_HTTP_HEADER_ETAG, xrap_msg_etag (response));
     }
     else
@@ -254,7 +255,6 @@ s_send_response (struct MHD_Connection *con, zeb_connection_t *connection, zeb_m
                                                          MHD_RESPMEM_PERSISTENT);
         MHD_add_response_header (http_response, MHD_HTTP_HEADER_CONTENT_TYPE, "text/plain");
     }
-
     else {
         http_response = MHD_create_response_from_buffer (0, NULL, MHD_RESPMEM_PERSISTENT);
     }
@@ -736,7 +736,8 @@ zeb_microhttpd_test (bool verbose)
 #if defined (HAVE_LIBCURL)
     int rc = 0;
     //  @selftest
-    //  Simple create/destroy test
+    //  Start and configure http server and broker
+    //  ------------------------------------------
     zactor_t *zeb_microhttpd = zactor_new (zeb_microhttpd_actor, NULL);
 
     zstr_send (zeb_microhttpd, "START");
@@ -747,7 +748,7 @@ zeb_microhttpd_test (bool verbose)
     rc = zsock_wait (zeb_microhttpd);             //  Wait until port is configured
     assert (rc == 0);
 
-    zstr_sendx (zeb_microhttpd, "RATELIMIT", "3", "10000", NULL);
+    zstr_sendx (zeb_microhttpd, "RATELIMIT", "5", "10000", NULL);
     rc = zsock_wait (zeb_microhttpd);             //  Wait until port is configured
     assert (rc == 0);
 
@@ -761,7 +762,8 @@ zeb_microhttpd_test (bool verbose)
         zstr_send (broker, "VERBOSE");
     zstr_sendx (broker, "BIND", "inproc://http_broker", NULL);
 
-    //  Create handler
+    //  Create a XRAP hander and connect it to broker
+    //  ---------------------------------------------
     zeb_client_t *handler = zeb_client_new ();
     assert (handler);
 
@@ -773,6 +775,9 @@ zeb_microhttpd_test (bool verbose)
     //  Provide GET Offering
     rc = zeb_client_set_handler (handler, "GET", "/foo/{[^/]}");
     assert (rc == 0);
+
+    //  Simple GET example
+    //  ------------------
 
     //  Send GET Request
     zeb_curl_client_t *curl = zeb_curl_client_new ();
@@ -800,6 +805,9 @@ zeb_microhttpd_test (bool verbose)
     zeb_curl_client_verify_response (curl, 200, "Hello World!");
     zeb_curl_client_destroy (&curl);
 
+    //  Simple GET not found example
+    //  ----------------------------
+
     //  Send GET Request 2
     curl = zeb_curl_client_new ();
     zeb_curl_client_send_get (curl, "http://localhost:8081/foo/bar/baz");
@@ -807,6 +815,9 @@ zeb_microhttpd_test (bool verbose)
     //  Receive GET Response 2
     zeb_curl_client_verify_response (curl, 404, PAGE_NOT_FOUND);
     zeb_curl_client_destroy (&curl);
+
+    //  Simple POST example
+    //  -------------------
 
     //  Provide POST Offering
     rc = zeb_client_set_handler (handler, "POST", "/foo/{[^/]}");
@@ -844,6 +855,77 @@ zeb_microhttpd_test (bool verbose)
     zeb_curl_client_verify_response (curl, 201, "Hello World!");
     zeb_curl_client_destroy (&curl);
 
+    //  Simple PUT example
+    //  ------------------
+
+    //  Provide PUT Offering
+    rc = zeb_client_set_handler (handler, "PUT", "/foo/{[^/]}");
+    assert (rc == 0);
+
+    curl = zeb_curl_client_new ();
+    zeb_curl_client_send_put (curl, "http://localhost:8081/foo/bar", "abc");
+
+    //  Receive Request
+    request = zeb_client_recv (handler);
+    assert (request);
+    xrap_msg = xrap_msg_decode (&request);
+    assert (xrap_msg_id (xrap_msg) == XRAP_MSG_PUT);
+    assert (streq (xrap_msg_content_type (xrap_msg), "text/plain"));
+    assert (streq (xrap_msg_content_body (xrap_msg), "abc"));
+    assert (streq ("/foo/bar", xrap_msg_resource (xrap_msg)));
+    xrap_msg_destroy (&xrap_msg);
+
+    //  Send Response
+    xrap_msg = xrap_msg_new (XRAP_MSG_POST_OK);
+    xrap_msg_set_status_code (xrap_msg, 200);
+    xrap_msg_set_location (xrap_msg, "/foo/bar");
+    xrap_msg_set_etag (xrap_msg, "a3fsd3");
+    xrap_msg_set_date_modified (xrap_msg, 0);
+    response = xrap_msg_encode (&xrap_msg);
+    zeb_client_deliver (handler, zeb_client_sender (handler), &response);
+    sender = zeb_client_sender (handler);
+    zuuid_destroy (&sender);
+
+    //  Give response time to arrive
+    zclock_sleep (250);
+
+    zeb_curl_client_verify_response (curl, 200, NULL);
+    zeb_curl_client_destroy (&curl);
+
+    //  Simple DELETE example
+    //  ------------------
+
+    //  Provide DELETE Offering
+    rc = zeb_client_set_handler (handler, "DELETE", "/foo/{[^/]}");
+    assert (rc == 0);
+
+    curl = zeb_curl_client_new ();
+    zeb_curl_client_send_delete (curl, "http://localhost:8081/foo/bar");
+
+    //  Receive Request
+    request = zeb_client_recv (handler);
+    assert (request);
+    xrap_msg = xrap_msg_decode (&request);
+    assert (xrap_msg_id (xrap_msg) == XRAP_MSG_DELETE);
+
+    //  Send Response
+    xrap_msg = xrap_msg_new (XRAP_MSG_DELETE_OK);
+    xrap_msg_set_status_code (xrap_msg, 200);
+    xrap_msg_set_etag (xrap_msg, "a3fsd3");
+    xrap_msg_set_date_modified (xrap_msg, 0);
+    response = xrap_msg_encode (&xrap_msg);
+    zeb_client_deliver (handler, zeb_client_sender (handler), &response);
+    sender = zeb_client_sender (handler);
+    zuuid_destroy (&sender);
+
+    //  Give response time to arrive
+    zclock_sleep (250);
+
+    zeb_curl_client_verify_response (curl, 200, NULL);
+    zeb_curl_client_destroy (&curl);
+
+    //  Cleanup
+    //  -------
     zeb_client_destroy (&handler);
     zactor_destroy (&broker);
 

@@ -44,6 +44,7 @@ IF EXIST "..\..\..\..\libmicrohttpd\builds/msvc/vs2010\libmicrohttpd.import.prop
     IF errorlevel 1 GOTO error
 ) ELSE (
     ECHO Did not find libmicrohttpd, aborting.
+    ECHO Please clone from , and then build.
     GOTO error
 )
 IF EXIST "..\..\..\..\libcurl\builds/msvc/vs2010\libcurl.import.props" (
@@ -53,14 +54,6 @@ IF EXIST "..\..\..\..\libcurl\builds/msvc/vs2010\libcurl.import.props" (
     ECHO Building with libcurl
 ) ELSE (
     ECHO Building without libcurl
-)
-IF EXIST "..\..\..\..\libsodium\builds/msvc/vs2010\libsodium.import.props" (
-    COPY /Y "..\..\..\..\libsodium\builds/msvc/vs2010\libsodium.import.props" . > %log%
-    IF errorlevel 1 GOTO error
-    SET packages=%packages% /p:HAVE_LIBSODIUM=1
-    ECHO Building with libsodium
-) ELSE (
-    ECHO Building without libsodium
 )
 
 ECHO %action% zebra... (%packages%)

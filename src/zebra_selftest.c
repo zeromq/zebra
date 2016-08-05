@@ -30,6 +30,7 @@ all_tests [] = {
     { "zeb_request", zeb_request_test },
     { "zeb_response", zeb_response_test },
     { "zeb_connection", zeb_connection_test },
+    { "zeb_curl_client", zeb_curl_client_test },
 #ifdef ZEBRA_BUILD_DRAFT_API
     { "zeb_client", zeb_client_test },
     { "zeb_handler", zeb_handler_test },
@@ -95,7 +96,7 @@ main (int argc, char **argv)
         else
         if (streq (argv [argn], "--number")
         ||  streq (argv [argn], "-n")) {
-            puts ("9");
+            puts ("10");
             return 0;
         }
         else
@@ -111,6 +112,7 @@ main (int argc, char **argv)
             puts ("    zeb_request");
             puts ("    zeb_response");
             puts ("    zeb_connection");
+            puts ("    zeb_curl_client");
             return 0;
         }
         else

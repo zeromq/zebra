@@ -17,17 +17,19 @@
 @end
 */
 
-#include <curl/curl.h>
 #include "zebra_classes.h"
 
 //  Structure of our class
 
-typedef struct _zeb_curl_client_t {
+struct _zeb_curl_client_t {
+#if defined (HAVE_LIBCURL)
     CURLM *multi_handle;
+#endif
     int still_running;
     char *data;
-} zeb_curl_client_t;
+};
 
+#if defined (HAVE_LIBCURL)
 size_t static
 write_callback_func(void *buffer, size_t size, size_t nmemb, void *userp)
 {
@@ -35,6 +37,7 @@ write_callback_func(void *buffer, size_t size, size_t nmemb, void *userp)
     *response = strndup ((char *) buffer, (size_t) (size * nmemb));
     return nmemb;
 }
+#endif
 
 //  --------------------------------------------------------------------------
 //  Create a new zeb_curl_client.
@@ -42,6 +45,7 @@ write_callback_func(void *buffer, size_t size, size_t nmemb, void *userp)
 zeb_curl_client_t *
 zeb_curl_client_new ()
 {
+#if defined (HAVE_LIBCURL)
     zeb_curl_client_t *self = (zeb_curl_client_t *) zmalloc (sizeof (zeb_curl_client_t));
     assert (self);
 
@@ -50,6 +54,9 @@ zeb_curl_client_new ()
     self->multi_handle = curl_multi_init ();
 
     return self;
+#else
+    return NULL;
+#endif
 }
 
 //  --------------------------------------------------------------------------
@@ -58,6 +65,7 @@ zeb_curl_client_new ()
 void
 zeb_curl_client_destroy (zeb_curl_client_t **self_p)
 {
+#if defined (HAVE_LIBCURL)
     assert (self_p);
     if (*self_p) {
         zeb_curl_client_t *self = *self_p;
@@ -70,6 +78,7 @@ zeb_curl_client_destroy (zeb_curl_client_t **self_p)
         free (self);
         *self_p = NULL;
     }
+#endif
 }
 
 
@@ -79,6 +88,7 @@ zeb_curl_client_destroy (zeb_curl_client_t **self_p)
 void
 zeb_curl_client_send_get (zeb_curl_client_t *self, char *url)
 {
+#if defined (HAVE_LIBCURL)
     CURL *curl = curl_easy_init ();
     assert (curl);
     curl_easy_setopt (curl, CURLOPT_URL, url);
@@ -94,14 +104,16 @@ zeb_curl_client_send_get (zeb_curl_client_t *self, char *url)
     curl_multi_perform (self->multi_handle, &self->still_running);
     //  Cleanup
     curl_slist_free_all (header);
+#endif
 }
 
 //  --------------------------------------------------------------------------
-//  Sends a HTTP GET request to the given URL
+//  Sends a HTTP POST request to the given URL
 
 void
 zeb_curl_client_send_post (zeb_curl_client_t *self, char *url, char *data)
 {
+#if defined (HAVE_LIBCURL)
     CURL *curl = curl_easy_init ();
     assert (curl);
     curl_easy_setopt (curl, CURLOPT_URL, url);
@@ -127,12 +139,75 @@ zeb_curl_client_send_post (zeb_curl_client_t *self, char *url, char *data)
     //  Cleanup
     free (result);
     curl_slist_free_all (header);
+#endif
+}
+
+
+//  --------------------------------------------------------------------------
+//  Sends a HTTP DELETE request to the given URL
+
+void
+zeb_curl_client_send_delete (zeb_curl_client_t *self, char *url)
+{
+#if defined (HAVE_LIBCURL)
+    CURL *curl = curl_easy_init ();
+    assert (curl);
+    curl_easy_setopt (curl, CURLOPT_URL, url);
+    curl_easy_setopt (curl, CURLOPT_CUSTOMREQUEST, "DELETE");
+    curl_easy_setopt (curl, CURLOPT_HEADER, true);
+    //  Set HTTP header
+    struct curl_slist *header = NULL;
+    header = curl_slist_append (header, "User-Agent: curl test client");
+    curl_easy_setopt (curl, CURLOPT_HTTPHEADER, header);
+    //  Send DELETE request
+    curl_multi_add_handle (self->multi_handle, curl);
+    curl_multi_perform (self->multi_handle, &self->still_running);
+    //  Cleanup
+    curl_slist_free_all (header);
+#endif
+}
+
+
+//  --------------------------------------------------------------------------
+//  Sends a HTTP PUT request to the given URL
+
+void
+zeb_curl_client_send_put (zeb_curl_client_t *self, char *url, char *data)
+{
+#if defined (HAVE_LIBCURL)
+    CURL *curl = curl_easy_init ();
+    assert (curl);
+    curl_easy_setopt (curl, CURLOPT_URL, url);
+    curl_easy_setopt (curl, CURLOPT_CUSTOMREQUEST, "PUT");
+    curl_easy_setopt (curl, CURLOPT_POSTFIELDS, data);
+    curl_easy_setopt (curl, CURLOPT_HEADER, true);
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback_func);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &self->data);
+    //  Set HTTP header
+    struct curl_slist *header = NULL;
+    header = curl_slist_append (header, "Content-Type: text/plain");
+    header = curl_slist_append (header, "User-Agent: curl test client");
+    size_t len1 = 16;
+    size_t len2 = strlen (data);
+    char *result = (char *) malloc (len1 + len2 + 1);    //+1 for the zero-terminator
+    assert (result);
+    sprintf (result, "%s%zu", "Content-Length", len2);
+    header = curl_slist_append (header, result);
+    curl_easy_setopt (curl, CURLOPT_HTTPHEADER, header);
+    //  Send POST request
+    curl_multi_add_handle (self->multi_handle, curl);
+    curl_multi_perform (self->multi_handle, &self->still_running);
+    //  Cleanup
+    free (result);
+    curl_slist_free_all (header);
+#endif
 }
 
 
 void
 zeb_curl_client_verify_response (zeb_curl_client_t *self, int status, char *content)
 {
+#if defined (HAVE_LIBCURL)
     do {
         struct timeval timeout;
         int rc; /* select () return code */
@@ -207,13 +282,16 @@ zeb_curl_client_verify_response (zeb_curl_client_t *self, int status, char *cont
             long actual_status;
             curl_easy_getinfo (curl, CURLINFO_RESPONSE_CODE, &actual_status);
             assert (actual_status == status);
-            assert (streq (self->data, content));
+            if (self->data && content)
+                assert (streq (self->data, content));
+
             zstr_free (&self->data);
 
             curl_multi_remove_handle (self->multi_handle, curl);
             curl_easy_cleanup (curl);
         }
     }
+#endif
 }
 
 //  --------------------------------------------------------------------------
@@ -235,10 +313,6 @@ zeb_curl_client_test (bool verbose)
     printf (" * zeb_curl_client: ");
 
     //  @selftest
-    //  Simple create/destroy test
-    zeb_curl_client_t *self = zeb_curl_client_new ();
-    assert (self);
-    zeb_curl_client_destroy (&self);
     //  @end
 
     printf ("OK\n");

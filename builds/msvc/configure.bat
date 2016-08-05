@@ -54,6 +54,7 @@ IF EXIST "..\..\..\libmicrohttpd" (
 ) ELSE (
     ECHO Building without libmicrohttpd
     ECHO zebra cannot build without libmicrohttpd
+    ECHO Please clone , and then configure ^& build
     ECHO TODO: resolve this problem automatically.
     GOTO error
 )
@@ -63,13 +64,6 @@ IF EXIST "..\..\..\libcurl" (
 ) ELSE (
     ECHO Building without libcurl
     ECHO #undef HAVE_LIBCURL>> platform.h
-)
-IF EXIST "..\..\..\libsodium" (
-    ECHO Building with libsodium
-    ECHO #define HAVE_LIBSODIUM 1>> platform.h
-) ELSE (
-    ECHO Building without libsodium
-    ECHO #undef HAVE_LIBSODIUM>> platform.h
 )
 
 :-  Check if we want to build the draft API

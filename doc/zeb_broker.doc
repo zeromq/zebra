@@ -1,4 +1,4 @@
-####  - zebra service broker
+#### zeb_broker - zebra service broker
 
 The zeb_broker implements the zproto server. This broker connects
 client requests to handler offers.
@@ -7,6 +7,7 @@ Please add @discuss section in ../src/zeb_broker.c.
 
 This is the class interface:
 
+```h
     //  To work with zeb_broker, use the CZMQ zactor API:
     //
     //  Create new zeb_broker instance, passing logging prefix:
@@ -63,9 +64,11 @@ This is the class interface:
     //  Self test of this class
     ZEBRA_EXPORT void
         zeb_broker_test (bool verbose);
+```
 
 This is the class self test code:
 
+```c
     zactor_t *server = zactor_new (zeb_broker, "broker");
     if (verbose)
         zstr_send (server, "VERBOSE");
@@ -171,4 +174,5 @@ This is the class self test code:
     zsock_destroy (&client);
     zsock_destroy (&worker);
     zactor_destroy (&server);
+```
 
