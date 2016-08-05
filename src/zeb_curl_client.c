@@ -144,6 +144,31 @@ zeb_curl_client_send_post (zeb_curl_client_t *self, char *url, char *data)
 
 
 //  --------------------------------------------------------------------------
+//  Sends a HTTP DELETE request to the given URL
+
+void
+zeb_curl_client_send_delete (zeb_curl_client_t *self, char *url)
+{
+#if defined (HAVE_LIBCURL)
+    CURL *curl = curl_easy_init ();
+    assert (curl);
+    curl_easy_setopt (curl, CURLOPT_URL, url);
+    curl_easy_setopt (curl, CURLOPT_CUSTOMREQUEST, "DELETE");
+    curl_easy_setopt (curl, CURLOPT_HEADER, true);
+    //  Set HTTP header
+    struct curl_slist *header = NULL;
+    header = curl_slist_append (header, "User-Agent: curl test client");
+    curl_easy_setopt (curl, CURLOPT_HTTPHEADER, header);
+    //  Send DELETE request
+    curl_multi_add_handle (self->multi_handle, curl);
+    curl_multi_perform (self->multi_handle, &self->still_running);
+    //  Cleanup
+    curl_slist_free_all (header);
+#endif
+}
+
+
+//  --------------------------------------------------------------------------
 //  Sends a HTTP PUT request to the given URL
 
 void

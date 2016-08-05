@@ -748,7 +748,7 @@ zeb_microhttpd_test (bool verbose)
     rc = zsock_wait (zeb_microhttpd);             //  Wait until port is configured
     assert (rc == 0);
 
-    zstr_sendx (zeb_microhttpd, "RATELIMIT", "3", "10000", NULL);
+    zstr_sendx (zeb_microhttpd, "RATELIMIT", "5", "10000", NULL);
     rc = zsock_wait (zeb_microhttpd);             //  Wait until port is configured
     assert (rc == 0);
 
@@ -879,6 +879,38 @@ zeb_microhttpd_test (bool verbose)
     xrap_msg = xrap_msg_new (XRAP_MSG_POST_OK);
     xrap_msg_set_status_code (xrap_msg, 200);
     xrap_msg_set_location (xrap_msg, "/foo/bar");
+    xrap_msg_set_etag (xrap_msg, "a3fsd3");
+    xrap_msg_set_date_modified (xrap_msg, 0);
+    response = xrap_msg_encode (&xrap_msg);
+    zeb_client_deliver (handler, zeb_client_sender (handler), &response);
+    sender = zeb_client_sender (handler);
+    zuuid_destroy (&sender);
+
+    //  Give response time to arrive
+    zclock_sleep (250);
+
+    zeb_curl_client_verify_response (curl, 200, NULL);
+    zeb_curl_client_destroy (&curl);
+
+    //  Simple DELETE example
+    //  ------------------
+
+    //  Provide DELETE Offering
+    rc = zeb_client_set_handler (handler, "DELETE", "/foo/{[^/]}");
+    assert (rc == 0);
+
+    curl = zeb_curl_client_new ();
+    zeb_curl_client_send_delete (curl, "http://localhost:8081/foo/bar");
+
+    //  Receive Request
+    request = zeb_client_recv (handler);
+    assert (request);
+    xrap_msg = xrap_msg_decode (&request);
+    assert (xrap_msg_id (xrap_msg) == XRAP_MSG_DELETE);
+
+    //  Send Response
+    xrap_msg = xrap_msg_new (XRAP_MSG_DELETE_OK);
+    xrap_msg_set_status_code (xrap_msg, 200);
     xrap_msg_set_etag (xrap_msg, "a3fsd3");
     xrap_msg_set_date_modified (xrap_msg, 0);
     response = xrap_msg_encode (&xrap_msg);

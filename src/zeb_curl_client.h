@@ -40,6 +40,10 @@ ZEBRA_EXPORT void
 ZEBRA_EXPORT void
     zeb_curl_client_send_put (zeb_curl_client_t *self, char *url, char *data);
 
+//  Sends a HTTP DELETE request to the given URL
+ZEBRA_EXPORT void
+    zeb_curl_client_send_delete (zeb_curl_client_t *self, char *url);
+
 ZEBRA_EXPORT void
     zeb_curl_client_verify_response (zeb_curl_client_t *self, int status, char *content);
 
