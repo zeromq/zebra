@@ -83,7 +83,7 @@ s_handler_new (zsock_t *pipe, char *endpoint)
     self->verbose = false;
     //  Initialize properties
     self->client = zeb_client_new ();
-    int rc = zeb_client_connect (self->client, endpoint, 1000, "zeb_handler");
+    int rc = zeb_client_connect (self->client, endpoint, 0, "zeb_handler");
     assert (rc == 0);
     self->offers = ztrie_new ('/');
 
