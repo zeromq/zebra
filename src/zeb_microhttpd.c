@@ -444,7 +444,7 @@ answer_to_connection (void *cls,
                 zeb_request_set_data (request,  data, *uploaded_data_size);
             }
             else {
-                data = (char *) realloc (data, zeb_request_data_size (request) * (*uploaded_data_size) + 1); //  +1 for \0
+                data = (char *) realloc (data, zeb_request_data_size (request) + (*uploaded_data_size) + 1); //  +1 for \0
                 assert (data);
                 //  Copy data fragment to re-allocated data string
                 char *data_p = strncat (data, uploaded_data, *uploaded_data_size);
