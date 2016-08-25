@@ -907,6 +907,7 @@ zeb_microhttpd_test (bool verbose)
     assert (request);
     xrap_msg = xrap_msg_decode (&request);
     assert (xrap_msg_id (xrap_msg) == XRAP_MSG_DELETE);
+    xrap_msg_destroy (&xrap_msg);
 
     //  Send Response
     xrap_msg = xrap_msg_new (XRAP_MSG_DELETE_OK);
